@@ -1,0 +1,58 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: ptypy-workflow
+  namespace: mg36964-1
+spec:
+  entrypoint: ptypy-test-with-cli
+  volumeClaimTemplates:
+  - metadata:
+      name: tmpdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: local-path
+  templates:
+  - name: ptypy-test-with-cli
+    inputs:
+      parameters:
+      - name: config
+      - name: id
+      - name: output
+    container:
+      image: gcr.io/diamond-privreg/ptypy/test_with_cli:0.1
+      env:
+        - name: CUPY_CACHE_DIR
+          value: /tmp/.cupy/kernel_cache
+      command:
+      - ptypy.cli
+      args: ["-j", "{{ inputs.parameters.config }}", "-i", "{{ inputs.parameters.id }}", "-o", "{{ inputs.parameters.output }}", "-s", "hdf5_loader", "-b", "cupy"]
+      volumeMounts:
+        - name: session
+          mountPath: /dls/i08-1/data/2024/mg36964-1
+        - name: tmpdir
+          mountPath: /tmp
+      resources:
+        requests:
+          cpu: 1
+          memory: 20Gi
+          nvidia.com/gpu: "1"
+        limits:
+          cpu: 1
+          memory: 50Gi
+          nvidia.com/gpu: "1"
+    tolerations:
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule
+    - key: nodetype
+      operator: Equal
+      value: gpu
+      effect: NoSchedule
+    volumes:
+    - name: session
+      hostPath:
+        path: /dls/i08-1/data/2024/mg36964-1
+        type: Directory
