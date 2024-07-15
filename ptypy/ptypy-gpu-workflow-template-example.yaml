@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  generateName: ptypy-
+  name: ptypy-example
 spec:
   entrypoint: ptypy-test-with-cli
   volumeClaimTemplates:
@@ -37,7 +37,7 @@ spec:
       args: ["-j", "{{ inputs.parameters.config }}", "-i", "{{ inputs.parameters.id }}", "-o", "{{ inputs.parameters.output }}", "-s", "hdf5_loader", "-b", "cupy"]
       volumeMounts:
         - name: session
-          mountPath: {{ workflow.parameters.visitdir }}
+          mountPath: "{{ workflow.parameters.visitdir }}"
         - name: tmpdir
           mountPath: /tmp
       resources:
@@ -60,5 +60,5 @@ spec:
     volumes:
     - name: session
       hostPath:
-        path:  {{ workflow.parameters.visitdir }}
+        path:  "{{ workflow.parameters.visitdir }}"
         type: Directory
