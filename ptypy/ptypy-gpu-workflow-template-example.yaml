@@ -1,8 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
-  name: ptypy-workflow
-  namespace: mg36964-1
+  generateName: ptypy-
 spec:
   entrypoint: ptypy-test-with-cli
   volumeClaimTemplates:
@@ -14,6 +13,13 @@ spec:
         requests:
           storage: 1Gi
       storageClassName: local-path
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
   templates:
   - name: ptypy-test-with-cli
     inputs:
@@ -31,7 +37,7 @@ spec:
       args: ["-j", "{{ inputs.parameters.config }}", "-i", "{{ inputs.parameters.id }}", "-o", "{{ inputs.parameters.output }}", "-s", "hdf5_loader", "-b", "cupy"]
       volumeMounts:
         - name: session
-          mountPath: /dls/i08-1/data/2024/mg36964-1
+          mountPath: {{ workflow.parameters.visitdir }}
         - name: tmpdir
           mountPath: /tmp
       resources:
@@ -54,5 +60,5 @@ spec:
     volumes:
     - name: session
       hostPath:
-        path: /dls/i08-1/data/2024/mg36964-1
+        path:  {{ workflow.parameters.visitdir }}
         type: Directory
