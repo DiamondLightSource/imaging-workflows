@@ -1,9 +1,9 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: ptypy-example
+  name: ptypy-cpu-job
 spec:
-  entrypoint: ptypy-test-with-cli
+  entrypoint: ptypy-run
   volumeClaimTemplates:
   - metadata:
       name: tmpdir
@@ -21,20 +21,22 @@ spec:
           name: sessionspaces
           key: data_directory
   templates:
-  - name: ptypy-test-with-cli
+  - name: ptypy-run
     inputs:
       parameters:
       - name: config
       - name: id
       - name: output
+        value: /tmp/output
+      - name: nprocs
+        value: 1
+      - name: memory
+        value: 20Gi
     container:
       image: gcr.io/diamond-privreg/ptypy/test_with_cli:0.1
-      env:
-        - name: CUPY_CACHE_DIR
-          value: /tmp/.cupy/kernel_cache
       command:
-      - ptypy.cli
-      args: ["-j", "{{ inputs.parameters.config }}", "-i", "{{ inputs.parameters.id }}", "-o", "{{ inputs.parameters.output }}", "-s", "hdf5_loader", "-b", "cupy"]
+      - mpirun
+      args: ["-n", "{{ inputs.parameters.nprocs }}", "ptypy.cli", "-j", "{{ inputs.parameters.config }}", "-i", "{{ inputs.parameters.id }}", "-o", "{{ inputs.parameters.output }}", "-s", "hdf5_loader"]
       volumeMounts:
         - name: session
           mountPath: "{{ workflow.parameters.visitdir }}"
@@ -42,21 +44,11 @@ spec:
           mountPath: /tmp
       resources:
         requests:
-          cpu: 1
-          memory: 20Gi
-          nvidia.com/gpu: "1"
+          cpu: "{{ inputs.parameters.nprocs }}"
+          memory: "{{ inputs.parameters.memory }}"
         limits:
-          cpu: 1
-          memory: 50Gi
-          nvidia.com/gpu: "1"
-    tolerations:
-    - key: nvidia.com/gpu
-      operator: Exists
-      effect: NoSchedule
-    - key: nodetype
-      operator: Equal
-      value: gpu
-      effect: NoSchedule
+          cpu: "{{ inputs.parameters.nprocs }}"
+          memory: "{{ inputs.parameters.memory }}"
     volumes:
     - name: session
       hostPath:
