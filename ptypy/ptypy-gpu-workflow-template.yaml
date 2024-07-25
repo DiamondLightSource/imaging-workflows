@@ -45,15 +45,18 @@ spec:
           mountPath: "{{ workflow.parameters.visitdir }}"
         - name: tmpdir
           mountPath: /tmp
-      resources:
-        requests:
-          cpu: "{{ inputs.parameters.nprocs }}"
-          memory: "{{ inputs.parameters.memory }}"
-          nvidia.com/gpu: "{{ inputs.parameters.nprocs }}"
-        limits:
-          cpu: "{{ inputs.parameters.nprocs }}"
-          memory: "{{ inputs.parameters.memory }}"
-          nvidia.com/gpu: "{{ inputs.parameters.nprocs }}"
+      podSpecPath: |
+        containers:
+          - name: main
+            resources:           
+              requests:
+                cpu: "{{ inputs.parameters.nprocs }}"
+                memory: "{{ inputs.parameters.memory }}"
+                nvidia.com/gpu: "{{ inputs.parameters.nprocs }}"
+              limits:
+                cpu: "{{ inputs.parameters.nprocs }}"
+                memory: "{{ inputs.parameters.memory }}"
+                nvidia.com/gpu: "{{ inputs.parameters.nprocs }}"
     tolerations:
     - key: nvidia.com/gpu
       operator: Exists

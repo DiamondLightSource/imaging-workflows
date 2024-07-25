@@ -42,13 +42,16 @@ spec:
           mountPath: "{{ workflow.parameters.visitdir }}"
         - name: tmpdir
           mountPath: /tmp
-      resources:
-        requests:
-          cpu: "{{ inputs.parameters.nprocs }}"
-          memory: "{{ inputs.parameters.memory }}"
-        limits:
-          cpu: "{{ inputs.parameters.nprocs }}"
-          memory: "{{ inputs.parameters.memory }}"
+      podSpecPath: |
+        containers:
+          - name: main
+            resources:           
+              requests:
+                cpu: "{{ inputs.parameters.nprocs }}"
+                memory: "{{ inputs.parameters.memory }}"
+              limits:
+                cpu: "{{ inputs.parameters.nprocs }}"
+                memory: "{{ inputs.parameters.memory }}"
     volumes:
     - name: session
       hostPath:
