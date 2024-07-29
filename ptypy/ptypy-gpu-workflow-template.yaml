@@ -45,7 +45,7 @@ spec:
           mountPath: "{{ workflow.parameters.visitdir }}"
         - name: tmpdir
           mountPath: /tmp
-      podSpecPath: |
+      podSpecPatch: |
         containers:
           - name: main
             resources:           
