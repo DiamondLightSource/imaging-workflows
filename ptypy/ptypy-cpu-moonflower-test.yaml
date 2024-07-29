@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: ptypy-cpu-moonflower-test
+  name: ptypy-cpu-moonflower-benchmark
 spec:
   entrypoint: ptypy-run
   volumeClaimTemplates:
@@ -29,10 +29,10 @@ spec:
       - name: memory
         value: 20Gi
     container:
-      image: gcr.io/diamond-privreg/ptypy/test_with_cli:0.1
+      image: gcr.io/diamond-privreg/ptypy/test_with_cli:0.2
       command:
       - mpirun
-      args: ["-n", "{{ inputs.parameters.nprocs }}", "python", "templates/ptypy_minimal_prep_and_run.py"] 
+      args: ["-n", "{{ inputs.parameters.nprocs }}", "python", "benchmark/ptypy_minimal_prep_and_run.py"]
       volumeMounts:
         - name: session
           mountPath: "{{ workflow.parameters.visitdir }}"
