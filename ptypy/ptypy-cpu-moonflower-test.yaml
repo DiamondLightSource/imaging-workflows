@@ -29,7 +29,7 @@ spec:
       - name: memory
         value: 20Gi
     container:
-      image: gcr.io/diamond-privreg/ptypy/test_with_cli:0.2
+      image: gcr.io/diamond-privreg/ptypy/test_with_cli:0.3
       command:
       - mpirun
       args: ["-n", "{{ inputs.parameters.nprocs }}", "python", "benchmark/ptypy_minimal_prep_and_run.py"]
