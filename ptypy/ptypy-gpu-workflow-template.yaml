@@ -41,22 +41,22 @@ spec:
       - mpirun
       args: ["-n", "{{ inputs.parameters.nprocs }}", "ptypy.cli", "-j", "{{ inputs.parameters.config }}", "-i", "{{ inputs.parameters.id }}", "-o", "{{ inputs.parameters.output }}", "-s", "hdf5_loader", "-b", "cupy"]
       volumeMounts:
-        - name: session
-          mountPath: "{{ workflow.parameters.visitdir }}"
-        - name: tmpdir
-          mountPath: /tmp
+      - name: session
+        mountPath: "{{ workflow.parameters.visitdir }}"
+      - name: tmpdir
+        mountPath: /tmp
     podSpecPatch: |
       containers:
-        - name: main
-          resources:
-            requests:
-              cpu: "{{ inputs.parameters.nprocs }}"
-              memory: "{{ inputs.parameters.memory }}"
-              nvidia.com/gpu: "{{ inputs.parameters.nprocs }}"
-            limits:
-              cpu: "{{ inputs.parameters.nprocs }}"
-              memory: "{{ inputs.parameters.memory }}"
-              nvidia.com/gpu: "{{ inputs.parameters.nprocs }}"
+      - name: main
+        resources:
+          requests:
+            cpu: "{{ inputs.parameters.nprocs }}"
+            memory: "{{ inputs.parameters.memory }}"
+            nvidia.com/gpu: "{{ inputs.parameters.nprocs }}"
+          limits:
+            cpu: "{{ inputs.parameters.nprocs }}"
+            memory: "{{ inputs.parameters.memory }}"
+            nvidia.com/gpu: "{{ inputs.parameters.nprocs }}"
     tolerations:
     - key: nvidia.com/gpu
       operator: Exists

@@ -38,20 +38,20 @@ spec:
       - mpirun
       args: ["-n", "{{ inputs.parameters.nprocs }}", "ptypy.cli", "-j", "{{ inputs.parameters.config }}", "-i", "{{ inputs.parameters.id }}", "-o", "{{ inputs.parameters.output }}", "-s", "hdf5_loader"]
       volumeMounts:
-        - name: session
-          mountPath: "{{ workflow.parameters.visitdir }}"
-        - name: tmpdir
-          mountPath: /tmp
+      - name: session
+        mountPath: "{{ workflow.parameters.visitdir }}"
+      - name: tmpdir
+        mountPath: /tmp
     podSpecPatch: |
       containers:
-        - name: main
-          resources:
-            requests:
-              cpu: "{{ inputs.parameters.nprocs }}"
-              memory: "{{ inputs.parameters.memory }}"
-            limits:
-              cpu: "{{ inputs.parameters.nprocs }}"
-              memory: "{{ inputs.parameters.memory }}"
+      - name: main
+        resources:
+          requests:
+            cpu: "{{ inputs.parameters.nprocs }}"
+            memory: "{{ inputs.parameters.memory }}"
+          limits:
+            cpu: "{{ inputs.parameters.nprocs }}"
+            memory: "{{ inputs.parameters.memory }}"
     volumes:
     - name: session
       hostPath:

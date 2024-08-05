@@ -39,31 +39,31 @@ spec:
       command:
       - mpirun
       args:
-        - "-n"
-        - "{{ inputs.parameters.nprocs }}"
-        - "python"
-        - "benchmark/ptypy_moonflower_script_numpy.py"
-        - "-n"
-        - "{{ inputs.parameters.nframes }}"
-        - "-s"
-        - "{{ inputs.parameters.shape }}"
-        - "-i"
-        - "{{ inputs.parameters.iterations }}"
+      - "-n"
+      - "{{ inputs.parameters.nprocs }}"
+      - "python"
+      - "benchmark/ptypy_moonflower_script_numpy.py"
+      - "-n"
+      - "{{ inputs.parameters.nframes }}"
+      - "-s"
+      - "{{ inputs.parameters.shape }}"
+      - "-i"
+      - "{{ inputs.parameters.iterations }}"
       volumeMounts:
-        - name: session
-          mountPath: "{{ workflow.parameters.visitdir }}"
-        - name: tmpdir
-          mountPath: /tmp
+      - name: session
+        mountPath: "{{ workflow.parameters.visitdir }}"
+      - name: tmpdir
+        mountPath: /tmp
     podSpecPatch: |
       containers:
-        - name: main
-          resources:
-            requests:
-              cpu: "{{ inputs.parameters.nprocs }}"
-              memory: "{{ inputs.parameters.memory }}"
-            limits:
-              cpu: "{{ inputs.parameters.nprocs }}"
-              memory: "{{ inputs.parameters.memory }}"
+      - name: main
+        resources:
+          requests:
+            cpu: "{{ inputs.parameters.nprocs }}"
+            memory: "{{ inputs.parameters.memory }}"
+          limits:
+            cpu: "{{ inputs.parameters.nprocs }}"
+            memory: "{{ inputs.parameters.memory }}"
     volumes:
     - name: session
       hostPath:
