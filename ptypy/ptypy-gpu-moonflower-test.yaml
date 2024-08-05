@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: ptypy-gpu-job
+  name: ptypy-gpu-moonflower-benchmark
 spec:
   entrypoint: ptypy-run
   volumeClaimTemplates:
@@ -24,22 +24,38 @@ spec:
   - name: ptypy-run
     inputs:
       parameters:
-      - name: config
-      - name: id
-      - name: output
-        value: /tmp/output
+      - name: nframes
+        value: 100
+      - name: shape
+        value: 128
+      - name: iterations
+        value: 100
+      - name: fftlib
+        value: cupy
       - name: nprocs
         value: 1
       - name: memory
         value: 20Gi
     container:
-      image: gcr.io/diamond-privreg/ptypy/test_openmpi_cupy:0.1
+      image: gcr.io/diamond-privreg/ptypy/test_openmpi_cupy:0.3
       env:
       - name: CUPY_CACHE_DIR
         value: /tmp/.cupy/kernel_cache
       command:
       - mpirun
-      args: ["-n", "{{ inputs.parameters.nprocs }}", "ptypy.cli", "-j", "{{ inputs.parameters.config }}", "-i", "{{ inputs.parameters.id }}", "-o", "{{ inputs.parameters.output }}", "-s", "hdf5_loader", "-b", "cupy"]
+      args:
+        - "-n"
+        - "{{ inputs.parameters.nprocs }}"
+        - "python"
+        - "benchmark/ptypy_moonflower_script_cupy.py"
+        - "-n"
+        - "{{ inputs.parameters.nframes }}"
+        - "-s"
+        - "{{ inputs.parameters.shape }}"
+        - "-i"
+        - "{{ inputs.parameters.iterations }}"
+        - "-f"
+        - "{{ inputs.parameters.fftlib }}"
       volumeMounts:
         - name: session
           mountPath: "{{ workflow.parameters.visitdir }}"

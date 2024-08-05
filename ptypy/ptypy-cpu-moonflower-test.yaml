@@ -24,15 +24,31 @@ spec:
   - name: ptypy-run
     inputs:
       parameters:
+      - name: nframes
+        value: 100
+      - name: shape
+        value: 128
+      - name: iterations
+        value: 100
       - name: nprocs
         value: 1
       - name: memory
         value: 20Gi
     container:
-      image: gcr.io/diamond-privreg/ptypy/test_with_cli:0.3
+      image: gcr.io/diamond-privreg/ptypy/test_openmpi_full:0.3
       command:
       - mpirun
-      args: ["-n", "{{ inputs.parameters.nprocs }}", "python", "benchmark/ptypy_minimal_prep_and_run.py"]
+      args:
+        - "-n"
+        - "{{ inputs.parameters.nprocs }}"
+        - "python"
+        - "benchmark/ptypy_moonflower_script_numpy.py"
+        - "-n"
+        - "{{ inputs.parameters.nframes }}"
+        - "-s"
+        - "{{ inputs.parameters.shape }}"
+        - "-i"
+        - "{{ inputs.parameters.iterations }}"
       volumeMounts:
         - name: session
           mountPath: "{{ workflow.parameters.visitdir }}"
