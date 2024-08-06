@@ -37,7 +37,7 @@ spec:
       - name: memory
         value: 20Gi
     container:
-      image: gcr.io/diamond-privreg/ptypy/test_openmpi_cupy:0.3
+      image: gcr.io/diamond-privreg/ptypy/test_openmpi_cupy:0.1
       env:
       - name: CUPY_CACHE_DIR
         value: /tmp/.cupy/kernel_cache

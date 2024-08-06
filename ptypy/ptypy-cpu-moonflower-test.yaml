@@ -35,7 +35,7 @@ spec:
       - name: memory
         value: 20Gi
     container:
-      image: gcr.io/diamond-privreg/ptypy/test_openmpi_full:0.3
+      image: gcr.io/diamond-privreg/ptypy/test_openmpi_full:0.1
       command:
       - mpirun
       args:
