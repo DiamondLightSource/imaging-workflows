@@ -64,6 +64,10 @@ spec:
         mountPath: "{{ workflow.parameters.visitdir }}"
       - name: tmpdir
         mountPath: /tmp
+    sidecars:
+    - name: benchmark
+      image: busybox
+      command: ["cat", "/proc/cpuinfo"]
     podSpecPatch: |
       containers:
       - name: main
