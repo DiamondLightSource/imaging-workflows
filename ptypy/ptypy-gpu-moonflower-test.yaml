@@ -32,6 +32,9 @@ spec:
         value: 100
       - name: fftlib
         value: cupy
+        enum:
+        - cupy
+        - cuda
       - name: nprocs
         value: 1
       - name: memory
