@@ -43,7 +43,18 @@ spec:
         value: "1"
       command:
       - mpirun
-      args: ["-n", "{{ inputs.parameters.nprocs }}", "ptypy.cli", "-j", "{{ inputs.parameters.config }}", "-i", "{{ inputs.parameters.id }}", "-o", "{{ inputs.parameters.output }}", "-s", "hdf5_loader"]
+      args:
+      - "-n"
+      - "{{ inputs.parameters.nprocs }}"
+      - "ptypy.cli"
+      - "-j"
+      - "{{ inputs.parameters.config }}"
+      - "-i"
+      - "{{ inputs.parameters.id }}"
+      - "-o"
+      - "{{ inputs.parameters.output }}"
+      - "-s"
+      - "hdf5_loader"
       volumeMounts:
       - name: session
         mountPath: "{{ workflow.parameters.visitdir }}"
