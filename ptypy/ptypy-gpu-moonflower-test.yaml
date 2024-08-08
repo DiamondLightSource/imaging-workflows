@@ -44,6 +44,12 @@ spec:
       env:
       - name: CUPY_CACHE_DIR
         value: /tmp/.cupy/kernel_cache
+      - name: MKL_NUM_THREADS
+        value: "1"
+      - name: NUMEXPR_NUM_THREADS
+        value: "1"
+      - name: OMP_NUM_THREADS
+        value: "1"
       command:
       - mpirun
       args:

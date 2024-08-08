@@ -15,15 +15,17 @@ spec:
     script:
       image: gcr.io/diamond-privreg/ptypy/test_openmpi_full:0.1
       command: ["python"]
+      env:
+      - name: MKL_NUM_THREADS
+        value: "1"
+      - name: NUMEXPR_NUM_THREADS
+        value: "1"
+      - name: OMP_NUM_THREADS
+        value: "1"
       source: |
         import numpy as np
         import time
-        import os
         
-        os.environ["MKL_NUM_THREADS"] = "1"
-        os.environ["NUMEXPR_NUM_THREADS"] = "1"
-        os.environ["OMP_NUM_THREADS"] = "1"
-                
         n = int("{{ inputs.parameters.size }}")
         A = np.random.randn(n,n).astype('float64')
         B = np.random.randn(n,n).astype('float64')

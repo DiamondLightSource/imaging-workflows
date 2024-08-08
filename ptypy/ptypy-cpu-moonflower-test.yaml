@@ -36,6 +36,13 @@ spec:
         value: 20Gi
     container:
       image: gcr.io/diamond-privreg/ptypy/test_openmpi_full:0.1
+      env:
+      - name: MKL_NUM_THREADS
+        value: "1"
+      - name: NUMEXPR_NUM_THREADS
+        value: "1"
+      - name: OMP_NUM_THREADS
+        value: "1"
       command:
       - mpirun
       args:
