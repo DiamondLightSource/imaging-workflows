@@ -18,6 +18,12 @@ spec:
       source: |
         import numpy as np
         import time
+        import os
+        
+        os.environ["MKL_NUM_THREADS"] = "1"
+        os.environ["NUMEXPR_NUM_THREADS"] = "1"
+        os.environ["OMP_NUM_THREADS"] = "1"
+                
         n = int("{{ inputs.parameters.size }}")
         A = np.random.randn(n,n).astype('float64')
         B = np.random.randn(n,n).astype('float64')
