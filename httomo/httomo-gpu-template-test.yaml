@@ -1,0 +1,86 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: httomo-gpu-job
+spec:
+  entrypoint: httomo-run
+  volumeClaimTemplates:
+  - metadata:
+      name: tmpdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: local-path
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+  templates:
+  - name: httomo-run
+    inputs:
+      parameters:
+      - name: configfile
+      - name: input
+      - name: output
+      - name: nprocs
+        value: 1
+      - name: memory
+        value: 20Gi
+    container:
+      image: gcr.io/diamond-privreg/httomo/test:0.2
+      env:
+      - name: CUPY_CACHE_DIR
+        value: /tmp/.cupy/kernel_cache
+      - name: MKL_NUM_THREADS
+        value: "1"
+      - name: NUMEXPR_NUM_THREADS
+        value: "1"
+      - name: OMP_NUM_THREADS
+        value: "1"
+      command:
+      - mpirun
+      args:
+      - "-n"
+      - "{{ inputs.parameters.nprocs }}"
+      - "python"
+      - "-m"
+      - "httomo"
+      - "run"
+      - "{{ inputs.parameters.input }}"
+      - "{{ inputs.parameters.configfile }}"
+      - "{{ inputs.parameters.output }}"
+      volumeMounts:
+      - name: session
+        mountPath: "{{ workflow.parameters.visitdir }}"
+      - name: tmpdir
+        mountPath: /tmp
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{ inputs.parameters.nprocs }}"
+            memory: "{{ inputs.parameters.memory }}"
+            nvidia.com/gpu: "{{ inputs.parameters.nprocs }}"
+          limits:
+            cpu: "{{ inputs.parameters.nprocs }}"
+            memory: "{{ inputs.parameters.memory }}"
+            nvidia.com/gpu: "{{ inputs.parameters.nprocs }}"
+    tolerations:
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule
+    - key: nodetype
+      operator: Equal
+      value: gpu
+      effect: NoSchedule
+    volumes:
+    - name: session
+      hostPath:
+        path:  "{{ workflow.parameters.visitdir }}"
+        type: Directory
