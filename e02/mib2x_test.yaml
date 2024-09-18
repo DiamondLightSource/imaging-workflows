@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: e02-mib2x
+spec:
+  entrypoint: mib2x
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+  templates:
+  - name: mib2x
+    inputs:
+      parameters:
+      - name: config
+    container:
+      image: gcr.io/diamond-privreg/e02/mib2x:1.0
+      command: [python]
+      args:
+      - "mib_convert.py"
+      - "{{ inputs.parameters.config }}"
+      volumeMounts:
+      - name: session
+        mountPath: "{{ workflow.parameters.visitdir }}"
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "8"
+            memory: "16Gi"
+          limits:
+            cpu: "8"
+            memory: "16Gi"
+    volumes:
+    - name: session
+      hostPath:
+        path:  "{{ workflow.parameters.visitdir }}"
+        type: Directory
