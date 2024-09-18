@@ -22,6 +22,7 @@ spec:
         value: 16Gi
     container:
       image: gcr.io/diamond-privreg/e02/mib2x:1.0
+      imagePullPolicy: Always
       env:
       - name: BLOSC_NTHREADS
         value: "{{ inputs.parameters.nprocs }}"
