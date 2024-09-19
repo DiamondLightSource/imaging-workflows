@@ -54,3 +54,17 @@ spec:
       hostPath:
         path:  "{{ workflow.parameters.visitdir }}"
         type: Directory
+    tolerations:
+    - key: nodetype
+      operator: Equal
+      value: cs05r_gpfs
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          preference:
+            matchExpressions:
+            - key: has_gpfs03
+              operator: In
+              values:
+              - "true"
