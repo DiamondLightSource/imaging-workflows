@@ -16,6 +16,23 @@ spec:
     inputs:
       parameters:
       - name: config
+        value: |
+          {
+            "mib_path": "",
+            "no_reshaping": 0,
+            "use_fly_back": 1,
+            "known_shape": 0,
+            "Scan_X": 256,
+            "Scan_Y": 256,
+            "iBF": 1,
+            "bin_sig_flag": 1,
+            "bin_sig_factor": 4,
+            "bin_nav_flag": 1,
+            "bin_nav_factor": 4,
+            "create_json": 1,
+            "ptycho_config": "",
+            "ptycho_template": ""
+          }
       - name: nprocs
         value: 8
       - name: memory
@@ -54,3 +71,17 @@ spec:
       hostPath:
         path:  "{{ workflow.parameters.visitdir }}"
         type: Directory
+    tolerations:
+    - key: nodetype
+      operator: Equal
+      value: cs05r_gpfs
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          preference:
+            matchExpressions:
+            - key: has_gpfs03
+              operator: In
+              values:
+              - "true"
