@@ -20,6 +20,8 @@ spec:
         value: 8
       - name: memory
         value: 16Gi
+      - name: DEBUG
+        value: 1
     container:
       image: gcr.io/diamond-privreg/e02/mib2x:1.0
       imagePullPolicy: Always
@@ -28,6 +30,8 @@ spec:
         value: "{{ inputs.parameters.nprocs }}"
       - name: OMP_NUM_THREADS
         value: "{{ inputs.parameters.nprocs }}"
+      - name: M2X_DEBUG
+        value: "{{ inputs.parameters.DEBUG }}"
       command: [python]
       args:
       - "mib_convert.py"
