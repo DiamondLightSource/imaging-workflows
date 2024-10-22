@@ -2,6 +2,34 @@ apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
   name: ptypy-cpu-job
+  annotations:
+    workflows.argoproj.io/title: PtyPy CPU Job Submitter
+    workflows.argoproj.io/description: |
+      Runs a PtyPy reconstruction job inside a container.
+    workflows.diamond.ac.uk/parameter-schema.config: |
+    {{- .Files.Get "schema/ptypy_moonflower.json" | nindent 6 }}
+    workflows.diamond.ac.uk/parameter-schema.id: |
+      {
+        "type": "string",
+      }
+    workflows.diamond.ac.uk/parameter-schema.output: |
+      {
+        "type": "string",
+        "default": "/tmp/output"
+      }
+    workflows.diamond.ac.uk/parameter-schema.nprocs: |
+      {
+        "type": "integer",
+        "default": 1
+      }
+    workflows.diamond.ac.uk/parameter-schema.memory: |
+      {
+        "type": "string",
+        "pattern": "^[0-9]+[GMK]i$",
+        "default": "20Gi"
+      }
+    workflows.diamond.ac.uk/ui-schema: |
+    {{- .Files.Get "schema/ptypy_moonflower_ui.json" | nindent 6 }}
 spec:
   entrypoint: ptypy-run
   volumeClaimTemplates:

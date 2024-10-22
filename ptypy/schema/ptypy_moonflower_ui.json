@@ -1,0 +1,144 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Group",
+      "label": "Basics",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/verbose_level"
+            },
+            {
+              "type": "Control",
+              "label": "Interaction",
+              "scope": "#/properties/io/properties/interaction/properties/active",
+              "options": {
+                "toggle": true
+              }
+            },
+            {
+              "type": "Control",
+              "label": "Autosave",
+              "scope": "#/properties/io/properties/autosave/properties/active",
+              "options": {
+                "toggle": true
+              } 
+            },
+            {
+              "type": "Control",
+              "label": "Autoplot",
+              "scope": "#/properties/io/properties/autoplot/properties/active",
+              "options": {
+                "toggle": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "MoonFlower Scan",
+      "elements": [
+        {
+          "type": "VerticalLayout",
+          "elements": [
+            {
+              "type": "HorizontalLayout",
+              "elements": [
+                {
+                  "type": "Control",
+                  "scope": "#/properties/scans/properties/MF/properties/data/properties/shape"
+                },
+                {
+                  "type": "Control",
+                  "scope": "#/properties/scans/properties/MF/properties/data/properties/num_frames"
+                },
+                {
+                  "type": "Control",
+                  "scope": "#/properties/scans/properties/MF/properties/data/properties/save"
+                }
+              ]
+            },
+            {
+              "type": "HorizontalLayout",
+              "elements": [
+                {
+                  "type": "Control",
+                  "scope": "#/properties/scans/properties/MF/properties/data/properties/density"
+                },
+                {
+                  "type": "Control",
+                  "scope": "#/properties/scans/properties/MF/properties/data/properties/photons"
+                },
+                {
+                  "type": "Control",
+                  "scope": "#/properties/scans/properties/MF/properties/data/properties/psf"
+                }
+              ]
+            }
+          ]
+        }
+        
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "Difference Map Engine",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/engines/properties/engine00/properties/numiter"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/engines/properties/engine00/properties/numiter_contiguous"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/engines/properties/engine00/properties/probe_support"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/engines/properties/engine00/properties/probe_fourier_support"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "Workflow Parameters",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/id"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/output"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/nprocs"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/memory"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
