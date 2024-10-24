@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: ptypy-cpu-job
+  name: ptypy-gpu-job
 spec:
   entrypoint: ptypy-run
   volumeClaimTemplates:
@@ -33,8 +33,10 @@ spec:
       - name: memory
         value: 20Gi
     container:
-      image: gcr.io/diamond-privreg/ptypy/test_openmpi_full:0.1
+      image: gcr.io/diamond-privreg/ptypy/test_openmpi_cupy:0.1
       env:
+      - name: CUPY_CACHE_DIR
+        value: /tmp/.cupy/kernel_cache
       - name: MKL_NUM_THREADS
         value: "1"
       - name: NUMEXPR_NUM_THREADS
@@ -45,19 +47,21 @@ spec:
       - mpirun
       args:
       - "-n"
-      - "{{ inputs.parameters.nprocs }}"
+      - "{{`{{ inputs.parameters.nprocs }}`}}"
       - "ptypy.cli"
       - "-j"
-      - "{{ inputs.parameters.config }}"
+      - "{{`{{ inputs.parameters.config }}`}}"
       - "-i"
-      - "{{ inputs.parameters.id }}"
+      - "{{`{{ inputs.parameters.id }}`}}"
       - "-o"
-      - "{{ inputs.parameters.output }}"
+      - "{{`{{ inputs.parameters.output }}`}}"
       - "-s"
       - "hdf5_loader"
+      - "-b"
+      - "cupy"
       volumeMounts:
       - name: session
-        mountPath: "{{ workflow.parameters.visitdir }}"
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmpdir
         mountPath: /tmp
     podSpecPatch: |
@@ -65,13 +69,23 @@ spec:
       - name: main
         resources:
           requests:
-            cpu: "{{ inputs.parameters.nprocs }}"
-            memory: "{{ inputs.parameters.memory }}"
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
           limits:
-            cpu: "{{ inputs.parameters.nprocs }}"
-            memory: "{{ inputs.parameters.memory }}"
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+    tolerations:
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule
+    - key: nodetype
+      operator: Equal
+      value: gpu
+      effect: NoSchedule
     volumes:
     - name: session
       hostPath:
-        path:  "{{ workflow.parameters.visitdir }}"
+        path:  "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory

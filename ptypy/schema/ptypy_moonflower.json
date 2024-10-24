@@ -1,0 +1,943 @@
+{
+  "$defs": {
+    "Aperture": {
+      "properties": {
+        "rotate": {
+          "default": 0,
+          "description": "Rotate aperture by this value",
+          "title": "Rotate",
+          "type": "number"
+        },
+        "central_stop": {
+          "default": null,
+          "description": "Size of central stop as a fraction of aperture.size",
+          "title": "Central Stop",
+          "type": "number"
+        },
+        "edge": {
+          "default": 2.0,
+          "description": "Edge width of aperture (in pixels!)",
+          "title": "Edge",
+          "type": "number"
+        },
+        "form": {
+          "$ref": "#/$defs/ApertureForm",
+          "default": "circ",
+          "description": "One of None, 'rect' or 'circ'",
+          "title": "Form"
+        },
+        "offset": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            }
+          ],
+          "default": 0,
+          "description": "Offset between center of aperture and optical axes",
+          "title": "Offset"
+        },
+        "size": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            }
+          ],
+          "default": null,
+          "description": "Aperture width or diameter",
+          "title": "Size"
+        }
+      },
+      "title": "Aperture",
+      "type": "object"
+    },
+    "ApertureForm": {
+      "enum": [
+        "circ",
+        "rect",
+        "None"
+      ],
+      "title": "ApertureForm",
+      "type": "string"
+    },
+    "BlockVanilla": {
+      "properties": {
+        "propagation": {
+          "$ref": "#/$defs/Propagation",
+          "default": "farfield",
+          "description": "Either 'farfield' or 'nearfield'",
+          "user_level": 1
+        },
+        "ffttype": {
+          "$ref": "#/$defs/FFTtype",
+          "default": "scipy",
+          "description": "FFT library",
+          "title": "FFT Type",
+          "user_level": 1
+        },
+        "resample": {
+          "default": 1,
+          "description": "Resampling fraction of the image frames w.r.t. diffraction frames.                    A resampling of 2 means that the image frame is to be sampled (in the detector plane) twice                    as densely as the raw diffraction data.",
+          "minimum": 1,
+          "title": "Resample",
+          "type": "integer",
+          "user_level": 0
+        },
+        "data": {
+          "$ref": "#/$defs/MoonflowerScan",
+          "descriminator": "name"
+        },
+        "Illumination": {
+          "$ref": "#/$defs/Illumination"
+        },
+        "sample": {
+          "$ref": "#/$defs/Sample"
+        },
+        "name": {
+          "const": "BlockVanilla",
+          "default": "BlockVanilla",
+          "enum": [
+            "BlockVanilla"
+          ],
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "Illumination",
+        "sample"
+      ],
+      "title": "BlockVanilla",
+      "type": "object"
+    },
+    "DM": {
+      "description": "Difference Map Engine",
+      "properties": {
+        "numiter": {
+          "default": 20,
+          "description": "Total number of iterations",
+          "title": "Nr. of Iterations",
+          "type": "integer"
+        },
+        "numiter_contiguous": {
+          "default": 1,
+          "description": "Number of iterations without interruption",
+          "title": "Nr. of contiguous iterations",
+          "type": "integer"
+        },
+        "probe_support": {
+          "default": 0.7,
+          "description": "Valid probe area as fraction of the probe frame",
+          "title": "Probe Support",
+          "type": "number"
+        },
+        "probe_fourier_support": {
+          "default": null,
+          "description": "Valid probe area in frequency domain as fraction of the probe frame",
+          "title": "Probe Fourier Support",
+          "type": "number"
+        },
+        "record_local_error": {
+          "default": false,
+          "description": "If True, save the local map of errors into the runtime dictionary.",
+          "title": "Record Local Error Map",
+          "type": "boolean"
+        },
+        "name": {
+          "const": "DM",
+          "enum": [
+            "DM"
+          ],
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "DM",
+      "type": "object"
+    },
+    "DMEngine": {
+      "properties": {
+        "engine00": {
+          "$ref": "#/$defs/DM"
+        }
+      },
+      "required": [
+        "engine00"
+      ],
+      "title": "DMEngine",
+      "type": "object"
+    },
+    "DataType": {
+      "description": "Reconstruction floating number precision",
+      "enum": [
+        "single",
+        "double"
+      ],
+      "title": "DataType",
+      "type": "string"
+    },
+    "Diversity": {
+      "properties": {
+        "noise": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            }
+          ],
+          "default": [
+            0.5,
+            1.0
+          ],
+          "description": "Noise in each non-primary mode of the illumination.",
+          "title": "Noise"
+        },
+        "power": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "items": {},
+              "type": "array"
+            }
+          ],
+          "default": 0.1,
+          "description": "Power of modes relative to main mode (zero-layer)",
+          "title": "Power"
+        }
+      },
+      "title": "Diversity",
+      "type": "object"
+    },
+    "FFTtype": {
+      "enum": [
+        "numpy",
+        "scipy",
+        "fftw"
+      ],
+      "title": "FFTtype",
+      "type": "string"
+    },
+    "Illumination": {
+      "properties": {
+        "aperture": {
+          "$ref": "#/$defs/Aperture",
+          "exclude_schema": true
+        },
+        "diversity": {
+          "$ref": "#/$defs/Diversity",
+          "exclude_schema": true
+        },
+        "model": {
+          "$ref": "#/$defs/InitialModel",
+          "default": null,
+          "description": "Type of illumination model",
+          "exclude_schema": true,
+          "title": "Model"
+        },
+        "photons": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "default": null,
+          "description": "Number of photons in the incident illumination",
+          "exclude_schema": false,
+          "title": "Photons"
+        },
+        "propagation": {
+          "$ref": "#/$defs/IlluminationPropagation",
+          "exclude_schema": true
+        },
+        "recon": {
+          "$ref": "#/$defs/InitialRecon",
+          "exclude_schema": true
+        }
+      },
+      "required": [
+        "aperture",
+        "diversity",
+        "propagation",
+        "recon"
+      ],
+      "title": "Illumination",
+      "type": "object"
+    },
+    "IlluminationPropagation": {
+      "properties": {
+        "antialiasing": {
+          "default": 1,
+          "description": "Antialiasing factor used when generating the probe. (numbers larger than 2 or 3 are memory hungry)",
+          "minimum": 1,
+          "title": "Antialiasing",
+          "type": "integer"
+        },
+        "focussed": {
+          "default": null,
+          "description": "Propagation distance from aperture to focus",
+          "title": "Focussed",
+          "type": "number"
+        },
+        "parallel": {
+          "default": null,
+          "description": "Parallel propagation distance",
+          "title": "Parallel",
+          "type": "number"
+        },
+        "spot_size": {
+          "default": null,
+          "description": "Focal spot diameter",
+          "title": "Spot Size",
+          "type": "number"
+        }
+      },
+      "title": "IlluminationPropagation",
+      "type": "object"
+    },
+    "InitialModel": {
+      "enum": [
+        "recon",
+        "stxm",
+        "None"
+      ],
+      "title": "InitialModel",
+      "type": "string"
+    },
+    "InitialRecon": {
+      "properties": {
+        "label": {
+          "default": null,
+          "description": "Scan label of diffraction that is to be used for probe estimate",
+          "title": "Label",
+          "type": "string"
+        },
+        "rfile": {
+          "default": "*.ptyr",
+          "description": "Path to a ``.ptyr`` compatible file",
+          "title": "Reconstruction File",
+          "type": "string"
+        }
+      },
+      "title": "InitialRecon",
+      "type": "object"
+    },
+    "InputOutput": {
+      "description": "Global parameter container for I/O settings",
+      "properties": {
+        "home": {
+          "default": "./",
+          "description": "This is the root directory for all input/output operations.                      All other path parameters that are relative paths will be relative to this directory.",
+          "title": "Base directory (home)",
+          "type": "string",
+          "user_level": 0
+        },
+        "rfile": {
+          "default": "recons/%(run)s/%(run)s_%(engine)s_%(iterations)04d.ptyr",
+          "description": "Reconstruction file name or format string (constructed against runtime dictionary)",
+          "title": "Reconstruction File Name",
+          "type": "string",
+          "user_level": 0
+        },
+        "rformat": {
+          "$ref": "#/$defs/ReconstructionFileFormat",
+          "default": "minimal",
+          "description": "Choose a reconstruction file format for after engine completion.",
+          "title": "Reconstruction File Format",
+          "user_level": 0
+        },
+        "interaction": {
+          "$ref": "#/$defs/InputOutputInteraction"
+        },
+        "autosave": {
+          "$ref": "#/$defs/InputOutputAutosave"
+        },
+        "autoplot": {
+          "$ref": "#/$defs/InputOutputAutoplot"
+        }
+      },
+      "required": [
+        "interaction",
+        "autosave",
+        "autoplot"
+      ],
+      "title": "InputOutput",
+      "type": "object"
+    },
+    "InputOutputAutoplot": {
+      "description": "Container for the plotting",
+      "properties": {
+        "active": {
+          "default": true,
+          "description": " If ``True`` the current reconstruction will be plotted at regular intervals.",
+          "title": "AutoplotActivation Switch",
+          "type": "boolean",
+          "user_level": 0
+        }
+      },
+      "title": "InputOutputAutoplot",
+      "type": "object"
+    },
+    "InputOutputAutosave": {
+      "description": "Options for automatic saving during reconstruction",
+      "properties": {
+        "active": {
+          "default": true,
+          "description": "If ``True`` the current reconstruction will be saved at regular intervals.",
+          "title": "Autosave Activation Switch",
+          "type": "boolean",
+          "user_level": 0
+        }
+      },
+      "title": "InputOutputAutosave",
+      "type": "object"
+    },
+    "InputOutputInteraction": {
+      "description": "Options for the communications server",
+      "properties": {
+        "active": {
+          "default": true,
+          "description": "If True the interaction starts, if False all interaction is turned off",
+          "title": "Interaction Activation Switch",
+          "type": "boolean",
+          "user_level": 0
+        }
+      },
+      "title": "InputOutputInteraction",
+      "type": "object"
+    },
+    "LoadParallel": {
+      "description": "Determines what will be loaded in parallel",
+      "enum": [
+        "data",
+        "common",
+        "all",
+        "none"
+      ],
+      "title": "LoadParallel",
+      "type": "string"
+    },
+    "MFScan": {
+      "properties": {
+        "MF": {
+          "$ref": "#/$defs/BlockVanilla"
+        }
+      },
+      "required": [
+        "MF"
+      ],
+      "title": "MFScan",
+      "type": "object"
+    },
+    "MoonflowerScan": {
+      "properties": {
+        "name": {
+          "const": "MoonFlowerScan",
+          "default": "MoonFlowerScan",
+          "enum": [
+            "MoonFlowerScan"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "dfile": {
+          "default": null,
+          "description": "File path where prepared data will be saved in the ``ptyd`` format.)",
+          "title": "Data File",
+          "type": "string",
+          "user_level": 0
+        },
+        "chunk_format": {
+          "default": ".chunk%02d",
+          "description": "Appendix to saved files if save == 'link'",
+          "title": "Chunk Format",
+          "type": "string",
+          "user_level": 0
+        },
+        "save": {
+          "default": null,
+          "description": "Mode to use to save data to file.         <newline>         - ``None``: No saving         - ``'merge'``: attemts to merge data in single chunk **[not implemented]**         - ``'append'``: appends each chunk in master \\*.ptyd file         - ``'link'``: appends external links in master \\*.ptyd file and stores chunks separately         <newline>         in the path given by the link. Links file paths are relative to master file.",
+          "title": "Saving Mode",
+          "type": "string",
+          "user_level": 0
+        },
+        "auto_center": {
+          "default": null,
+          "description": "Determine if center in data is calculated automatically",
+          "title": "Auto Center",
+          "type": "boolean",
+          "user_level": 0
+        },
+        "load_parallel": {
+          "$ref": "#/$defs/LoadParallel",
+          "default": "data",
+          "title": "Load Parallel",
+          "user_level": 0
+        },
+        "rebin": {
+          "default": null,
+          "description": "Rebinning factor for the raw data frames. ``'None'`` or ``1`` both mean *no binning*",
+          "maximum": 32,
+          "minimum": 1,
+          "title": "Rebin",
+          "type": "integer",
+          "user_level": 1
+        },
+        "orientation": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "boolean"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "items": {
+                "type": "boolean"
+              },
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+            }
+          ],
+          "default": 0,
+          "description": "Choose        <newline>        - ``None`` or ``0``: correct orientation       - ``1``: invert columns (numpy.flip_lr)       - ``2``: invert rows  (numpy.flip_ud)       - ``3``: invert columns, invert rows       - ``4``: transpose (numpy.transpose)       - ``4+i``: tranpose + other operations from above       <newline>       Alternatively, a 3-tuple of booleans may be provided ``(do_transpose,        do_flipud, do_fliplr)``",
+          "ge": 0,
+          "le": 7,
+          "title": "Orientation",
+          "user_level": 1
+        },
+        "min_frames": {
+          "default": 1,
+          "description": "Minimum number of frames loaded by each node",
+          "minimum": 1,
+          "title": "Min Frames",
+          "type": "integer",
+          "user_level": 2
+        },
+        "num_frames": {
+          "default": 100,
+          "description": "Maximum number of frames to be prepared",
+          "title": "Num Frames",
+          "type": "integer",
+          "user_level": 1
+        },
+        "label": {
+          "default": null,
+          "description": "The scan label. Unique string identifying the scan",
+          "title": "Label",
+          "type": "string",
+          "user_level": 1
+        },
+        "shape": {
+          "default": 128,
+          "description": "Shape of the region of interest cropped from the raw data.",
+          "title": "Shape",
+          "type": "integer",
+          "user_level": 1
+        },
+        "center": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": "fftshift",
+          "description": "Center (pixel) of the optical axes in raw data",
+          "title": "Center",
+          "user_level": 1
+        },
+        "psize": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            }
+          ],
+          "default": 0.000172,
+          "description": "Dimensions of the detector pixels (in meters)",
+          "ge": 0,
+          "title": "Pixelsize",
+          "user_level": 0
+        },
+        "distance": {
+          "default": 7.19,
+          "description": "Sample to detector distance (in meters)",
+          "minimum": 0.0,
+          "title": "Distance",
+          "type": "number",
+          "user_level": 0
+        },
+        "energy": {
+          "default": 7.2,
+          "description": "Photon energy of the incident radia,tion in keV",
+          "minimum": 0.0,
+          "title": "Energy",
+          "type": "number",
+          "user_level": 0
+        },
+        "density": {
+          "default": 0.2,
+          "title": "Density",
+          "type": "number",
+          "user_level": 0
+        },
+        "model": {
+          "default": "round",
+          "description": "The scan pattern",
+          "title": "Model",
+          "type": "string",
+          "user_level": 0
+        },
+        "photons": {
+          "default": 100000000.0,
+          "description": "Total number of photons for Poisson noise",
+          "title": "Photons",
+          "type": "number",
+          "user_level": 0
+        },
+        "psf": {
+          "default": 0,
+          "description": "Point spread function of the detector",
+          "title": "PSF",
+          "type": "number",
+          "user_level": 0
+        },
+        "add_poisson_noise": {
+          "default": true,
+          "description": "Decides whether the scan should have poisson noise or not",
+          "title": "Add Poisson Noise",
+          "type": "boolean",
+          "user_level": 0
+        }
+      },
+      "title": "MoonflowerScan",
+      "type": "object"
+    },
+    "Process": {
+      "properties": {
+        "offset": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            }
+          ],
+          "default": [
+            0,
+            0
+          ],
+          "description": "Offset between center of object array and scan pattern",
+          "title": "Offset"
+        },
+        "zoom": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            }
+          ],
+          "default": null,
+          "description": "Zoom value for object simulation.",
+          "title": "Zoom"
+        },
+        "formula": {
+          "default": null,
+          "description": "A Formula compatible with a cxro database query,e.g. ``'Au'`` or ``'NaCl'`` or ``'H2O'``",
+          "title": "Formula",
+          "type": "string"
+        },
+        "density": {
+          "default": 1,
+          "description": "Density in [g/ccm]. Only used if `formula` is not None",
+          "title": "Density",
+          "type": "number"
+        },
+        "thickness": {
+          "default": 0.000001,
+          "description": "Maximum thickness of sample. If ``None``, the absolute values of loaded source array will be used",
+          "title": "Thickness",
+          "type": "number"
+        },
+        "ref_index": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            }
+          ],
+          "default": [
+            0.5,
+            0.0
+          ],
+          "description": "Assigned refractive index, tuple of format (real, complex)",
+          "title": "Refractive Index"
+        },
+        "smoothing": {
+          "default": 2,
+          "description": "Smooth the projection with gaussian kernel of width given by `smoothing_mfs`",
+          "title": "Smoothing",
+          "type": "integer"
+        }
+      },
+      "title": "Process",
+      "type": "object"
+    },
+    "Propagation": {
+      "enum": [
+        "farfield",
+        "nearfield"
+      ],
+      "title": "Propagation",
+      "type": "string"
+    },
+    "ReconstructionFileFormat": {
+      "enum": [
+        "minimal",
+        "dls",
+        "used_params"
+      ],
+      "title": "ReconstructionFileFormat",
+      "type": "string"
+    },
+    "Sample": {
+      "properties": {
+        "model": {
+          "$ref": "#/$defs/InitialModel",
+          "default": null,
+          "description": "Type of initial object model",
+          "exclude_schema": true,
+          "title": "Model"
+        },
+        "fill": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "default": 1,
+          "description": "Default fill value",
+          "title": "Fill"
+        },
+        "recon": {
+          "$ref": "#/$defs/InitialRecon"
+        },
+        "process": {
+          "$ref": "#/$defs/Process"
+        },
+        "diversity": {
+          "$ref": "#/$defs/Diversity"
+        }
+      },
+      "required": [
+        "recon",
+        "process",
+        "diversity"
+      ],
+      "title": "Sample",
+      "type": "object"
+    },
+    "VerboseLevel": {
+      "description": "Verbosity level for information logging",
+      "enum": [
+        "CRITICAL",
+        "ERROR",
+        "WARNING",
+        "INTERACTIVE",
+        "INFO",
+        "INSPECT",
+        "DEBUG"
+      ],
+      "title": "VerboseLevel",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "verbose_level": {
+      "$ref": "#/$defs/VerboseLevel",
+      "default": "INFO",
+      "title": "Verbosity",
+      "user_level": 0
+    },
+    "data_type": {
+      "$ref": "#/$defs/DataType",
+      "default": "single",
+      "title": "Data Type",
+      "user_level": 1
+    },
+    "run": {
+      "default": null,
+      "description": "Reconstruction run identifier. If ``None``,                      the run name will be constructed at run time from other information",
+      "title": "Run Label",
+      "type": "string",
+      "user_level": 0
+    },
+    "frames_per_block": {
+      "default": 100000,
+      "description": "This parameter determines the size of buffer arrays for GPUs.                      Reduce this number if you run out of memory on the GPU.",
+      "exclusiveMinimum": 1,
+      "title": "Frames Per Block",
+      "type": "integer",
+      "user_level": 1
+    },
+    "io": {
+      "$ref": "#/$defs/InputOutput",
+      "title": "Input Output"
+    },
+    "scans": {
+      "$ref": "#/$defs/MFScan"
+    },
+    "engines": {
+      "$ref": "#/$defs/DMEngine"
+    }
+  },
+  "required": [
+    "io",
+    "scans",
+    "engines"
+  ],
+  "title": "MoonflowerParamTree",
+  "type": "object"
+}
