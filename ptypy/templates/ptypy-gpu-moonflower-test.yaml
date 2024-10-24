@@ -54,20 +54,20 @@ spec:
       - mpirun
       args:
       - "-n"
-      - "{{ inputs.parameters.nprocs }}"
+      - "{{`{{ inputs.parameters.nprocs }}`}}"
       - "python"
       - "benchmark/ptypy_moonflower_script_cupy.py"
       - "-n"
-      - "{{ inputs.parameters.nframes }}"
+      - "{{`{{ inputs.parameters.nframes }}`}}"
       - "-s"
-      - "{{ inputs.parameters.shape }}"
+      - "{{`{{ inputs.parameters.shape }}`}}"
       - "-i"
-      - "{{ inputs.parameters.iterations }}"
+      - "{{`{{ inputs.parameters.iterations }}`}}"
       - "-f"
-      - "{{ inputs.parameters.fftlib }}"
+      - "{{`{{ inputs.parameters.fftlib }}`}}"
       volumeMounts:
       - name: session
-        mountPath: "{{ workflow.parameters.visitdir }}"
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmpdir
         mountPath: /tmp
     sidecars:
@@ -79,13 +79,13 @@ spec:
       - name: main
         resources:
           requests:
-            cpu: "{{ inputs.parameters.nprocs }}"
-            memory: "{{ inputs.parameters.memory }}"
-            nvidia.com/gpu: "{{ inputs.parameters.nprocs }}"
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
           limits:
-            cpu: "{{ inputs.parameters.nprocs }}"
-            memory: "{{ inputs.parameters.memory }}"
-            nvidia.com/gpu: "{{ inputs.parameters.nprocs }}"
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
     tolerations:
     - key: nvidia.com/gpu
       operator: Exists
@@ -97,5 +97,5 @@ spec:
     volumes:
     - name: session
       hostPath:
-        path:  "{{ workflow.parameters.visitdir }}"
+        path:  "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory

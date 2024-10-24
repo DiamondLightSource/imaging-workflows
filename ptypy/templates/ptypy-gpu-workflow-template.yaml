@@ -47,21 +47,21 @@ spec:
       - mpirun
       args:
       - "-n"
-      - "{{ inputs.parameters.nprocs }}"
+      - "{{`{{ inputs.parameters.nprocs }}`}}"
       - "ptypy.cli"
       - "-j"
-      - "{{ inputs.parameters.config }}"
+      - "{{`{{ inputs.parameters.config }}`}}"
       - "-i"
-      - "{{ inputs.parameters.id }}"
+      - "{{`{{ inputs.parameters.id }}`}}"
       - "-o"
-      - "{{ inputs.parameters.output }}"
+      - "{{`{{ inputs.parameters.output }}`}}"
       - "-s"
       - "hdf5_loader"
       - "-b"
       - "cupy"
       volumeMounts:
       - name: session
-        mountPath: "{{ workflow.parameters.visitdir }}"
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmpdir
         mountPath: /tmp
     podSpecPatch: |
@@ -69,13 +69,13 @@ spec:
       - name: main
         resources:
           requests:
-            cpu: "{{ inputs.parameters.nprocs }}"
-            memory: "{{ inputs.parameters.memory }}"
-            nvidia.com/gpu: "{{ inputs.parameters.nprocs }}"
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
           limits:
-            cpu: "{{ inputs.parameters.nprocs }}"
-            memory: "{{ inputs.parameters.memory }}"
-            nvidia.com/gpu: "{{ inputs.parameters.nprocs }}"
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
     tolerations:
     - key: nvidia.com/gpu
       operator: Exists
@@ -87,5 +87,5 @@ spec:
     volumes:
     - name: session
       hostPath:
-        path:  "{{ workflow.parameters.visitdir }}"
+        path:  "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
