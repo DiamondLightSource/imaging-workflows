@@ -1,0 +1,105 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: ptypy-cpu-job
+  annotations:
+    workflows.argoproj.io/title: PtyPy CPU Job Submitter
+    workflows.argoproj.io/description: |
+      Runs a PtyPy reconstruction job inside a container.
+    workflows.diamond.ac.uk/parameter-schema.config: |
+    {{- .Files.Get "schema/ptypy_moonflower.json" | nindent 6 }}
+    workflows.diamond.ac.uk/parameter-schema.id: |
+      {
+        "type": "string",
+      }
+    workflows.diamond.ac.uk/parameter-schema.output: |
+      {
+        "type": "string",
+        "default": "/tmp/output"
+      }
+    workflows.diamond.ac.uk/parameter-schema.nprocs: |
+      {
+        "type": "integer",
+        "default": 1
+      }
+    workflows.diamond.ac.uk/parameter-schema.memory: |
+      {
+        "type": "string",
+        "pattern": "^[0-9]+[GMK]i$",
+        "default": "20Gi"
+      }
+    workflows.diamond.ac.uk/ui-schema: |
+    {{- .Files.Get "schema/ptypy_moonflower_ui.json" | nindent 6 }}
+spec:
+  entrypoint: ptypy-run
+  volumeClaimTemplates:
+  - metadata:
+      name: tmpdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: local-path
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+  templates:
+  - name: ptypy-run
+    inputs:
+      parameters:
+      - name: config
+      - name: id
+      - name: output
+        value: /tmp/output
+      - name: nprocs
+        value: 1
+      - name: memory
+        value: 20Gi
+    container:
+      image: gcr.io/diamond-privreg/ptypy/test_openmpi_full:0.1
+      env:
+      - name: MKL_NUM_THREADS
+        value: "1"
+      - name: NUMEXPR_NUM_THREADS
+        value: "1"
+      - name: OMP_NUM_THREADS
+        value: "1"
+      command:
+      - mpirun
+      args:
+      - "-n"
+      - "{{`{{ inputs.parameters.nprocs }}`}}"
+      - "ptypy.cli"
+      - "-j"
+      - "{{`{{ inputs.parameters.config }}`}}"
+      - "-i"
+      - "{{`{{ inputs.parameters.id }}`}}"
+      - "-o"
+      - "{{`{{ inputs.parameters.output }}`}}"
+      - "-s"
+      - "hdf5_loader"
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmpdir
+        mountPath: /tmp
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+          limits:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+    volumes:
+    - name: session
+      hostPath:
+        path:  "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory

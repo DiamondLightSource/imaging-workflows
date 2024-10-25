@@ -47,18 +47,18 @@ spec:
       - mpirun
       args:
       - "-n"
-      - "{{ inputs.parameters.nprocs }}"
+      - "{{`{{ inputs.parameters.nprocs }}`}}"
       - "python"
       - "benchmark/ptypy_moonflower_script_numpy.py"
       - "-n"
-      - "{{ inputs.parameters.nframes }}"
+      - "{{`{{ inputs.parameters.nframes }}`}}"
       - "-s"
-      - "{{ inputs.parameters.shape }}"
+      - "{{`{{ inputs.parameters.shape }}`}}"
       - "-i"
-      - "{{ inputs.parameters.iterations }}"
+      - "{{`{{ inputs.parameters.iterations }}`}}"
       volumeMounts:
       - name: session
-        mountPath: "{{ workflow.parameters.visitdir }}"
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmpdir
         mountPath: /tmp
     podSpecPatch: |
@@ -66,13 +66,13 @@ spec:
       - name: main
         resources:
           requests:
-            cpu: "{{ inputs.parameters.nprocs }}"
-            memory: "{{ inputs.parameters.memory }}"
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
           limits:
-            cpu: "{{ inputs.parameters.nprocs }}"
-            memory: "{{ inputs.parameters.memory }}"
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
     volumes:
     - name: session
       hostPath:
-        path:  "{{ workflow.parameters.visitdir }}"
+        path:  "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
