@@ -10,7 +10,7 @@ metadata:
     {{- .Files.Get "schema/ptypy_moonflower.json" | nindent 6 }}
     workflows.diamond.ac.uk/parameter-schema.id: |
       {
-        "type": "string",
+        "type": "string"
       }
     workflows.diamond.ac.uk/parameter-schema.output: |
       {
