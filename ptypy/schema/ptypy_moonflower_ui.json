@@ -10,12 +10,12 @@
           "elements": [
             {
               "type": "Control",
-              "scope": "#/properties/verbose_level"
+              "scope": "#/properties/config/properties/verbose_level"
             },
             {
               "type": "Control",
               "label": "Interaction",
-              "scope": "#/properties/io/properties/interaction/properties/active",
+              "scope": "#/properties/config/properties/io/properties/interaction/properties/active",
               "options": {
                 "toggle": true
               }
@@ -23,7 +23,7 @@
             {
               "type": "Control",
               "label": "Autosave",
-              "scope": "#/properties/io/properties/autosave/properties/active",
+              "scope": "#/properties/config/properties/io/properties/autosave/properties/active",
               "options": {
                 "toggle": true
               } 
@@ -31,7 +31,7 @@
             {
               "type": "Control",
               "label": "Autoplot",
-              "scope": "#/properties/io/properties/autoplot/properties/active",
+              "scope": "#/properties/config/properties/io/properties/autoplot/properties/active",
               "options": {
                 "toggle": true
               }
@@ -52,15 +52,15 @@
               "elements": [
                 {
                   "type": "Control",
-                  "scope": "#/properties/scans/properties/MF/properties/data/properties/shape"
+                  "scope": "#/properties/config/properties/scans/properties/MF/properties/data/properties/shape"
                 },
                 {
                   "type": "Control",
-                  "scope": "#/properties/scans/properties/MF/properties/data/properties/num_frames"
+                  "scope": "#/properties/config/properties/scans/properties/MF/properties/data/properties/num_frames"
                 },
                 {
                   "type": "Control",
-                  "scope": "#/properties/scans/properties/MF/properties/data/properties/save"
+                  "scope": "#/properties/config/properties/scans/properties/MF/properties/data/properties/save"
                 }
               ]
             },
@@ -69,15 +69,15 @@
               "elements": [
                 {
                   "type": "Control",
-                  "scope": "#/properties/scans/properties/MF/properties/data/properties/density"
+                  "scope": "#/properties/config/properties/scans/properties/MF/properties/data/properties/density"
                 },
                 {
                   "type": "Control",
-                  "scope": "#/properties/scans/properties/MF/properties/data/properties/photons"
+                  "scope": "#/properties/config/properties/scans/properties/MF/properties/data/properties/photons"
                 },
                 {
                   "type": "Control",
-                  "scope": "#/properties/scans/properties/MF/properties/data/properties/psf"
+                  "scope": "#/properties/config/properties/scans/properties/MF/properties/data/properties/psf"
                 }
               ]
             }
@@ -95,19 +95,19 @@
           "elements": [
             {
               "type": "Control",
-              "scope": "#/properties/engines/properties/engine00/properties/numiter"
+              "scope": "#/properties/config/properties/engines/properties/engine00/properties/numiter"
             },
             {
               "type": "Control",
-              "scope": "#/properties/engines/properties/engine00/properties/numiter_contiguous"
+              "scope": "#/properties/config/properties/engines/properties/engine00/properties/numiter_contiguous"
             },
             {
               "type": "Control",
-              "scope": "#/properties/engines/properties/engine00/properties/probe_support"
+              "scope": "#/properties/config/properties/engines/properties/engine00/properties/probe_support"
             },
             {
               "type": "Control",
-              "scope": "#/properties/engines/properties/engine00/properties/probe_fourier_support"
+              "scope": "#/properties/config/properties/engines/properties/engine00/properties/probe_fourier_support"
             }
           ]
         }
