@@ -9,10 +9,17 @@
           "type": "number"
         },
         "central_stop": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null,
           "description": "Size of central stop as a fraction of aperture.size",
-          "title": "Central Stop",
-          "type": "number"
+          "title": "Central Stop"
         },
         "edge": {
           "default": 2.0,
@@ -76,6 +83,9 @@
               "maxItems": 2,
               "minItems": 2,
               "type": "array"
+            },
+            {
+              "type": "null"
             }
           ],
           "default": null,
@@ -168,10 +178,17 @@
           "type": "number"
         },
         "probe_fourier_support": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null,
           "description": "Valid probe area in frequency domain as fraction of the probe frame",
-          "title": "Probe Fourier Support",
-          "type": "number"
+          "title": "Probe Fourier Support"
         },
         "record_local_error": {
           "default": false,
@@ -283,7 +300,14 @@
           "exclude_schema": true
         },
         "model": {
-          "$ref": "#/$defs/InitialModel",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InitialModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null,
           "description": "Type of illumination model",
           "exclude_schema": true,
@@ -296,6 +320,9 @@
             },
             {
               "type": "number"
+            },
+            {
+              "type": "null"
             }
           ],
           "default": null,
@@ -331,22 +358,43 @@
           "type": "integer"
         },
         "focussed": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null,
           "description": "Propagation distance from aperture to focus",
-          "title": "Focussed",
-          "type": "number"
+          "title": "Focussed"
         },
         "parallel": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null,
           "description": "Parallel propagation distance",
-          "title": "Parallel",
-          "type": "number"
+          "title": "Parallel"
         },
         "spot_size": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null,
           "description": "Focal spot diameter",
-          "title": "Spot Size",
-          "type": "number"
+          "title": "Spot Size"
         }
       },
       "title": "IlluminationPropagation",
@@ -364,10 +412,17 @@
     "InitialRecon": {
       "properties": {
         "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null,
           "description": "Scan label of diffraction that is to be used for probe estimate",
-          "title": "Label",
-          "type": "string"
+          "title": "Label"
         },
         "rfile": {
           "default": "*.ptyr",
@@ -498,10 +553,17 @@
           "type": "string"
         },
         "dfile": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null,
           "description": "File path where prepared data will be saved in the ``ptyd`` format.)",
           "title": "Data File",
-          "type": "string",
           "user_level": 0
         },
         "chunk_format": {
@@ -512,17 +574,31 @@
           "user_level": 0
         },
         "save": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null,
           "description": "Mode to use to save data to file.         <newline>         - ``None``: No saving         - ``'merge'``: attemts to merge data in single chunk **[not implemented]**         - ``'append'``: appends each chunk in master \\*.ptyd file         - ``'link'``: appends external links in master \\*.ptyd file and stores chunks separately         <newline>         in the path given by the link. Links file paths are relative to master file.",
           "title": "Saving Mode",
-          "type": "string",
           "user_level": 0
         },
         "auto_center": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null,
           "description": "Determine if center in data is calculated automatically",
           "title": "Auto Center",
-          "type": "boolean",
           "user_level": 0
         },
         "load_parallel": {
@@ -532,12 +608,19 @@
           "user_level": 0
         },
         "rebin": {
+          "anyOf": [
+            {
+              "maximum": 32,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null,
           "description": "Rebinning factor for the raw data frames. ``'None'`` or ``1`` both mean *no binning*",
-          "maximum": 32,
-          "minimum": 1,
           "title": "Rebin",
-          "type": "integer",
           "user_level": 1
         },
         "orientation": {
@@ -587,10 +670,17 @@
           "user_level": 1
         },
         "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null,
           "description": "The scan label. Unique string identifying the scan",
           "title": "Label",
-          "type": "string",
           "user_level": 1
         },
         "shape": {
@@ -760,6 +850,9 @@
               "maxItems": 2,
               "minItems": 2,
               "type": "array"
+            },
+            {
+              "type": "null"
             }
           ],
           "default": null,
@@ -767,10 +860,17 @@
           "title": "Zoom"
         },
         "formula": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null,
           "description": "A Formula compatible with a cxro database query,e.g. ``'Au'`` or ``'NaCl'`` or ``'H2O'``",
-          "title": "Formula",
-          "type": "string"
+          "title": "Formula"
         },
         "density": {
           "default": 1,
@@ -842,7 +942,14 @@
     "Sample": {
       "properties": {
         "model": {
-          "$ref": "#/$defs/InitialModel",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InitialModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": null,
           "description": "Type of initial object model",
           "exclude_schema": true,
@@ -908,10 +1015,17 @@
       "user_level": 1
     },
     "run": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
       "default": null,
       "description": "Reconstruction run identifier. If ``None``,                      the run name will be constructed at run time from other information",
       "title": "Run Label",
-      "type": "string",
       "user_level": 0
     },
     "frames_per_block": {
