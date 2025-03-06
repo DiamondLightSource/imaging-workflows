@@ -1,0 +1,51 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: ptycho-tomo-job
+spec:
+  entrypoint: ptycho-tomo-run
+  templates:
+  - name: echo
+    inputs:
+      parameters:
+      - name: message
+    container:
+      image: alpine:3.7
+      command: [echo, "{{inputs.parameters.message}}"]
+  - name: ptycho-tomo-run
+    dag:
+      tasks:
+      - name: create-mask
+        template: echo
+        arguments:
+          parameters: [{name: message, value: create-mask}]
+      - name: ptycho-recons-1
+        dependencies: [create-mask]
+        template: echo
+        arguments:
+          parameters: [{name: message, value: ptycho-recons-1}]
+      - name: ptycho-recons-2
+        dependencies: [create-mask]
+        template: echo
+        arguments:
+          parameters: [{name: message, value: ptycho-recons-2}]
+      - name: post-processing-1
+        dependencies: [ptycho-recons-1]
+        template: echo
+        arguments:
+          parameters: [{name: message, value: post-processing-1}]
+      - name: post-processing-2
+        dependencies: [ptycho-recons-2]
+        template: echo
+        arguments:
+          parameters: [{name: message, value: post-processing-2}]
+      - name: align
+        dependencies: [post-processing-1, post-processing-2]
+        template: echo
+        arguments:
+          parameters: [{name: message, value: align}]
+      - name: tomography
+        dependencies: [align]
+        template: echo
+        arguments:
+          parameters: [{name: message, value: tomography}]
