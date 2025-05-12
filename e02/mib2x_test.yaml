@@ -40,7 +40,7 @@ spec:
       - name: DEBUG
         value: 1
     container:
-      image: gcr.io/diamond-privreg/e02/mib2x:1.0
+      image: ghcr.io/epsic-dls/mib2x:1.0.0
       imagePullPolicy: Always
       env:
       - name: BLOSC_NTHREADS
