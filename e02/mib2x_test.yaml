@@ -15,24 +15,33 @@ spec:
   - name: mib2x
     inputs:
       parameters:
-      - name: config
-        value: |
-          {
-            "mib_path": "",
-            "no_reshaping": 0,
-            "use_fly_back": 1,
-            "known_shape": 0,
-            "Scan_X": 256,
-            "Scan_Y": 256,
-            "iBF": 1,
-            "bin_sig_flag": 1,
-            "bin_sig_factor": 4,
-            "bin_nav_flag": 1,
-            "bin_nav_factor": 4,
-            "create_json": 1,
-            "ptycho_config": "",
-            "ptycho_template": ""
-          }
+      - name: mib_path
+      - name: auto_reshape
+        value: true
+      - name: no_reshaping
+        value: false
+      - name: use_fly_back
+        value: false
+      - name: known_shape
+        value: false
+      - name: Scan_X
+        value: 256
+      - name: Scan_Y
+        value: 256
+      - name: iBF
+        value: true
+      - name: bin_sig_flag
+        value: true
+      - name: bin_sig_factor
+        value: 4
+      - name: bin_nav_flag
+        value: true
+      - name: bin_nav_factor
+        value: 4
+      - name: create_json
+        value: true
+      - name: ptycho_config
+      - name: ptycho_template
       - name: nprocs
         value: 8
       - name: memory
