@@ -41,7 +41,9 @@ spec:
       - name: create_json
         value: true
       - name: ptycho_config
+        value: ""
       - name: ptycho_template
+        value: ""
       - name: nprocs
         value: 8
       - name: memory
