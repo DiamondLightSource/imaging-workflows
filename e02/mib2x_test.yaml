@@ -30,12 +30,8 @@ spec:
         value: 256
       - name: iBF
         value: true
-      - name: bin_sig_flag
-        value: true
       - name: bin_sig_factor
         value: 4
-      - name: bin_nav_flag
-        value: true
       - name: bin_nav_factor
         value: 4
       - name: create_json
