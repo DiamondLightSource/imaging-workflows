@@ -82,7 +82,7 @@ metadata:
         "default": 1
       }
     workflows.diamond.ac.uk/ui-schema: |
-      {{- .Files.Get "schema/mib2x_ui.json" | nindent 6 }}
+    {{- .Files.Get "schema/mib2x_ui.json" | nindent 6 }}
 spec:
   entrypoint: mib2x
   arguments:
