@@ -65,6 +65,22 @@ metadata:
       "type": "string",
       "default": ""
     }
+  workflows.diamond.ac.uk/parameter-schema.nprocs: |
+    {
+      "type": "integer",
+      "default": 8
+    }
+  workflows.diamond.ac.uk/parameter-schema.memory: |
+    {
+      "type": "string",
+      "pattern": "^[0-9]+[GMK]i$",
+      "default": "16Gi"
+    }
+  workflows.diamond.ac.uk/parameter-schema.DEBUG: |
+    {
+      "type": "integer",
+      "default": 1
+    }
 spec:
   entrypoint: mib2x
   arguments:
