@@ -2,6 +2,60 @@ apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
   name: e02-mib2x
+  annotations:
+  workflows.argoproj.io/title: ePSIC mib conversion
+  workflows.argoproj.io/description: |
+    Convert MIB file to hdf5/hspy files
+  workflows.diamond.ac.uk/parameter-schema.mib_path: |
+    {
+      "type": "string"
+    }
+  workflows.diamond.ac.uk/parameter-schema.reshape_option: |
+    {
+      "type": "string",
+      "enum": [
+        "--auto-reshape",
+        "--no-reshaping",
+        "--use-fly-back",
+        "--known-shape"
+      ]
+    }
+  workflows.diamond.ac.uk/parameter-schema.Scan_X: |
+    {
+      "type": "integer"
+    }
+  workflows.diamond.ac.uk/parameter-schema.Scan_Y: |
+    {
+      "type": "integer"
+    }
+  workflows.diamond.ac.uk/parameter-schema.iBF: |
+    {
+      "type": "boolean"
+    }
+  workflows.diamond.ac.uk/parameter-schema.bin_sig_factor: |
+    {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 8
+    }
+  workflows.diamond.ac.uk/parameter-schema.bin_nav_factor: |
+    {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 8
+    }
+  workflows.diamond.ac.uk/parameter-schema.create_json: |
+    {
+      "type": "boolean"
+    }
+  workflows.diamond.ac.uk/parameter-schema.ptycho_config: |
+    {
+      "type": "string"
+    }
+  workflows.diamond.ac.uk/parameter-schema.ptycho_template: |
+    {
+      "type": "string"
+    }
 spec:
   entrypoint: mib2x
   arguments:
@@ -16,14 +70,7 @@ spec:
     inputs:
       parameters:
       - name: mib_path
-      - name: auto_reshape
-        value: true
-      - name: no_reshaping
-        value: false
-      - name: use_fly_back
-        value: false
-      - name: known_shape
-        value: false
+      - name: reshape_option
       - name: Scan_X
         value: 256
       - name: Scan_Y
@@ -60,13 +107,15 @@ spec:
       args:
       - "mib_convert.py"
       - "{{ inputs.parameters.mib_path }}"
-      - "--auto-reshape"
+      - "{{ inputs.parameters.reshape_option }}"
       - "--scan-x={{ inputs.parameters.Scan_X }}"
       - "--scan-y={{ inputs.parameters.Scan_Y }}"
-      - "--ibf"
+      - "{{ inputs.parameters.iBF }}"
       - "--bin-sig-factor={{ inputs.parameters.bin_sig_factor }}"
       - "--bin-nav-factor={{ inputs.parameters.bin_nav_factor }}"
-      - "--create-json"
+      - "{{ inputs.paramters.create_json }}"
+      - "--ptycho-config={{ inputs.paramters.ptycho_config }}"
+      - "--ptycho-template={{ inputs.paramters.ptycho_template }}"
       volumeMounts:
       - name: session
         mountPath: "{{ workflow.parameters.visitdir }}"
