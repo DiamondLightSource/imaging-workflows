@@ -126,41 +126,41 @@ spec:
       imagePullPolicy: Always
       env:
       - name: BLOSC_NTHREADS
-        value: "{{ inputs.parameters.nprocs }}"
+        value: "{{`{{ inputs.parameters.nprocs }}`}}"
       - name: OMP_NUM_THREADS
-        value: "{{ inputs.parameters.nprocs }}"
+        value: "{{`{{ inputs.parameters.nprocs }}`}}"
       - name: M2X_DEBUG
-        value: "{{ inputs.parameters.DEBUG }}"
+        value: "{{`{{ inputs.parameters.DEBUG }}`}}"
       command: [python]
       args:
       - "mib_convert.py"
-      - "{{ inputs.parameters.mib_path }}"
-      - "{{ inputs.parameters.reshape_option }}"
-      - "--scan-x={{ inputs.parameters.Scan_X }}"
-      - "--scan-y={{ inputs.parameters.Scan_Y }}"
-      - "{{ inputs.parameters.iBF }}"
-      - "--bin-sig-factor={{ inputs.parameters.bin_sig_factor }}"
-      - "--bin-nav-factor={{ inputs.parameters.bin_nav_factor }}"
-      - "{{ inputs.parameters.create_json }}"
-      - "--ptycho-config={{ inputs.parameters.ptycho_config }}"
-      - "--ptycho-template={{ inputs.parameters.ptycho_template }}"
+      - "{{`{{ inputs.parameters.mib_path }}`}}"
+      - "{{`{{ inputs.parameters.reshape_option }}`}}"
+      - "--scan-x={{`{{ inputs.parameters.Scan_X }}`}}"
+      - "--scan-y={{`{{ inputs.parameters.Scan_Y }}`}}"
+      - "{{`{{ inputs.parameters.iBF }}`}}"
+      - "--bin-sig-factor={{`{{ inputs.parameters.bin_sig_factor }}`}}"
+      - "--bin-nav-factor={{`{{ inputs.parameters.bin_nav_factor }}`}}"
+      - "{{`{{ inputs.parameters.create_json }}`}}"
+      - "--ptycho-config={{`{{ inputs.parameters.ptycho_config }}`}}"
+      - "--ptycho-template={{`{{ inputs.parameters.ptycho_template }}`}}"
       volumeMounts:
       - name: session
-        mountPath: "{{ workflow.parameters.visitdir }}"
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
     podSpecPatch: |
       containers:
       - name: main
         resources:
           requests:
-            cpu: "{{ inputs.parameters.nprocs }}"
-            memory: "{{ inputs.parameters.memory }}"
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
           limits:
-            cpu: "{{ inputs.parameters.nprocs }}"
-            memory: "{{ inputs.parameters.memory }}"
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
     volumes:
     - name: session
       hostPath:
-        path:  "{{ workflow.parameters.visitdir }}"
+        path:  "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
     tolerations:
     - key: nodetype
