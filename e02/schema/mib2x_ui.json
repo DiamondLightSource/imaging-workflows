@@ -1,63 +1,57 @@
 {
-  "type": "Group",
-  "label": "Workflow Parameters",
+  "type": "VerticalLayout",
   "elements": [
     {
-      "type": "VerticalLayout",
-      "elements": [
-        {
-          "type": "Control",
-          "scope": "#/properties/mib_path"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/reshape_option"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/Scan_X"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/Scan_Y"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/iBF"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/bin_sig_factor"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/bin_nav_factor"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/create_json"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/ptycho_config"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/ptycho_template"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/nprocs"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/memory"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/DEBUG"
-        }
-      ]
+      "type": "Control",
+      "scope": "#/properties/mib_path"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/reshape_option"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/Scan_X"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/Scan_Y"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/iBF"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/bin_sig_factor"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/bin_nav_factor"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/create_json"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/ptycho_config"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/ptycho_template"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/nprocs"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/memory"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/DEBUG"
     }
   ]
 }
