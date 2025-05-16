@@ -24,28 +24,18 @@ spec:
         value: false
       - name: known_shape
         value: false
-      - name: reshape_option
-        value: "{{= inputs.parameters.auto_reshape == true ? --auto-reshape :
-                    inputs.parameters.no_reshaping == true ? --no-reshaping :
-                    inputs.parameters.use_fly_back == true ? --use-fly-back :
-                    inputs.parameters.known_shape == true ? --known-shape : ''
-                 }}"
       - name: Scan_X
         value: 256
       - name: Scan_Y
         value: 256
       - name: iBF
         value: true
-      - name: ibf_option
-        value: "{{= inputs.parameters.iBF == true ? --ibf : '' }}"
       - name: bin_sig_factor
         value: 4
       - name: bin_nav_factor
         value: 4
       - name: create_json
         value: true
-      - name: create_json_option
-        value: "{{= inputs.parameters.create_json == true ? --create-json : '' }}"
       - name: ptycho_config
         value: ""
       - name: ptycho_template
@@ -70,13 +60,13 @@ spec:
       args:
       - "mib_convert.py"
       - "{{ inputs.parameters.mib_path }}"
-      - "{{ inputs.parameters.reshape_option }}"
+      - "--auto-reshape"
       - "--scan-x={{ inputs.parameters.Scan_X }}"
       - "--scan-y={{ inputs.parameters.Scan_Y }}"
-      - "{{ inputs.parameters.ibf_option }}"
+      - "--ibf"
       - "--bin-sig-factor={{ inputs.parameters.bin_sig_factor }}"
       - "--bin-nav-factor={{ inputs.parameters.bin_nav_factor }}"
-      - "{{ inputs.parameters.create_json_option }}"
+      - "--create-json"
       volumeMounts:
       - name: session
         mountPath: "{{ workflow.parameters.visitdir }}"
