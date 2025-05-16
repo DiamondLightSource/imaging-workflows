@@ -3,86 +3,86 @@ kind: ClusterWorkflowTemplate
 metadata:
   name: e02-mib2x
   annotations:
-  workflows.argoproj.io/title: ePSIC mib conversion
-  workflows.argoproj.io/description: |
-    Convert MIB file to hdf5/hspy files
-  workflows.diamond.ac.uk/parameter-schema.mib_path: |
-    {
-      "type": "string"
-    }
-  workflows.diamond.ac.uk/parameter-schema.reshape_option: |
-    {
-      "type": "string",
-      "enum": [
-        "--auto-reshape",
-        "--no-reshaping",
-        "--use-fly-back",
-        "--known-shape"
-      ],
-      "default": "--auto-reshape"
-    }
-  workflows.diamond.ac.uk/parameter-schema.Scan_X: |
-    {
-      "type": "integer",
-      "default": 256
-    }
-  workflows.diamond.ac.uk/parameter-schema.Scan_Y: |
-    {
-      "type": "integer",
-      "default": 256
-    }
-  workflows.diamond.ac.uk/parameter-schema.iBF: |
-    {
-      "type": "boolean",
-      "default": true
-    }
-  workflows.diamond.ac.uk/parameter-schema.bin_sig_factor: |
-    {
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 8,
-      "default": 4
-    }
-  workflows.diamond.ac.uk/parameter-schema.bin_nav_factor: |
-    {
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 8,
-      "default": 4
-    }
-  workflows.diamond.ac.uk/parameter-schema.create_json: |
-    {
-      "type": "boolean",
-      "default": true
-    }
-  workflows.diamond.ac.uk/parameter-schema.ptycho_config: |
-    {
-      "type": "string",
-      "default": ""
-    }
-  workflows.diamond.ac.uk/parameter-schema.ptycho_template: |
-    {
-      "type": "string",
-      "default": ""
-    }
-  workflows.diamond.ac.uk/parameter-schema.nprocs: |
-    {
-      "type": "integer",
-      "default": 8
-    }
-  workflows.diamond.ac.uk/parameter-schema.memory: |
-    {
-      "type": "string",
-      "pattern": "^[0-9]+[GMK]i$",
-      "default": "16Gi"
-    }
-  workflows.diamond.ac.uk/parameter-schema.DEBUG: |
-    {
-      "type": "integer",
-      "default": 1
-    }
-  workflows.diamond.ac.uk/ui-schema: |
-    {{- .Files.Get "mib2x_ui.json" | nindent 6 }}
+    workflows.argoproj.io/title: ePSIC mib conversion
+    workflows.argoproj.io/description: |
+      Convert MIB file to hdf5/hspy files
+    workflows.diamond.ac.uk/parameter-schema.mib_path: |
+      {
+        "type": "string"
+      }
+    workflows.diamond.ac.uk/parameter-schema.reshape_option: |
+      {
+        "type": "string",
+        "enum": [
+          "--auto-reshape",
+          "--no-reshaping",
+          "--use-fly-back",
+          "--known-shape"
+        ],
+        "default": "--auto-reshape"
+      }
+    workflows.diamond.ac.uk/parameter-schema.Scan_X: |
+      {
+        "type": "integer",
+        "default": 256
+      }
+    workflows.diamond.ac.uk/parameter-schema.Scan_Y: |
+      {
+        "type": "integer",
+        "default": 256
+      }
+    workflows.diamond.ac.uk/parameter-schema.iBF: |
+      {
+        "type": "boolean",
+        "default": true
+      }
+    workflows.diamond.ac.uk/parameter-schema.bin_sig_factor: |
+      {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 8,
+        "default": 4
+      }
+    workflows.diamond.ac.uk/parameter-schema.bin_nav_factor: |
+      {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 8,
+        "default": 4
+      }
+    workflows.diamond.ac.uk/parameter-schema.create_json: |
+      {
+        "type": "boolean",
+        "default": true
+      }
+    workflows.diamond.ac.uk/parameter-schema.ptycho_config: |
+      {
+        "type": "string",
+        "default": ""
+      }
+    workflows.diamond.ac.uk/parameter-schema.ptycho_template: |
+      {
+        "type": "string",
+        "default": ""
+      }
+    workflows.diamond.ac.uk/parameter-schema.nprocs: |
+      {
+        "type": "integer",
+        "default": 8
+      }
+    workflows.diamond.ac.uk/parameter-schema.memory: |
+      {
+        "type": "string",
+        "pattern": "^[0-9]+[GMK]i$",
+        "default": "16Gi"
+      }
+    workflows.diamond.ac.uk/parameter-schema.DEBUG: |
+      {
+        "type": "integer",
+        "default": 1
+      }
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "mib2x_ui.json" | nindent 6 }}
 spec:
   entrypoint: mib2x
   arguments:
@@ -141,9 +141,9 @@ spec:
       - "{{ inputs.parameters.iBF }}"
       - "--bin-sig-factor={{ inputs.parameters.bin_sig_factor }}"
       - "--bin-nav-factor={{ inputs.parameters.bin_nav_factor }}"
-      - "{{ inputs.paramters.create_json }}"
-      - "--ptycho-config={{ inputs.paramters.ptycho_config }}"
-      - "--ptycho-template={{ inputs.paramters.ptycho_template }}"
+      - "{{ inputs.parameters.create_json }}"
+      - "--ptycho-config={{ inputs.parameters.ptycho_config }}"
+      - "--ptycho-template={{ inputs.parameters.ptycho_template }}"
       volumeMounts:
       - name: session
         mountPath: "{{ workflow.parameters.visitdir }}"
