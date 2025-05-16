@@ -107,13 +107,15 @@ spec:
       args:
       - "mib_convert.py"
       - "{{ inputs.parameters.mib_path }}"
-      - "--auto-reshape"
+      - "{{ inputs.parameters.reshape_option }}"
       - "--scan-x={{ inputs.parameters.Scan_X }}"
       - "--scan-y={{ inputs.parameters.Scan_Y }}"
-      - "--ibf"
+      - "{{ inputs.parameters.iBF }}"
       - "--bin-sig-factor={{ inputs.parameters.bin_sig_factor }}"
       - "--bin-nav-factor={{ inputs.parameters.bin_nav_factor }}"
-      - "--create-json"
+      - "{{ inputs.paramters.create_json }}"
+      - "--ptycho-config={{ inputs.paramters.ptycho_config }}"
+      - "--ptycho-template={{ inputs.paramters.ptycho_template }}"
       volumeMounts:
       - name: session
         mountPath: "{{ workflow.parameters.visitdir }}"
