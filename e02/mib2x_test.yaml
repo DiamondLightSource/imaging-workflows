@@ -18,43 +18,68 @@ metadata:
         "--no-reshaping",
         "--use-fly-back",
         "--known-shape"
-      ]
+      ],
+      "default": "--auto-reshape"
     }
   workflows.diamond.ac.uk/parameter-schema.Scan_X: |
     {
-      "type": "integer"
+      "type": "integer",
+      "default": 256
     }
   workflows.diamond.ac.uk/parameter-schema.Scan_Y: |
     {
-      "type": "integer"
+      "type": "integer",
+      "default": 256
     }
   workflows.diamond.ac.uk/parameter-schema.iBF: |
     {
-      "type": "boolean"
+      "type": "boolean",
+      "default": true
     }
   workflows.diamond.ac.uk/parameter-schema.bin_sig_factor: |
     {
       "type": "integer",
       "minimum": 0,
-      "maximum": 8
+      "maximum": 8,
+      "default": 4
     }
   workflows.diamond.ac.uk/parameter-schema.bin_nav_factor: |
     {
       "type": "integer",
       "minimum": 0,
-      "maximum": 8
+      "maximum": 8,
+      "default": 4
     }
   workflows.diamond.ac.uk/parameter-schema.create_json: |
     {
-      "type": "boolean"
+      "type": "boolean",
+      "default": true
     }
   workflows.diamond.ac.uk/parameter-schema.ptycho_config: |
     {
-      "type": "string"
+      "type": "string",
+      "default": ""
     }
   workflows.diamond.ac.uk/parameter-schema.ptycho_template: |
     {
-      "type": "string"
+      "type": "string",
+      "default": ""
+    }
+  workflows.diamond.ac.uk/parameter-schema.nprocs: |
+    {
+      "type": "integer",
+      "default": 8
+    }
+  workflows.diamond.ac.uk/parameter-schema.memory: |
+    {
+      "type": "string",
+      "pattern": "^[0-9]+[GMK]i$",
+      "default": "16Gi"
+    }
+  workflows.diamond.ac.uk/parameter-schema.DEBUG: |
+    {
+      "type": "integer",
+      "default": 1
     }
 spec:
   entrypoint: mib2x
@@ -71,6 +96,7 @@ spec:
       parameters:
       - name: mib_path
       - name: reshape_option
+        value: "--auto-reshape"
       - name: Scan_X
         value: 256
       - name: Scan_Y
