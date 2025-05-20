@@ -134,7 +134,7 @@ spec:
       command: [python]
       args:
       - "mib_convert.py"
-      - "{{`{{ inputs.parameters.mib_path }}`}}"
+      - "--mib-path={{`{{ inputs.parameters.mib_path }}`}}"
       - "{{`{{ inputs.parameters.reshape_option }}`}}"
       - "--scan-x={{`{{ inputs.parameters.Scan_X }}`}}"
       - "--scan-y={{`{{ inputs.parameters.Scan_Y }}`}}"
