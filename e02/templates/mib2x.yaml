@@ -13,11 +13,23 @@ metadata:
     workflows.diamond.ac.uk/parameter-schema.reshape_option: |
       {
         "type": "string",
-        "enum": [
-          "--auto-reshape",
-          "--no-reshaping",
-          "--use-fly-back",
-          "--known-shape"
+        "oneOf": [
+          {
+            "const": "--auto-reshape",
+            "title": "Auto"
+          },
+          {
+            "const": "--no-reshaping",
+            "title": "None"
+          },
+          {
+            "const": "--use-fly-back",
+            "title": "Fly-back"
+          },
+          {
+            "const": "--known-shape",
+            "title": "By known shape"
+          }
         ],
         "default": "--auto-reshape"
       }
