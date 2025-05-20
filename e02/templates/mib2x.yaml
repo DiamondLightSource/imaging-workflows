@@ -151,8 +151,14 @@ spec:
         then
           cmd+=("--create-json")
         fi
-        cmd+=("--ptycho-config={{`{{ inputs.parameters.ptycho_config }}`}}")
-        cmd+=("--ptycho-template={{`{{ inputs.parameters.ptycho_template }}`}}")
+        if [ "{{`{{ inputs.parameters.ptycho_config }}`}}" != "" ]
+        then
+          cmd+=("--ptycho-config={{`{{ inputs.parameters.ptycho_config }}`}}")
+        fi
+        if [ "{{`{{ inputs.parameters.ptycho_template }}`}}" != "" ]
+        then
+          cmd+=("--ptycho-template={{`{{ inputs.parameters.ptycho_template }}`}}")
+        fi
         # use exec to make application as PID 1 for signal handling
         echo "Executing: ${cmd[@]}"
         exec "${cmd[@]}"
