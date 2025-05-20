@@ -151,11 +151,11 @@ spec:
         then
           cmd+=("--create-json")
         fi
-        if [ "{{`{{ inputs.parameters.ptycho_config }}`}}" != "" ]
+        if [ -n "{{`{{ inputs.parameters.ptycho_config }}`}}" ]
         then
           cmd+=("--ptycho-config={{`{{ inputs.parameters.ptycho_config }}`}}")
         fi
-        if [ "{{`{{ inputs.parameters.ptycho_template }}`}}" != "" ]
+        if [ -n "{{`{{ inputs.parameters.ptycho_template }}`}}" ]
         then
           cmd+=("--ptycho-template={{`{{ inputs.parameters.ptycho_template }}`}}")
         fi
