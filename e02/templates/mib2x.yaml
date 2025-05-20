@@ -121,7 +121,7 @@ spec:
         value: 16Gi
       - name: DEBUG
         value: 1
-    container:
+    script:
       image: ghcr.io/epsic-dls/mib2x:1.0.0
       imagePullPolicy: Always
       env:
@@ -131,19 +131,31 @@ spec:
         value: "{{`{{ inputs.parameters.nprocs }}`}}"
       - name: M2X_DEBUG
         value: "{{`{{ inputs.parameters.DEBUG }}`}}"
-      command: [python]
-      args:
-      - "mib_convert.py"
-      - "--mib-path={{`{{ inputs.parameters.mib_path }}`}}"
-      - "{{`{{ inputs.parameters.reshape_option }}`}}"
-      - "--scan-x={{`{{ inputs.parameters.Scan_X }}`}}"
-      - "--scan-y={{`{{ inputs.parameters.Scan_Y }}`}}"
-      - "{{`{{ inputs.parameters.iBF }}`}}"
-      - "--bin-sig-factor={{`{{ inputs.parameters.bin_sig_factor }}`}}"
-      - "--bin-nav-factor={{`{{ inputs.parameters.bin_nav_factor }}`}}"
-      - "{{`{{ inputs.parameters.create_json }}`}}"
-      - "--ptycho-config={{`{{ inputs.parameters.ptycho_config }}`}}"
-      - "--ptycho-template={{`{{ inputs.parameters.ptycho_template }}`}}"
+      command: [sh]
+      source: |
+        #!/bin/sh
+        set -e
+
+        cmd=("python" "mib_convert.py")
+        cmd+=("--mib-path={{`{{ inputs.parameters.mib_path }}`}}")
+        cmd+=("{{`{{ inputs.parameters.reshape_option }}`}}")
+        cmd+=("--scan-x={{`{{ inputs.parameters.Scan_X }}`}}")
+        cmd+=("--scan-y={{`{{ inputs.parameters.Scan_Y }}`}}")
+        if [ "{{`{{ inputs.parameters.iBF }}`}}" = "true" ]
+        then
+          cmd+=("--ibf")
+        fi
+        cmd+=("--bin-sig-factor={{`{{ inputs.parameters.bin_sig_factor }}`}}")
+        cmd+=("--bin-nav-factor={{`{{ inputs.parameters.bin_nav_factor }}`}}")
+        if [ "{{`{{ inputs.parameters.create_json }}`}}" = "true" ]
+        then
+          cmd+=("--create-json")
+        fi
+        cmd+=("--ptycho-config={{`{{ inputs.parameters.ptycho_config }}`}}")
+        cmd+=("--ptycho-template={{`{{ inputs.parameters.ptycho_template }}`}}")
+        # use exec to make application as PID 1 for signal handling
+        echo "Executing: ${cmd[@]}"
+        exec "${cmd[@]}"
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
