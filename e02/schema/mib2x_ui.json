@@ -72,12 +72,26 @@
                   "scope": "#/properties/create_json"
                 },
                 {
-                  "type": "Control",
-                  "scope": "#/properties/ptycho_config"
-                },
-                {
-                  "type": "Control",
-                  "scope": "#/properties/ptycho_template"
+                  "type": "VerticalLayout",
+                  "rule": {
+                    "effect": "DISABLE",
+                    "condition": {
+                      "scope": "#/properties/create_json",
+                      "schema": {
+                        "const": false
+                      }
+                    }
+                  },
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "scope": "#/properties/ptycho_config"
+                    },
+                    {
+                      "type": "Control",
+                      "scope": "#/properties/ptycho_template"
+                    }
+                  ]
                 }
               ]
             },
