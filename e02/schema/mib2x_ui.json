@@ -87,7 +87,7 @@
                   "label": "The name of the generated config",
                   "scope": "#/properties/ptycho_config",
                   "rule": {
-                    "effect": "DISABLE",
+                    "effect": "HIDE",
                     "condition": {
                       "scope": "#/properties/create_json",
                       "schema": {
@@ -101,7 +101,7 @@
                   "label": "Path of the PtyREX template config",
                   "scope": "#/properties/ptycho_template",
                   "rule": {
-                    "effect": "DISABLE",
+                    "effect": "HIDE",
                     "condition": {
                       "scope": "#/properties/create_json",
                       "schema": {
