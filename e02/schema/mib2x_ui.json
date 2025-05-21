@@ -1,5 +1,8 @@
 {
   "type": "VerticalLayout",
+  "options": {
+    "formWidth": "80%"
+  },
   "elements": [
     {
       "type": "Group",
