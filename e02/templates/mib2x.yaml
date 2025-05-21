@@ -36,11 +36,13 @@ metadata:
     workflows.diamond.ac.uk/parameter-schema.Scan_X: |
       {
         "type": "integer",
+        "minimum": 0,
         "default": 256
       }
     workflows.diamond.ac.uk/parameter-schema.Scan_Y: |
       {
         "type": "integer",
+        "minimum": 0,
         "default": 256
       }
     workflows.diamond.ac.uk/parameter-schema.iBF: |
@@ -80,6 +82,7 @@ metadata:
     workflows.diamond.ac.uk/parameter-schema.nprocs: |
       {
         "type": "integer",
+        "minimum": 0,
         "default": 8
       }
     workflows.diamond.ac.uk/parameter-schema.memory: |
