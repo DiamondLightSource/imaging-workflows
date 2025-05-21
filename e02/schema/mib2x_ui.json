@@ -13,10 +13,12 @@
           "elements": [
             {
               "type": "Control",
+              "label": "Path of MIB file",
               "scope": "#/properties/mib_path"
             },
             {
               "type": "Control",
+              "label": "Generate integrated bright-field image",
               "scope": "#/properties/iBF"
             }
           ]
@@ -35,14 +37,17 @@
               "elements": [
                 {
                   "type": "Control",
+                  "label": "Reshape methods",
                   "scope": "#/properties/reshape_option"
                 },
                 {
                   "type": "Control",
+                  "label": "Dimension in x (row)",
                   "scope": "#/properties/Scan_X"
                 },
                 {
                   "type": "Control",
+                  "label": "Dimension in y (column)",
                   "scope": "#/properties/Scan_Y"
                 }
               ]
@@ -53,10 +58,12 @@
               "elements": [
                 {
                   "type": "Control",
+                  "label": "Signal binning factor (detector)",
                   "scope": "#/properties/bin_sig_factor"
                 },
                 {
                   "type": "Control",
+                  "label": "Navigation binning factor",
                   "scope": "#/properties/bin_nav_factor"
                 }
               ]
@@ -72,10 +79,12 @@
               "elements": [
                 {
                   "type": "Control",
+                  "label": "Create PtyREX config",
                   "scope": "#/properties/create_json"
                 },
                 {
                   "type": "Control",
+                  "label": "The name of the generated config",
                   "scope": "#/properties/ptycho_config",
                   "rule": {
                     "effect": "DISABLE",
@@ -89,6 +98,7 @@
                 },
                 {
                   "type": "Control",
+                  "label": "Path of the PtyREX template config",
                   "scope": "#/properties/ptycho_template",
                   "rule": {
                     "effect": "DISABLE",
