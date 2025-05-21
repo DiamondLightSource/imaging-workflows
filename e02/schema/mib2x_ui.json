@@ -75,7 +75,8 @@
                   "scope": "#/properties/create_json"
                 },
                 {
-                  "type": "VerticalLayout",
+                  "type": "Control",
+                  "scope": "#/properties/ptycho_config",
                   "rule": {
                     "effect": "DISABLE",
                     "condition": {
@@ -84,17 +85,20 @@
                         "const": false
                       }
                     }
-                  },
-                  "elements": [
-                    {
-                      "type": "Control",
-                      "scope": "#/properties/ptycho_config"
-                    },
-                    {
-                      "type": "Control",
-                      "scope": "#/properties/ptycho_template"
+                  }
+                },
+                {
+                  "type": "Control",
+                  "scope": "#/properties/ptycho_template",
+                  "rule": {
+                    "effect": "DISABLE",
+                    "condition": {
+                      "scope": "#/properties/create_json",
+                      "schema": {
+                        "const": false
+                      }
                     }
-                  ]
+                  }
                 }
               ]
             },
