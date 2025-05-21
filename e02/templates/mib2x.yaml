@@ -67,7 +67,7 @@ metadata:
     workflows.diamond.ac.uk/parameter-schema.create_json: |
       {
         "type": "boolean",
-        "default": true
+        "default": false
       }
     workflows.diamond.ac.uk/parameter-schema.ptycho_config: |
       {
