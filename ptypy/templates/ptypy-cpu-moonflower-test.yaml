@@ -3,7 +3,7 @@ kind: ClusterWorkflowTemplate
 metadata:
   name: ptypy-cpu-moonflower-benchmark
 spec:
-  entrypoint: ptypy-run
+  entrypoint: ptypy-runs
   volumeClaimTemplates:
   - metadata:
       name: tmpdir

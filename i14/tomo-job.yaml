@@ -3,7 +3,6 @@ kind: ClusterWorkflowTemplate
 metadata:
   name: ptycho-tomo-job
 spec:
-  entrypoint: ptycho-tomo-run
   templates:
   - name: echo
     inputs:
