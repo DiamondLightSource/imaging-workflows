@@ -1,0 +1,8 @@
+manifests:
+  - httomo
+  - i14
+
+helmManifests:
+  - e02
+  - ptypy
+
