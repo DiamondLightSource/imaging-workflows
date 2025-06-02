@@ -24,7 +24,7 @@ spec:
   - name: httomo-run
     inputs:
       parameters:
-      - name: configfile
+      - name: config
       - name: input
       - name: output
       - name: nprocs
@@ -32,7 +32,7 @@ spec:
       - name: memory
         value: 20Gi
     container:
-      image: gcr.io/diamond-privreg/httomo/test:0.2
+      image: ghcr.io/diamondlightsource/httomo:latest
       env:
       - name: CUPY_CACHE_DIR
         value: /tmp/.cupy/kernel_cache
@@ -43,16 +43,18 @@ spec:
       - name: OMP_NUM_THREADS
         value: "1"
       command:
-      - mpirun
+      - /opt/conda/bin/mpirun
       args:
       - "-n"
       - "{{ inputs.parameters.nprocs }}"
-      - "python"
+      - /opt/conda/bin/python
       - "-m"
       - "httomo"
       - "run"
+      - "--pipeline-format"
+      - "json"
       - "{{ inputs.parameters.input }}"
-      - "{{ inputs.parameters.configfile }}"
+      - "{{ inputs.parameters.config }}"
       - "{{ inputs.parameters.output }}"
       volumeMounts:
       - name: session
