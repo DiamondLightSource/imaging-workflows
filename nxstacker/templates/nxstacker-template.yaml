@@ -208,46 +208,46 @@ spec:
         source: |
           set -euo pipefail
 
-          cmd=("tomojoin" "{{inputs.parameters.experiment-type}}")
+          cmd=("tomojoin" "{{`{{inputs.parameters.experiment-type}}`}}")
 
-          [[ "{{inputs.parameters.quiet}}" == "true" ]] && cmd+=("--quiet")
-          [[ "{{inputs.parameters.dry-run}}" == "true" ]] && cmd+=("--dry-run")
-          [[ "{{inputs.parameters.sort-by-angle}}" == "true" ]] && cmd+=("--sort-by-angle")
-          [[ "{{inputs.parameters.pad-to-max}}" == "true" ]] && cmd+=("--pad-to-max")
-          [[ "{{inputs.parameters.compress}}" == "true" ]] && cmd+=("--compress")
-          [[ "{{inputs.parameters.skip-check}}" == "true" ]] && cmd+=("--skip-check")
-          [[ "{{inputs.parameters.save-complex}}" == "true" ]] && cmd+=("--save-complex")
-          [[ "{{inputs.parameters.save-modulus}}" == "true" ]] && cmd+=("--save-modulus")
-          [[ "{{inputs.parameters.save-phase}}" == "true" ]] && cmd+=("--save-phase")
-          [[ "{{inputs.parameters.remove-ramp}}" == "true" ]] && cmd+=("--remove-ramp")
-          [[ "{{inputs.parameters.median-norm}}" == "true" ]] && cmd+=("--median-norm")
-          [[ "{{inputs.parameters.unwrap-phase}}" == "true" ]] && cmd+=("--unwrap-phase")
-          [[ "{{inputs.parameters.rescale}}" == "true" ]] && cmd+=("--rescale")
+          [[ "{{`{{inputs.parameters.quiet}}`}}" == "true" ]] && cmd+=("--quiet")
+          [[ "{{`{{inputs.parameters.dry-run}}`}}" == "true" ]] && cmd+=("--dry-run")
+          [[ "{{`{{inputs.parameters.sort-by-angle}}`}}" == "true" ]] && cmd+=("--sort-by-angle")
+          [[ "{{`{{inputs.parameters.pad-to-max}}`}}" == "true" ]] && cmd+=("--pad-to-max")
+          [[ "{{`{{inputs.parameters.compress}}`}}" == "true" ]] && cmd+=("--compress")
+          [[ "{{`{{inputs.parameters.skip-check}}`}}" == "true" ]] && cmd+=("--skip-check")
+          [[ "{{`{{inputs.parameters.save-complex}}`}}" == "true" ]] && cmd+=("--save-complex")
+          [[ "{{`{{inputs.parameters.save-modulus}}`}}" == "true" ]] && cmd+=("--save-modulus")
+          [[ "{{`{{inputs.parameters.save-phase}}`}}" == "true" ]] && cmd+=("--save-phase")
+          [[ "{{`{{inputs.parameters.remove-ramp}}`}}" == "true" ]] && cmd+=("--remove-ramp")
+          [[ "{{`{{inputs.parameters.median-norm}}`}}" == "true" ]] && cmd+=("--median-norm")
+          [[ "{{`{{inputs.parameters.unwrap-phase}}`}}" == "true" ]] && cmd+=("--unwrap-phase")
+          [[ "{{`{{inputs.parameters.rescale}}`}}" == "true" ]] && cmd+=("--rescale")
 
-          [[ -n "{{inputs.parameters.proj-dir}}" ]] && cmd+=("--proj-dir={{inputs.parameters.proj-dir}}")
-          [[ -n "{{inputs.parameters.proj-file}}" ]] && cmd+=("--proj-file={{inputs.parameters.proj-file}}")
-          [[ -n "{{inputs.parameters.nxtomo-dir}}" ]] && cmd+=("--nxtomo-dir={{inputs.parameters.nxtomo-dir}}")
-          [[ -n "{{inputs.parameters.raw-dir}}" ]] && cmd+=("--raw-dir={{inputs.parameters.raw-dir}}")
-          [[ -n "{{inputs.parameters.facility}}" ]] && cmd+=("--facility={{inputs.parameters.facility}}")
-          [[ -n "{{inputs.parameters.from-scan}}" ]] && cmd+=("--from-scan={{inputs.parameters.from-scan}}")
-          [[ -n "{{inputs.parameters.scan-list}}" ]] && cmd+=("--scan-list={{inputs.parameters.scan-list}}")
-          [[ -n "{{inputs.parameters.exclude-scan}}" ]] && cmd+=("--exclude-scan={{inputs.parameters.exclude-scan}}")
-          [[ -n "{{inputs.parameters.from-proj}}" ]] && cmd+=("--from-proj={{inputs.parameters.from-proj}}")
-          [[ -n "{{inputs.parameters.proj-list}}" ]] && cmd+=("--proj-list={{inputs.parameters.proj-list}}")
-          [[ -n "{{inputs.parameters.exclude-proj}}" ]] && cmd+=("--exclude-proj={{inputs.parameters.exclude-proj}}")
-          [[ -n "{{inputs.parameters.from-angle}}" ]] && cmd+=("--from-angle={{inputs.parameters.from-angle}}")
-          [[ -n "{{inputs.parameters.angle-list}}" ]] && cmd+=("--angle-list={{inputs.parameters.angle-list}}")
-          [[ -n "{{inputs.parameters.exclude-angle}}" ]] && cmd+=("--exclude-angle={{inputs.parameters.exclude-angle}}")
-          [[ -n "{{inputs.parameters.retrieval-method}}" ]] && cmd+=("--retrieval-method={{inputs.parameters.retrieval-method}}")
-          [[ -n "{{inputs.parameters.transition}}" ]] && cmd+=("--transition={{inputs.parameters.transition}}")
+          [[ -n "{{`{{inputs.parameters.proj-dir}}`}}" ]] && cmd+=("--proj-dir={{`{{inputs.parameters.proj-dir}}`}}")
+          [[ -n "{{`{{inputs.parameters.proj-file}}`}}" ]] && cmd+=("--proj-file={{`{{inputs.parameters.proj-file}}`}}")
+          [[ -n "{{`{{inputs.parameters.nxtomo-dir}}`}}" ]] && cmd+=("--nxtomo-dir={{`{{inputs.parameters.nxtomo-dir}}`}}")
+          [[ -n "{{`{{inputs.parameters.raw-dir}}`}}" ]] && cmd+=("--raw-dir={{`{{inputs.parameters.raw-dir}}`}}")
+          [[ -n "{{`{{inputs.parameters.facility}}`}}" ]] && cmd+=("--facility={{`{{inputs.parameters.facility}}`}}")
+          [[ -n "{{`{{inputs.parameters.from-scan}}`}}" ]] && cmd+=("--from-scan={{`{{inputs.parameters.from-scan}}`}}")
+          [[ -n "{{`{{inputs.parameters.scan-list}}`}}" ]] && cmd+=("--scan-list={{`{{inputs.parameters.scan-list}}`}}")
+          [[ -n "{{`{{inputs.parameters.exclude-scan}}`}}" ]] && cmd+=("--exclude-scan={{`{{inputs.parameters.exclude-scan}}`}}")
+          [[ -n "{{`{{inputs.parameters.from-proj}}`}}" ]] && cmd+=("--from-proj={{`{{inputs.parameters.from-proj}}`}}")
+          [[ -n "{{`{{inputs.parameters.proj-list}}`}}" ]] && cmd+=("--proj-list={{`{{inputs.parameters.proj-list}}`}}")
+          [[ -n "{{`{{inputs.parameters.exclude-proj}}`}}" ]] && cmd+=("--exclude-proj={{`{{inputs.parameters.exclude-proj}}`}}")
+          [[ -n "{{`{{inputs.parameters.from-angle}}`}}" ]] && cmd+=("--from-angle={{`{{inputs.parameters.from-angle}}`}}")
+          [[ -n "{{`{{inputs.parameters.angle-list}}`}}" ]] && cmd+=("--angle-list={{`{{inputs.parameters.angle-list}}`}}")
+          [[ -n "{{`{{inputs.parameters.exclude-angle}}`}}" ]] && cmd+=("--exclude-angle={{`{{inputs.parameters.exclude-angle}}`}}")
+          [[ -n "{{`{{inputs.parameters.retrieval-method}}`}}" ]] && cmd+=("--retrieval-method={{`{{inputs.parameters.retrieval-method}}`}}")
+          [[ -n "{{`{{inputs.parameters.transition}}`}}" ]] && cmd+=("--transition={{`{{inputs.parameters.transition}}`}}")
 
           echo "Executing: ${cmd[*]}"
           exec "${cmd[@]}"
         volumeMounts:
           - name: session
-            mountPath: "{{workflow.parameters.visitdir}}"
+            mountPath: "{{`{{workflow.parameters.visitdir}}`}}"
       volumes:
         - name: session
           hostPath:
-            path: "{{workflow.parameters.visitdir}}"
+            path: "{{`{{workflow.parameters.visitdir}}`}}`}}"
             type: Directory
