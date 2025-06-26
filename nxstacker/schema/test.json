@@ -1,0 +1,40 @@
+{
+  "$defs": {
+    "Quiet": {
+      "properties": {
+        "active": {
+          "default": true,
+          "description": "",
+          "title": "Quiet mode",
+          "type": "boolean"
+        }
+      },
+      "title": "Quiet",
+      "type": "object"
+    }
+  },
+  "description": "This is the description of the main model",
+  "properties": {
+    "quiet": {
+      "$ref": "#/$defs/Quiet"
+    },
+    "experiment-type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "",
+      "title": "Experiment Type"
+    }
+  },
+  "required": [
+    "quiet"
+  ],
+  "title": "Main",
+  "type": "object"
+}
