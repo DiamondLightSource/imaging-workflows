@@ -1,0 +1,187 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Control",
+      "scope": "#/properties/experimentType"
+    },
+    {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/quiet"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/dryRun"
+        }
+      ]
+    },
+    {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/projDir"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/projFile"
+        }
+      ]
+    },
+    {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/nxtomoDir"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/rawDir"
+        }
+      ]
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/facility"
+    },
+    {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/fromScan"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/scanList"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/excludeScan"
+        }
+      ]
+    },
+    {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/fromProj"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/projList"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/excludeProj"
+        }
+      ]
+    },
+    {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/fromAngle"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/angleList"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/excludeAngle"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/sortByAngle"
+        }
+      ]
+    },
+    {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/padToMax"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/compress"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/skipCheck"
+        }
+      ]
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/retrievalMethod",
+      "rule": {
+        "effect": "SHOW",
+        "condition": {
+          "scope": "#/properties/experimentType",
+          "schema": { "const": "Differential Phase Contrast imaging (DPC)" }
+        }
+      }
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/transition",
+      "rule": {
+        "effect": "SHOW",
+        "condition": {
+          "scope": "#/properties/experimentType",
+          "schema": { "const": "X-ray fluorescence" }
+        }
+      }
+    },
+    {
+      "type": "HorizontalLayout",
+      "rule": {
+        "effect": "SHOW",
+        "condition": {
+          "scope": "#/properties/experimentType",
+          "schema": { "const": "Ptychography" }
+        }
+      },
+      "elements": [
+        {
+          "type": "Control",
+          "title": "Ptycho",
+          "scope": "#/properties/saveComplex"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/saveModulus"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/savePhase"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/removeRamp"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/medianNorm"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/unwrapPhase"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/rescale"
+        }
+      ]
+    }
+  ]
+}
