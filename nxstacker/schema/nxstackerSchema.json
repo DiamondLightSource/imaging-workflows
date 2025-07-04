@@ -1,0 +1,283 @@
+{
+  "type": "object",
+  "properties": {
+    "experimentType": {
+      "type": "string",
+      "title": "Experiment Type",
+      "enum": [
+        "Differential Phase Contrast imaging (DPC)",
+        "Ptychography",
+        "Tomography",
+        "X-ray fluorescence"
+      ]
+    },
+    "quiet": {
+      "type": "boolean",
+      "title": "Quiet",
+      "description": "Suppress log messages"
+    },
+    "dryRun": {
+      "type": "boolean",
+      "title": "Perform a dry run"
+    },
+    "projDir": {
+      "type": "string",
+      "title": "Projection directory",
+      "description": "The directory where the projections are stored"
+    },
+    "projFile": {
+      "type": "string",
+      "title": "Projection file",
+      "description": "The file path with placeholder %(scan) and/or %(proj)"
+    },
+    "nxtomoDir": {
+      "type": "string",
+      "title": "Nxtomo directory",
+      "description": "The directory where the NXtomo file will be saved"
+    },
+    "rawDir": {
+      "type": "string",
+      "title": "Raw directory",
+      "description": "The directory where the raw files are stored"
+    },
+    "facility": {
+      "type": "string",
+      "title": "Facility",
+      "description": "The facility identifier, e.g. i14, i08-1, i13-1"
+    },
+    "fromScan": {
+      "type": "string",
+      "title": "From scan",
+      "description": "The scan number specifier, e.g. 100-120"
+    },
+    "scanList": {
+      "type": "string",
+      "title": "Scan list",
+      "description": "The file with scan numbers as the only column"
+    },
+    "excludeScan": {
+      "type": "string",
+      "title": "Exclude scan",
+      "description": "Scan number(s) that should be excluded"
+    },
+    "fromProj": {
+      "type": "string",
+      "title": "From projection",
+      "description": "The projection number specifier, e.g. 0-100"
+    },
+    "projList": {
+      "type": "string",
+      "title": "Projection list",
+      "description": "The file with projection numbers as the only column"
+    },
+    "excludeProj": {
+      "type": "string",
+      "title": "Exclude projections",
+      "description": "Projection number(s) that should be excluded"
+    },
+    "fromAngle": {
+      "type": "string",
+      "title": "From angle",
+      "description": "The rotation angle specifier, e.g. -90-90:5"
+    },
+    "angleList": {
+      "type": "string",
+      "title": "Angle list",
+      "description": "The file with rotation angles as the only column"
+    },
+    "excludeAngle": {
+      "type": "string",
+      "title": "Exclude angle",
+      "description": "Rotation angle(s) that should be excluded "
+    },
+    "sortByAngle": {
+      "type": "boolean",
+      "title": "Sort by angle",
+      "description": "Sort the projections by their rotation angles"
+    },
+    "padToMax": {
+      "type": "boolean",
+      "title": "Pad to max",
+      "description": "Pad projection to the maximum size of the stack"
+    },
+    "compress": {
+      "type": "boolean",
+      "title": "Compress",
+      "description": "Compress the NXtomo file"
+    },
+    "skipCheck": {
+      "type": "boolean",
+      "title": "Skip check",
+      "description": "Skip the validation of the projection file"
+    },
+    "retrievalMethod": {
+      "type": "string",
+      "title": "Retrieval method"
+    },
+    "transition": {
+      "type": "object",
+      "title": "Transition",
+      "description": "A comma-delimited string of transition in the format of <ELEMENT>-<TRANSITION>",
+      "properties": {
+        "element": {
+          "type": "string",
+          "enum": [
+            "",
+            "H",
+            "He",
+            "Li",
+            "Be",
+            "B",
+            "C",
+            "N",
+            "O",
+            "F",
+            "Ne",
+            "Na",
+            "Mg",
+            "Al",
+            "Si",
+            "P",
+            "S",
+            "Cl",
+            "Ar",
+            "K",
+            "Ca",
+            "Sc",
+            "Ti",
+            "V",
+            "Cr",
+            "Mn",
+            "Fe",
+            "Co",
+            "Ni",
+            "Cu",
+            "Zn",
+            "Ga",
+            "Ge",
+            "As",
+            "Se",
+            "Br",
+            "Kr",
+            "Rb",
+            "Sr",
+            "Y",
+            "Zr",
+            "Nb",
+            "Mo",
+            "Tc",
+            "Ru",
+            "Rh",
+            "Pd",
+            "Ag",
+            "Cd",
+            "In",
+            "Sn",
+            "Sb",
+            "Te",
+            "I",
+            "Xe",
+            "Cs",
+            "Ba",
+            "La",
+            "Ce",
+            "Pr",
+            "Nd",
+            "Pm",
+            "Sm",
+            "Eu",
+            "Gd",
+            "Tb",
+            "Dy",
+            "Ho",
+            "Er",
+            "Tm",
+            "Yb",
+            "Lu",
+            "Hf",
+            "Ta",
+            "W",
+            "Re",
+            "Os",
+            "Ir",
+            "Pt",
+            "Au",
+            "Hg",
+            "Tl",
+            "Pb",
+            "Bi",
+            "Po",
+            "At",
+            "Rn",
+            "Fr",
+            "Ra",
+            "Ac",
+            "Th",
+            "Pa",
+            "U",
+            "Np",
+            "Pu",
+            "Am",
+            "Cm",
+            "Bk",
+            "Cf",
+            "Es",
+            "Fm",
+            "Md",
+            "No",
+            "Lr",
+            "Rf",
+            "Db",
+            "Sg",
+            "Bh",
+            "Hs",
+            "Mt",
+            "Ds",
+            "Rg",
+            "Cn",
+            "Nh",
+            "Fl",
+            "Mc",
+            "Lv",
+            "Ts",
+            "Og"
+          ]
+        },
+        "transition": {
+          "type": "string",
+          "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
+        }
+      }
+    },
+    "saveComplex": {
+      "type": "boolean",
+      "title": "Save complex"
+    },
+    "saveModulus": {
+      "type": "boolean",
+      "title": "Save modulus"
+    },
+    "savePhase": {
+      "type": "boolean",
+      "title": "Save phase"
+    },
+    "removeRamp": {
+      "type": "boolean",
+      "title": "Remove ramp"
+    },
+    "medianNorm": {
+      "type": "boolean",
+      "title": "Median norm",
+      "description": "Normalise the phase by shifting its median"
+    },
+    "unwrapPhase": {
+      "type": "boolean",
+      "title": "Unwrap phase"
+    },
+    "rescale": {
+      "type": "boolean",
+      "title": "Rescale"
+    }
+  },
+  "required": ["experimentType"]
+}
