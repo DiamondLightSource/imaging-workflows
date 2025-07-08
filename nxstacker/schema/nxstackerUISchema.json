@@ -2,148 +2,189 @@
   "type": "VerticalLayout",
   "elements": [
     {
-      "type": "Control",
-      "scope": "#/properties/experimentType"
-    },
-    {
-      "type": "HorizontalLayout",
+      "type": "Group",
+      "label": "",
       "elements": [
         {
           "type": "Control",
-          "scope": "#/properties/quiet"
+          "scope": "#/properties/experimentType"
         },
         {
-          "type": "Control",
-          "scope": "#/properties/dryRun"
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/nxtomoDir"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/facility"
+            }
+          ]
+        },
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/padToMax"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/compress"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/skipCheck"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/quiet"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/dryRun"
+            }
+          ]
         }
       ]
     },
     {
-      "type": "HorizontalLayout",
+      "type": "Group",
+      "label": "Scan",
       "elements": [
-        {
-          "type": "Control",
-          "scope": "#/properties/projDir"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/projFile"
-        }
-      ]
-    },
-    {
-      "type": "HorizontalLayout",
-      "elements": [
-        {
-          "type": "Control",
-          "scope": "#/properties/nxtomoDir"
-        },
         {
           "type": "Control",
           "scope": "#/properties/rawDir"
+        },
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/fromScan"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/scanList"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/excludeScan"
+            }
+          ]
         }
       ]
     },
     {
-      "type": "Control",
-      "scope": "#/properties/facility"
-    },
-    {
-      "type": "HorizontalLayout",
+      "type": "Group",
+      "label": "Projection",
       "elements": [
         {
-          "type": "Control",
-          "scope": "#/properties/fromScan"
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/projDir"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/projFile"
+            }
+          ]
         },
         {
-          "type": "Control",
-          "scope": "#/properties/scanList"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/excludeScan"
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/fromProj"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/projList"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/excludeProj"
+            }
+          ]
         }
       ]
     },
     {
-      "type": "HorizontalLayout",
+      "type": "Group",
+      "label": "Angle",
       "elements": [
         {
-          "type": "Control",
-          "scope": "#/properties/fromProj"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/projList"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/excludeProj"
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/fromAngle"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/angleList"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/excludeAngle"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/sortByAngle"
+            }
+          ]
         }
       ]
     },
     {
-      "type": "HorizontalLayout",
-      "elements": [
-        {
-          "type": "Control",
-          "scope": "#/properties/fromAngle"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/angleList"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/excludeAngle"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/sortByAngle"
-        }
-      ]
-    },
-    {
-      "type": "HorizontalLayout",
-      "elements": [
-        {
-          "type": "Control",
-          "scope": "#/properties/padToMax"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/compress"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/skipCheck"
-        }
-      ]
-    },
-    {
-      "type": "Control",
-      "scope": "#/properties/retrievalMethod",
+      "type": "Group",
+      "label": "Differential Phase Contrast imaging (DPC)",
       "rule": {
         "effect": "SHOW",
         "condition": {
           "scope": "#/properties/experimentType",
-          "schema": { "const": "Differential Phase Contrast imaging (DPC)" }
+          "schema": {
+            "const": "Differential Phase Contrast imaging (DPC)"
+          }
         }
-      }
+      },
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/retrievalMethod"
+        }
+      ]
     },
     {
-      "type": "Control",
-      "scope": "#/properties/transition",
+      "type": "Group",
+      "label": "X-ray Fluorescence",
       "rule": {
         "effect": "SHOW",
         "condition": {
           "scope": "#/properties/experimentType",
-          "schema": { "const": "X-ray fluorescence" }
+          "schema": {
+            "const": "X-ray fluorescence"
+          }
         }
-      }
+      },
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/transition"
+            }
+          ]
+        }
+      ]
     },
     {
-      "type": "HorizontalLayout",
+      "type": "Group",
+      "label": "Ptychography",
       "rule": {
         "effect": "SHOW",
         "condition": {
@@ -153,33 +194,38 @@
       },
       "elements": [
         {
-          "type": "Control",
-          "title": "Ptycho",
-          "scope": "#/properties/saveComplex"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/saveModulus"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/savePhase"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/removeRamp"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/medianNorm"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/unwrapPhase"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/rescale"
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "title": "Ptycho",
+              "scope": "#/properties/saveComplex"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/saveModulus"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/savePhase"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/removeRamp"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/medianNorm"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/unwrapPhase"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/rescale"
+            }
+          ]
         }
       ]
     }
