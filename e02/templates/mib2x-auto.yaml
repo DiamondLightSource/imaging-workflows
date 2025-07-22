@@ -48,7 +48,7 @@ spec:
             mountPath: /tmp
         command: [python]
         source: |
-          import json
+          import json, sys
 
           print("{{`{{inputs.parameters.base_path}}`}}")
           base = "/dls/e02/data/2024/cm37231-4/Merlin/WS2_n_fred_40um/"
