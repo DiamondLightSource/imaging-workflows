@@ -7,7 +7,9 @@ metadata:
     workflows.argoproj.io/description: |
       nxstacker is an utility to stack projections from different types of experiments to produce NeXus-compliance file(s).
     workflows.diamond.ac.uk/parameter-schema: |
-    {{- .Files.Get "schema/test.json" | nindent 6 }}
+      {{- .Files.Get "schema/nxstackerSchema.json" | nindent 6 }}
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/nxstackerUISchema.json" | nindent 6 }}
 spec:
   entrypoint: nxstacker
   arguments:
@@ -21,66 +23,66 @@ spec:
     - name: nxstacker
       inputs:
         parameters:
-          - name: experiment-type
+          - name: experimentType
             value: "ptycho"
           - name: quiet
             value: false
-          - name: dry-run
+          - name: dryRun
             value: false
-          - name: proj-dir
+          - name: projDir
             value: ""
-          - name: proj-file
+          - name: projFile
             value: ""
-          - name: nxtomo-dir
+          - name: nxtomoDir
             value: ""
-          - name: raw-dir
+          - name: rawDir
             value: ""
           - name: facility
             value: ""
-          - name: from-scan
+          - name: fromScan
             value: ""
-          - name: scan-list
+          - name: scanList
             value: ""
-          - name: exclude-scan
+          - name: excludeScan
             value: ""
-          - name: from-proj
+          - name: fromProj
             value: ""
-          - name: proj-list
+          - name: projList
             value: ""
-          - name: exclude-proj
+          - name: excludeProj
             value: ""
-          - name: from-angle
+          - name: fromAngle
             value: ""
-          - name: angle-list
+          - name: angleList
             value: ""
-          - name: exclude-angle
+          - name: excludeAngle
             value: ""
-          - name: sort-by-angle
+          - name: sortByAngle
             value: false
-          - name: pad-to-max
+          - name: padToMax
             value: false
           - name: compress
             value: false
-          - name: skip-check
+          - name: skipCheck
             value: false
           # DPC specific arguments
-          - name: retrieval-method
+          - name: retrievalMethod
             value: ""
           # XRF specific arguments
           - name: transition
             value: ""
           # pytycho specific arguments
-          - name: save-complex
+          - name: saveComplex
             value: false
-          - name: save-modulus
+          - name: saveModulus
             value: false
-          - name: save-phase
+          - name: savePhase
             value: false
-          - name: remove-ramp
+          - name: removeRamp
             value: false
-          - name: median-norm
+          - name: medianNorm
             value: false
-          - name: unwrap-phase
+          - name: unwrapPhase
             value: false
           - name: rescale
             value: false
@@ -90,37 +92,37 @@ spec:
         source: |
           set -euo pipefail
 
-          cmd=("tomojoin" "{{`{{inputs.parameters.experiment-type}}`}}")
+          cmd=("tomojoin" "{{`{{inputs.parameters.experimentType}}`}}")
 
           [[ "{{`{{inputs.parameters.quiet}}`}}" == "true" ]] && cmd+=("--quiet")
-          [[ "{{`{{inputs.parameters.dry-run}}`}}" == "true" ]] && cmd+=("--dry-run")
-          [[ "{{`{{inputs.parameters.sort-by-angle}}`}}" == "true" ]] && cmd+=("--sort-by-angle")
-          [[ "{{`{{inputs.parameters.pad-to-max}}`}}" == "true" ]] && cmd+=("--pad-to-max")
+          [[ "{{`{{inputs.parameters.dryRun}}`}}" == "true" ]] && cmd+=("--dry-run")
+          [[ "{{`{{inputs.parameters.sortByAngle}}`}}" == "true" ]] && cmd+=("--sort-by-angle")
+          [[ "{{`{{inputs.parameters.padToMax}}`}}" == "true" ]] && cmd+=("--pad-to-max")
           [[ "{{`{{inputs.parameters.compress}}`}}" == "true" ]] && cmd+=("--compress")
-          [[ "{{`{{inputs.parameters.skip-check}}`}}" == "true" ]] && cmd+=("--skip-check")
-          [[ "{{`{{inputs.parameters.save-complex}}`}}" == "true" ]] && cmd+=("--save-complex")
-          [[ "{{`{{inputs.parameters.save-modulus}}`}}" == "true" ]] && cmd+=("--save-modulus")
-          [[ "{{`{{inputs.parameters.save-phase}}`}}" == "true" ]] && cmd+=("--save-phase")
-          [[ "{{`{{inputs.parameters.remove-ramp}}`}}" == "true" ]] && cmd+=("--remove-ramp")
-          [[ "{{`{{inputs.parameters.median-norm}}`}}" == "true" ]] && cmd+=("--median-norm")
-          [[ "{{`{{inputs.parameters.unwrap-phase}}`}}" == "true" ]] && cmd+=("--unwrap-phase")
+          [[ "{{`{{inputs.parameters.skipCheck}}`}}" == "true" ]] && cmd+=("--skip-check")
+          [[ "{{`{{inputs.parameters.saveComplex}}`}}" == "true" ]] && cmd+=("--save-complex")
+          [[ "{{`{{inputs.parameters.saveModulus}}`}}" == "true" ]] && cmd+=("--save-modulus")
+          [[ "{{`{{inputs.parameters.savePhase}}`}}" == "true" ]] && cmd+=("--save-phase")
+          [[ "{{`{{inputs.parameters.removeRamp}}`}}" == "true" ]] && cmd+=("--remove-ramp")
+          [[ "{{`{{inputs.parameters.medianNorm}}`}}" == "true" ]] && cmd+=("--median-norm")
+          [[ "{{`{{inputs.parameters.unwrapPhase}}`}}" == "true" ]] && cmd+=("--unwrap-phase")
           [[ "{{`{{inputs.parameters.rescale}}`}}" == "true" ]] && cmd+=("--rescale")
 
-          [[ -n "{{`{{inputs.parameters.proj-dir}}`}}" ]] && cmd+=("--proj-dir={{`{{inputs.parameters.proj-dir}}`}}")
-          [[ -n "{{`{{inputs.parameters.proj-file}}`}}" ]] && cmd+=("--proj-file={{`{{inputs.parameters.proj-file}}`}}")
-          [[ -n "{{`{{inputs.parameters.nxtomo-dir}}`}}" ]] && cmd+=("--nxtomo-dir={{`{{inputs.parameters.nxtomo-dir}}`}}")
-          [[ -n "{{`{{inputs.parameters.raw-dir}}`}}" ]] && cmd+=("--raw-dir={{`{{inputs.parameters.raw-dir}}`}}")
+          [[ -n "{{`{{inputs.parameters.projDir}}`}}" ]] && cmd+=("--proj-dir={{`{{inputs.parameters.projDir}}`}}")
+          [[ -n "{{`{{inputs.parameters.projFile}}`}}" ]] && cmd+=("--proj-file={{`{{inputs.parameters.projFile}}`}}")
+          [[ -n "{{`{{inputs.parameters.nxtomoDir}}`}}" ]] && cmd+=("--nxtomo-dir={{`{{inputs.parameters.nxtomoDir}}`}}")
+          [[ -n "{{`{{inputs.parameters.rawDir}}`}}" ]] && cmd+=("--raw-dir={{`{{inputs.parameters.rawDir}}`}}")
           [[ -n "{{`{{inputs.parameters.facility}}`}}" ]] && cmd+=("--facility={{`{{inputs.parameters.facility}}`}}")
-          [[ -n "{{`{{inputs.parameters.from-scan}}`}}" ]] && cmd+=("--from-scan={{`{{inputs.parameters.from-scan}}`}}")
-          [[ -n "{{`{{inputs.parameters.scan-list}}`}}" ]] && cmd+=("--scan-list={{`{{inputs.parameters.scan-list}}`}}")
-          [[ -n "{{`{{inputs.parameters.exclude-scan}}`}}" ]] && cmd+=("--exclude-scan={{`{{inputs.parameters.exclude-scan}}`}}")
-          [[ -n "{{`{{inputs.parameters.from-proj}}`}}" ]] && cmd+=("--from-proj={{`{{inputs.parameters.from-proj}}`}}")
-          [[ -n "{{`{{inputs.parameters.proj-list}}`}}" ]] && cmd+=("--proj-list={{`{{inputs.parameters.proj-list}}`}}")
-          [[ -n "{{`{{inputs.parameters.exclude-proj}}`}}" ]] && cmd+=("--exclude-proj={{`{{inputs.parameters.exclude-proj}}`}}")
-          [[ -n "{{`{{inputs.parameters.from-angle}}`}}" ]] && cmd+=("--from-angle={{`{{inputs.parameters.from-angle}}`}}")
-          [[ -n "{{`{{inputs.parameters.angle-list}}`}}" ]] && cmd+=("--angle-list={{`{{inputs.parameters.angle-list}}`}}")
-          [[ -n "{{`{{inputs.parameters.exclude-angle}}`}}" ]] && cmd+=("--exclude-angle={{`{{inputs.parameters.exclude-angle}}`}}")
-          [[ -n "{{`{{inputs.parameters.retrieval-method}}`}}" ]] && cmd+=("--retrieval-method={{`{{inputs.parameters.retrieval-method}}`}}")
+          [[ -n "{{`{{inputs.parameters.fromScan}}`}}" ]] && cmd+=("--from-scan={{`{{inputs.parameters.fromScan}}`}}")
+          [[ -n "{{`{{inputs.parameters.scanList}}`}}" ]] && cmd+=("--scan-list={{`{{inputs.parameters.scanList}}`}}")
+          [[ -n "{{`{{inputs.parameters.excludeScan}}`}}" ]] && cmd+=("--exclude-scan={{`{{inputs.parameters.excludeScan}}`}}")
+          [[ -n "{{`{{inputs.parameters.fromProj}}`}}" ]] && cmd+=("--from-proj={{`{{inputs.parameters.fromProj}}`}}")
+          [[ -n "{{`{{inputs.parameters.projList}}`}}" ]] && cmd+=("--proj-list={{`{{inputs.parameters.projList}}`}}")
+          [[ -n "{{`{{inputs.parameters.excludeProj}}`}}" ]] && cmd+=("--exclude-proj={{`{{inputs.parameters.excludeProj}}`}}")
+          [[ -n "{{`{{inputs.parameters.fromAngle}}`}}" ]] && cmd+=("--from-angle={{`{{inputs.parameters.fromAngle}}`}}")
+          [[ -n "{{`{{inputs.parameters.angleList}}`}}" ]] && cmd+=("--angle-list={{`{{inputs.parameters.angleList}}`}}")
+          [[ -n "{{`{{inputs.parameters.excludeAngle}}`}}" ]] && cmd+=("--exclude-angle={{`{{inputs.parameters.excludeAngle}}`}}")
+          [[ -n "{{`{{inputs.parameters.retrievalMethod}}`}}" ]] && cmd+=("--retrieval-method={{`{{inputs.parameters.retrievalMethod}}`}}")
           [[ -n "{{`{{inputs.parameters.transition}}`}}" ]] && cmd+=("--transition={{`{{inputs.parameters.transition}}`}}")
 
           echo "Executing: ${cmd[*]}"
