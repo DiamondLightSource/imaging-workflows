@@ -1,0 +1,80 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: e02-auto-mib2x
+spec:
+  entrypoint: e02-auto-check
+  arguments:
+    parameters:
+      - name: base_path
+  volumeClaimTemplates:
+  - metadata:
+      name: tmpdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: local-path
+  templates:
+    - name: e02-mib2x-auto
+      inputs:
+        parameters:
+          - name: base_path
+            value: "{{`{{workflow.parameters.base_path}}`}}"
+      steps:
+      - - name: check
+          template: e02-auto-check
+          arguments:
+            parameters:
+              - name: base_path
+                value: "{{`{{inputs.parameters.base_path}}`}}"
+      - - name: create
+          template: e02-auto-create
+          arguments:
+            parameters:
+              - name: mib_path
+                value: "{{`{{item}}`}}"
+          withParam: "{{`{{steps.check.outputs.result}}`}}"
+
+    - name: e02-auto-check
+      inputs:
+        parameters:
+          - name: base_path
+      script:
+        image: python:3.10
+        volumeMounts:
+          - name: tmpdir
+            mountPath: /tmp
+        command: [python]
+        source: |
+          import json
+
+          print("{{`{{inputs.parameters.base_path}}`}}")
+          base = f"/dls/e02/data/2024/cm37231-4/Merlin/WS2_n_fred_40um/{:s}"
+          scans = ["20240821_145850/20240821_145844_data.mib",
+                   "20240821_150039/20240821_150035_data.mib"]
+          paths = [base.format(scan) for scan in scans]
+          print(paths)
+          json.dump(paths, sys.stdout)
+          
+    - name: e02-auto-create
+      inputs:
+        parameters:
+          - name: mib_path
+      resource:
+        action: create
+        manifest: |
+          apiVersion: argoproj.io/v1alpha1
+          kind: Workflow
+          metadata:
+            generateName: e02-mib2x-
+          spec:
+            arguments:
+              parameters:
+              - name: mib_path
+                value: "{{`{{inputs.parameters.mib_path}}`}}"
+            workflowTemplateRef:
+              name: e02-mib2x
+        successCondition: status.phase == Succeeded
+        failureCondition: status.phase in (Failed, Error)
