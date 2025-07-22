@@ -51,10 +51,10 @@ spec:
           import json
 
           print("{{`{{inputs.parameters.base_path}}`}}")
-          base = f"/dls/e02/data/2024/cm37231-4/Merlin/WS2_n_fred_40um/{:s}"
+          base = "/dls/e02/data/2024/cm37231-4/Merlin/WS2_n_fred_40um/"
           scans = ["20240821_145850/20240821_145844_data.mib",
                    "20240821_150039/20240821_150035_data.mib"]
-          paths = [base.format(scan) for scan in scans]
+          paths = [base + scan for scan in scans]
           print(paths)
           json.dump(paths, sys.stdout)
           
