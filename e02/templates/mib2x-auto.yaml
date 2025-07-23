@@ -3,7 +3,7 @@ kind: ClusterWorkflowTemplate
 metadata:
   name: e02-auto-mib2x
 spec:
-  entrypoint: e02-auto-check
+  entrypoint: e02-mib2x-auto
   arguments:
     parameters:
       - name: base_path
@@ -30,7 +30,7 @@ spec:
               - name: base_path
                 value: "{{`{{inputs.parameters.base_path}}`}}"
       - - name: create
-          template: e02-auto-create
+          template: e02-auto-create-debug
           arguments:
             parameters:
               - name: mib_path
@@ -57,7 +57,16 @@ spec:
           paths = [base + scan for scan in scans]
           print(paths)
           json.dump(paths, sys.stdout)
-          
+
+    - name: e02-auto-create-debug
+      inputs:
+        parameters:
+          - name: mib_path
+      container:
+        image: alpine:latest
+        command: [sh, -c]
+        args: ["echo {{`{{inputs.parameters.mib_path}}`}}"]
+
     - name: e02-auto-create
       inputs:
         parameters:
