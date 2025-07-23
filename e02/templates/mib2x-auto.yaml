@@ -85,3 +85,13 @@ spec:
               name: e02-mib2x
         successCondition: status.phase == Succeeded
         failureCondition: status.phase in (Failed, Error)
+      podSpecPatch: |
+        initContainers:
+          - name: init
+            volumeMounts:
+              - name: init-temp-dir
+                mountPath:/tmp
+        volumes:
+          - name: init-temp-dir
+            emptyDir:
+              sizeLimit: 50Mi
