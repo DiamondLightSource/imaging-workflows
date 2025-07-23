@@ -30,7 +30,7 @@ spec:
               - name: base_path
                 value: "{{`{{inputs.parameters.base_path}}`}}"
       - - name: create
-          template: e02-auto-create-debug
+          template: e02-auto-create
           arguments:
             parameters:
               - name: mib_path
