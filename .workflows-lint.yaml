@@ -1,8 +1,7 @@
 manifests:
-  - httomo
   - i14
 charts:
   - e02
   - nxstacker
   - ptypy
-
+  - httomo

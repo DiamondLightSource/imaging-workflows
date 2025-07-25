@@ -39,31 +39,31 @@ spec:
         arguments:
           parameters:
           - name: config
-            value: "{{ inputs.parameters.config }}"
+            value: "{{`{{ inputs.parameters.config }}`}}"
           - name: input
-            value: "{{ inputs.parameters.input }}"
+            value: "{{`{{ inputs.parameters.input }}`}}"
           - name: nprocs
-            value: "{{ inputs.parameters.nprocs }}"
+            value: "{{`{{ inputs.parameters.nprocs }}`}}"
           - name: httomo-outdir-name
-            value: "{{ inputs.parameters.httomo-outdir-name }}"
+            value: "{{`{{ inputs.parameters.httomo-outdir-name }}`}}"
     - - name: generate-sweep-artifact
         template: sweep-artifact-script
         arguments:
           parameters:
           - name: image-dir-path
-            value: "{{ inputs.parameters.output }}/{{ inputs.parameters.httomo-outdir-name }}/images_sweep_FBP3d_tomobar8bit_tif"
+            value: "{{`{{ inputs.parameters.output }}`}}/{{`{{ inputs.parameters.httomo-outdir-name }}`}}/images_sweep_FBP3d_tomobar8bit_tif"
     podSpecPatch: |
       containers:
       - name: main
         resources:
           requests:
-            cpu: "{{ inputs.parameters.nprocs }}"
-            memory: "{{ inputs.parameters.memory }}"
-            nvidia.com/gpu: "{{ inputs.parameters.nprocs }}"
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
           limits:
-            cpu: "{{ inputs.parameters.nprocs }}"
-            memory: "{{ inputs.parameters.memory }}"
-            nvidia.com/gpu: "{{ inputs.parameters.nprocs }}"
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
     tolerations:
     - key: nvidia.com/gpu
       operator: Exists
@@ -85,7 +85,7 @@ spec:
       image: ghcr.io/diamondlightsource/httomo:latest
       env:
       - name: CUPY_CACHE_DIR
-        value: "{{ inputs.parameters.tmpdir-path }}/.cupy/kernel_cache"
+        value: "{{`{{ inputs.parameters.tmpdir-path }}`}}/.cupy/kernel_cache"
       - name: MKL_NUM_THREADS
         value: "1"
       - name: NUMEXPR_NUM_THREADS
@@ -96,7 +96,7 @@ spec:
       - /opt/conda/bin/mpirun
       args:
       - "-n"
-      - "{{ inputs.parameters.nprocs }}"
+      - "{{`{{ inputs.parameters.nprocs }}`}}"
       - "/opt/conda/bin/python"
       - "-m"
       - "httomo"
@@ -104,19 +104,19 @@ spec:
       - "--pipeline-format"
       - "json"
       - "--output-folder-name"
-      - "{{ inputs.parameters.httomo-outdir-name }}"
-      - "{{ inputs.parameters.input }}"
-      - "{{ inputs.parameters.config }}"
-      - "{{ inputs.parameters.tmpdir-path }}"
+      - "{{`{{ inputs.parameters.httomo-outdir-name }}`}}"
+      - "{{`{{ inputs.parameters.input }}`}}"
+      - "{{`{{ inputs.parameters.config }}`}}"
+      - "{{`{{ inputs.parameters.tmpdir-path }}`}}"
       volumeMounts:
       - name: session
-        mountPath: "{{ workflow.parameters.visitdir }}"
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmpdir
-        mountPath: "{{ inputs.parameters.tmpdir-path }}"
+        mountPath: "{{`{{ inputs.parameters.tmpdir-path }}`}}"
     volumes:
     - name: session
       hostPath:
-        path:  "{{ workflow.parameters.visitdir }}"
+        path:  "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
   - name: sweep-artifact-script
     inputs:
@@ -134,8 +134,8 @@ spec:
         import numpy as np
         import tifffile
 
-        IMAGE_DIR = Path("{{ inputs.parameters.image-dir-path }}")
-        OUT_PATH = "{{ inputs.parameters.tmpdir-path }}/{{ inputs.parameters.output-filename }}"
+        IMAGE_DIR = Path("{{`{{ inputs.parameters.image-dir-path }}`}}")
+        OUT_PATH = "{{`{{ inputs.parameters.tmpdir-path }}`}}/{{`{{ inputs.parameters.output-filename }}`}}"
         filenames = list(IMAGE_DIR.glob("*.tif"))
         filenames.sort()
         single_image = tifffile.tifffile.imread(filenames[0])
@@ -149,17 +149,17 @@ spec:
         tifffile.tifffile.imwrite(OUT_PATH, image_stack)
       volumeMounts:
       - name: session
-        mountPath: "{{ workflow.parameters.visitdir }}"
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmpdir
-        mountPath: "{{ inputs.parameters.tmpdir-path }}"
+        mountPath: "{{`{{ inputs.parameters.tmpdir-path }}`}}"
     volumes:
     - name: session
       hostPath:
-        path:  "{{ workflow.parameters.visitdir }}"
+        path:  "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
     outputs:
       artifacts:
       - name: sweep-res
-        path: "{{ inputs.parameters.tmpdir-path }}/{{ inputs.parameters.output-filename }}"
+        path: "{{`{{ inputs.parameters.tmpdir-path }}`}}/{{`{{ inputs.parameters.output-filename }}`}}"
         archive:
           none: { }
