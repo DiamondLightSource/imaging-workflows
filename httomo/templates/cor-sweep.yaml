@@ -2,6 +2,28 @@ apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
   name: httomo-cor-sweep
+  annotations:
+    workflows.diamond.ac.uk/parameter-schema.input: |
+      {
+        "type": "string"
+      }
+    workflows.diamond.ac.uk/parameter-schema.output: |
+      {
+        "type": "string"
+      }
+    workflows.diamond.ac.uk/parameter-schema.nprocs: |
+      {
+        "type": "integer",
+        "default": 1
+      }
+    workflows.diamond.ac.uk/parameter-schema.memory: |
+      {
+        "type": "string",
+        "pattern": "^[0-9]+[GMK]i$",
+        "default": "20Gi"
+      }
+    workflows.diamond.ac.uk/parameter-schema.config: |
+    {{- .Files.Get "schemas/cor-sweep-param.json" | nindent 6 }}
 spec:
   entrypoint: run
   volumeClaimTemplates:
