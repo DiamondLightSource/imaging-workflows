@@ -42,6 +42,8 @@ spec:
             value: "{{`{{ inputs.parameters.config }}`}}"
           - name: input
             value: "{{`{{ inputs.parameters.input }}`}}"
+          - name: output
+            value: "{{`{{ inputs.parameters.output }}`}}"
           - name: nprocs
             value: "{{`{{ inputs.parameters.nprocs }}`}}"
           - name: httomo-outdir-name
@@ -77,6 +79,7 @@ spec:
       parameters:
       - name: config
       - name: input
+      - name: output
       - name: httomo-outdir-name
       - name: nprocs
       - name: tmpdir-path
@@ -107,7 +110,7 @@ spec:
       - "{{`{{ inputs.parameters.httomo-outdir-name }}`}}"
       - "{{`{{ inputs.parameters.input }}`}}"
       - "{{`{{ inputs.parameters.config }}`}}"
-      - "{{`{{ inputs.parameters.tmpdir-path }}`}}"
+      - "{{`{{ inputs.parameters.output }}`}}"
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
