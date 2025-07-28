@@ -1,0 +1,105 @@
+{
+    "type": "VerticalLayout",
+    "elements": [
+        {
+            "type": "Group",
+            "label": "Workflow Parameters",
+            "elements": [
+                {
+                    "type": "HorizontalLayout",
+                    "elements": [
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/input"
+                        },
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/output"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "Group",
+            "label": "Loader Configuration",
+            "elements": [
+                {
+                    "type": "HorizontalLayout",
+                    "elements": [
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/config/prefixItems[0]/properties/parameters/properties/data_path"
+                        },
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/config/prefixItems[0]/properties/parameters/properties/image_key_path"
+                        },
+                        {
+                            "type": "Control",
+                            "label": "Rotation Angles Path",
+                            "scope": "#/properties/config/prefixItems[0]/properties/parameters/properties/rotation_angles/anyOf[0]/properties/data_path"
+                        }
+                    ]
+                },
+                {
+                    "type": "Group",
+                    "label": "Preview",
+                    "elements": [
+                        {
+                            "type": "HorizontalLayout",
+                            "label": "Detector Y",
+                            "elements": [
+                                {
+                                    "type": "Control",
+                                    "scope": "#/properties/config/prefixItems[0]/properties/parameters/properties/preview/anyOf[0]/properties/detector_y/anyOf[1]/properties/start"
+                                },
+                                {
+                                    "type": "Control",
+                                    "scope": "#/properties/config/prefixItems[0]/properties/parameters/properties/preview/anyOf[0]/properties/detector_y/anyOf[1]/properties/stop"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "HorizontalLayout",
+                            "label": "Detector X",
+                            "elements": [
+                                {
+                                    "type": "Control",
+                                    "scope": "#/properties/config/prefixItems[0]/properties/parameters/properties/preview/anyOf[0]/properties/detector_x/anyOf[1]/properties/start"
+                                },
+                                {
+                                    "type": "Control",
+                                    "scope": "#/properties/config/prefixItems[0]/properties/parameters/properties/preview/anyOf[0]/properties/detector_x/anyOf[1]/properties/stop"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "Group",
+            "label": "Parameter Sweep Configuration",
+            "elements": [
+                {
+                    "type": "HorizontalLayout",
+                    "elements": [
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/config/prefixItems[3]/properties/parameters/properties/center/properties/start"
+                        },
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/config/prefixItems[3]/properties/parameters/properties/center/properties/stop"
+                        },
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/config/prefixItems[3]/properties/parameters/properties/center/properties/step"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
