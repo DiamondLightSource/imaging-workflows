@@ -24,6 +24,8 @@ metadata:
       }
     workflows.diamond.ac.uk/parameter-schema.config: |
     {{- .Files.Get "schemas/cor-sweep-param.json" | nindent 6 }}
+    workflows.diamond.ac.uk/ui-schema: |
+    {{- .Files.Get "schemas/cor-sweep-ui.json" | nindent 6 }}
 spec:
   entrypoint: run
   volumeClaimTemplates:
