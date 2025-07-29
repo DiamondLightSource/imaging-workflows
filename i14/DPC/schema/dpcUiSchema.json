@@ -1,0 +1,17 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Control",
+      "scope": "#/properties/visitDir"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/outputFolder"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/singleFirst"
+    }
+  ]
+}
