@@ -29,11 +29,11 @@
                     "elements": [
                         {
                             "type": "Control",
-                            "scope": "#/properties/config/prefixItems[0]/properties/parameters/properties/data_path"
+                            "scope": "#/properties/config/prefixItems[0]/properties/parameters/properties/data_path/anyOf[0]"
                         },
                         {
                             "type": "Control",
-                            "scope": "#/properties/config/prefixItems[0]/properties/parameters/properties/image_key_path"
+                            "scope": "#/properties/config/prefixItems[0]/properties/parameters/properties/image_key_path/anyOf[0]"
                         },
                         {
                             "type": "Control",
