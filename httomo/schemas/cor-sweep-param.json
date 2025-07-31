@@ -6,6 +6,15 @@
       "title": "EmptyDict",
       "type": "object"
     },
+    "PreviewKeyword": {
+      "enum": [
+        "begin",
+        "mid",
+        "end"
+      ],
+      "title": "PreviewKeyword",
+      "type": "string"
+    },
     "PreviewParam": {
       "description": "Preview configuration dict.",
       "properties": {
@@ -158,16 +167,7 @@
         "start": {
           "anyOf": [
             {
-              "const": "begin",
-              "type": "string"
-            },
-            {
-              "const": "mid",
-              "type": "string"
-            },
-            {
-              "const": "end",
-              "type": "string"
+              "$ref": "#/$defs/PreviewKeyword"
             },
             {
               "type": "integer"
@@ -192,16 +192,7 @@
         "stop": {
           "anyOf": [
             {
-              "const": "begin",
-              "type": "string"
-            },
-            {
-              "const": "mid",
-              "type": "string"
-            },
-            {
-              "const": "end",
-              "type": "string"
+              "$ref": "#/$defs/PreviewKeyword"
             },
             {
               "type": "integer"
