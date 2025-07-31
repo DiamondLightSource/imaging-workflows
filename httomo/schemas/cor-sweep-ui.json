@@ -102,6 +102,29 @@
                     ]
                 }
             ]
+        },
+        {
+            "type": "Group",
+            "label": "Advanced Configuration",
+            "elements": [
+                {
+                    "type": "HorizontalLayout",
+                    "elements": [
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/memory"
+                        },
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/nprocs"
+                        },
+                        {
+                            "type": "Control",
+                            "scope": "#/properties/httomo-outdir-name"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }
