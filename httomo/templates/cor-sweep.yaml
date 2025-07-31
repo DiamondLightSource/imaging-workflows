@@ -11,6 +11,10 @@ metadata:
       {
         "type": "string"
       }
+    workflows.diamond.ac.uk/parameter-schema.httomo-outdir-name: |
+      {
+        "type": "string"
+      }
     workflows.diamond.ac.uk/parameter-schema.nprocs: |
       {
         "type": "integer",
