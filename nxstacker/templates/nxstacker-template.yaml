@@ -24,68 +24,38 @@ spec:
       inputs:
         parameters:
           - name: experimentType
-            value: "ptycho"
           - name: quiet
-            value: false
           - name: dryRun
-            value: false
           - name: projDir
-            value: ""
           - name: projFile
-            value: ""
           - name: nxtomoDir
-            value: ""
           - name: rawDir
-            value: ""
           - name: facility
-            value: ""
           - name: fromScan
-            value: ""
           - name: scanList
-            value: ""
           - name: excludeScan
-            value: ""
           - name: fromProj
-            value: ""
           - name: projList
-            value: ""
           - name: excludeProj
-            value: ""
           - name: fromAngle
-            value: ""
           - name: angleList
-            value: ""
           - name: excludeAngle
-            value: ""
           - name: sortByAngle
-            value: false
           - name: padToMax
-            value: false
           - name: compress
-            value: false
           - name: skipCheck
-            value: false
           # DPC specific arguments
           - name: retrievalMethod
-            value: ""
           # XRF specific arguments
           - name: transition
-            value: ""
           # pytycho specific arguments
           - name: saveComplex
-            value: false
           - name: saveModulus
-            value: false
           - name: savePhase
-            value: false
           - name: removeRamp
-            value: false
           - name: medianNorm
-            value: false
           - name: unwrapPhase
-            value: false
           - name: rescale
-            value: false
       script:
         image: ghcr.io/diamondlightsource/nxstacker:latest
         command: [bash]
