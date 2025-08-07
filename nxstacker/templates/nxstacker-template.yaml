@@ -6,7 +6,7 @@ metadata:
     workflows.argoproj.io/title: nxstacker
     workflows.argoproj.io/description: |
       nxstacker is an utility to stack projections from different types of experiments to produce NeXus-compliance file(s).
-    workflows.diamond.ac.uk/parameter-schema: |
+    workflows.diamond.ac.uk/parameter-schema.config: |
       {{- .Files.Get "schema/nxstackerSchema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
       {{- .Files.Get "schema/nxstackerUISchema.json" | nindent 6 }}
