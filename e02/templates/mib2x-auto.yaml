@@ -15,7 +15,7 @@ spec:
       resources:
         requests:
           storage: 1Gi
-      storageClassName: netapp
+      storageClassName: local-path
   templates:
     - name: e02-mib2x-auto
       inputs:
