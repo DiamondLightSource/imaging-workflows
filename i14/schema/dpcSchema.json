@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "properties": {
+    "visitDir": {
+      "type": "string",
+      "title": "Visit Directory"
+    },
+    "outputFolder": {
+      "type": "string",
+      "title": "Output Folder"
+    },
+    "singleFirst": {
+      "type": "integer",
+      "title": "Single First"
+    }
+  },
+  "required": ["visitDir", "outputFolder", "singleFirst"]
+}

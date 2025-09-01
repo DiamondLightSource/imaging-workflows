@@ -1,0 +1,72 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: dpc
+  annotations:
+    workflows.argoproj.io/title: dpc
+    workflows.argoproj.io/description: |
+      dpc is a utility which takes in a scan file inpath, reconstructs the differential phase contrast (DPC) images, and saves the results to an outpath.
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/dpcSchema.json" | nindent 6 }}
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/dpcUISchema.json" | nindent 6 }}
+spec:
+  entrypoint: dpc
+  arguments:
+    parameters:
+      - name: visitdir
+        valueFrom:
+          configMapKeyRef:
+            name: sessionspaces
+            key: data_directory
+  templates:
+    - name: dpc-mount-files
+      script:
+        image: ghcr.io/diamondlightsource/dpc:latest
+        command: [bash]
+        source: |
+          echo '{{ .Files.Get "notebooks/dpc_autoprocess3.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
+        volumeMounts:
+          - name: tmp
+            mountPath: /tmp
+    - name: dpc-notebook
+      inputs:
+        parameters:
+            - name: visitDir
+            - name: outputFolder
+            - name: singleFirst
+      script:
+        image: ghcr.io/diamondlightsource/dpc:latest
+        command: [bash]
+        source: |
+          python -m venv /tmp/venv
+          /tmp/venv/bin/pip install -r /tmp/requirements.txt
+          /tmp/venv/bin/python -m ipykernel install --prefix=/tmp/venv --name=venv
+
+          /tmp/venv/bin/python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+            -p visitDir '{{`{{workflow.parameters.visitDir}}`}}' \
+            -p outputFolder '{{`{{workflow.parameters.outputFolder}}`}}' \
+            -p singleFirst '{{`{{workflow.parameters.singleFirst}}`}}'
+          /tmp/venv/bin/python -m jupyter nbconvert --execute --allow-errors --to html --output notebook --output-dir /tmp /tmp/notebook-parametrized.ipynb
+        volumeMounts:
+          - name: session
+            mountPath: "{{`{{workflow.parameters.visitdir}}`}}"
+      outputs:
+        artifacts:
+          - name: dpc
+            path: /tmp/dpc.html
+            archive:
+              none: {}
+      volumes:
+        - name: session
+          hostPath:
+            path: "{{`{{workflow.parameters.visitdir}}`}}"
+            type: Directory
+    - name: dpc
+        dag:
+          tasks:
+          - name: files
+            template: dpc-mount-files
+          - name: notebook
+            template: dpc-notebook
+            dependencies: [files]
