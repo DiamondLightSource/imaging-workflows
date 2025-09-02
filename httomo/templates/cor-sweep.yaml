@@ -81,7 +81,7 @@ spec:
         arguments:
           parameters:
           - name: image-dir-path
-            value: "{{`{{ inputs.parameters.output }}`}}/{{`{{ inputs.parameters.httomo-outdir-name }}`}}/images_sweep_FBP3d_tomobar8bit_tif"
+            value: "{{`{{ inputs.parameters.output }}`}}/{{`{{ inputs.parameters.httomo-outdir-name }}`}}/images_sweep_recon8bit_tif"
     podSpecPatch: |
       containers:
       - name: main
