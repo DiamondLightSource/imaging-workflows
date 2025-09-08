@@ -36,7 +36,6 @@ spec:
         command: [bash]
         source: |
           echo '{{ .Files.Get "notebooks/dpc_autoprocess3.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
-          ls /tmp
         volumeMounts:
           - name: tmp
             mountPath: /tmp
@@ -49,6 +48,9 @@ spec:
               value: 280793
       script:
         image: gitlab.diamond.ac.uk:5050/i14/i14_utility/dpc:v0.1
+        env:
+        - name: HOME
+          value: /tmp
         command: [bash]
         source: |
           python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
