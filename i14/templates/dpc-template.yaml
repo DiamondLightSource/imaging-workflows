@@ -32,9 +32,10 @@ spec:
     - name: dpc-notebook
       inputs:
         parameters:
-            - name: visitDir
             - name: outputFolder
+              value: /tmp/output
             - name: singleFirst
+              value: 1
       script:
         image: ghcr.io/diamondlightsource/dpc:latest
         command: [bash]
@@ -44,9 +45,9 @@ spec:
           /tmp/venv/bin/python -m ipykernel install --prefix=/tmp/venv --name=venv
 
           /tmp/venv/bin/python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
-            -p visitDir '{{`{{workflow.parameters.visitDir}}`}}' \
-            -p outputFolder '{{`{{workflow.parameters.outputFolder}}`}}' \
-            -p singleFirst '{{`{{workflow.parameters.singleFirst}}`}}'
+            -p visitDir '{{`{{workflow.parameters.visitdir}}`}}' \
+            -p outputFolder '{{`{{inputs.parameters.outputFolder}}`}}' \
+            -p singleFirst '{{`{{inputs.parameters.singleFirst}}`}}'
           /tmp/venv/bin/python -m jupyter nbconvert --execute --allow-errors --to html --output notebook --output-dir /tmp /tmp/notebook-parametrized.ipynb
         volumeMounts:
           - name: session
@@ -63,10 +64,10 @@ spec:
             path: "{{`{{workflow.parameters.visitdir}}`}}"
             type: Directory
     - name: dpc
-        dag:
-          tasks:
-          - name: files
-            template: dpc-mount-files
-          - name: notebook
-            template: dpc-notebook
-            dependencies: [files]
+      dag:
+        tasks:
+        - name: files
+          template: dpc-mount-files
+        - name: notebook
+          template: dpc-notebook
+          dependencies: [files]
