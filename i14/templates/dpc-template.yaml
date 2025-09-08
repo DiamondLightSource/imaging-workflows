@@ -9,7 +9,7 @@ metadata:
     workflows.diamond.ac.uk/parameter-schema: |
       {{- .Files.Get "schema/dpcSchema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
-      {{- .Files.Get "schema/dpcUISchema.json" | nindent 6 }}
+      {{- .Files.Get "schema/dpcUiSchema.json" | nindent 6 }}
 spec:
   entrypoint: dpc
   arguments:
@@ -19,6 +19,16 @@ spec:
           configMapKeyRef:
             name: sessionspaces
             key: data_directory
+  volumeClaimTemplates:
+    - metadata:
+        name: tmp
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+        storageClassName: netapp
   templates:
     - name: dpc-mount-files
       script:
@@ -26,6 +36,7 @@ spec:
         command: [bash]
         source: |
           echo '{{ .Files.Get "notebooks/dpc_autoprocess3.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
+          ls /tmp
         volumeMounts:
           - name: tmp
             mountPath: /tmp
@@ -35,19 +46,20 @@ spec:
             - name: outputFolder
               value: /tmp/output
             - name: singleFirst
-              value: 1
+              value: 280793
       script:
         image: gitlab.diamond.ac.uk:5050/i14/i14_utility/dpc:v0.1
         command: [bash]
         source: |
           python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
-            -p visitDir '{{`{{workflow.parameters.visitdir}}`}}' \
-            -p outputFolder '{{`{{inputs.parameters.outputFolder}}`}}' \
-            -p singleFirst '{{`{{inputs.parameters.singleFirst}}`}}'
+            -p inpath '{{`{{workflow.parameters.visitdir}}`}}'/nexus/i14-'{{`{{inputs.parameters.singleFirst}}`}}'.nxs \
+            -p outpath '{{`{{inputs.parameters.outputFolder}}`}}'
           python -m jupyter nbconvert --execute --allow-errors --to html --output notebook --output-dir /tmp /tmp/notebook-parametrized.ipynb
         volumeMounts:
           - name: session
             mountPath: "{{`{{workflow.parameters.visitdir}}`}}"
+          - name: tmp
+            mountPath: /tmp
       outputs:
         artifacts:
           - name: dpc
