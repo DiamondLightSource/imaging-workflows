@@ -22,7 +22,7 @@ spec:
   templates:
     - name: dpc-mount-files
       script:
-        image: ghcr.io/diamondlightsource/dpc:latest
+        image: gitlab.diamond.ac.uk:5050/i14/i14_utility/dpc:v0.1
         command: [bash]
         source: |
           echo '{{ .Files.Get "notebooks/dpc_autoprocess3.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
@@ -37,18 +37,14 @@ spec:
             - name: singleFirst
               value: 1
       script:
-        image: ghcr.io/diamondlightsource/dpc:latest
+        image: gitlab.diamond.ac.uk:5050/i14/i14_utility/dpc:v0.1
         command: [bash]
         source: |
-          python -m venv /tmp/venv
-          /tmp/venv/bin/pip install -r /tmp/requirements.txt
-          /tmp/venv/bin/python -m ipykernel install --prefix=/tmp/venv --name=venv
-
-          /tmp/venv/bin/python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+          python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
             -p visitDir '{{`{{workflow.parameters.visitdir}}`}}' \
             -p outputFolder '{{`{{inputs.parameters.outputFolder}}`}}' \
             -p singleFirst '{{`{{inputs.parameters.singleFirst}}`}}'
-          /tmp/venv/bin/python -m jupyter nbconvert --execute --allow-errors --to html --output notebook --output-dir /tmp /tmp/notebook-parametrized.ipynb
+          python -m jupyter nbconvert --execute --allow-errors --to html --output notebook --output-dir /tmp /tmp/notebook-parametrized.ipynb
         volumeMounts:
           - name: session
             mountPath: "{{`{{workflow.parameters.visitdir}}`}}"
