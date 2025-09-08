@@ -3,10 +3,6 @@
   "elements": [
     {
       "type": "Control",
-      "scope": "#/properties/visitDir"
-    },
-    {
-      "type": "Control",
       "scope": "#/properties/outputFolder"
     },
     {
