@@ -27,7 +27,7 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: 1Gi
+            storage: 20Gi
         storageClassName: netapp
   templates:
     - name: dpc-mount-files
@@ -68,6 +68,16 @@ spec:
             path: /tmp/dpc.html
             archive:
               none: {}
+      podSpecPatch: |
+        containers:
+        - name: main
+          resources:
+            requests:
+              cpu: 10
+              memory: 30Gi
+            limits:
+              cpu: 10
+              memory: 30Gi
       volumes:
         - name: session
           hostPath:
