@@ -36,6 +36,7 @@ spec:
         command: [bash]
         source: |
           echo '{{ .Files.Get "notebooks/dpc_autoprocess3.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
+          echo '{{ .Files.Get "configs/processing.yaml" | b64enc }}' | base64 -d > /tmp/config.yaml
         volumeMounts:
           - name: tmp
             mountPath: /tmp
@@ -55,6 +56,7 @@ spec:
         source: |
           python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
             -p inpath '{{`{{workflow.parameters.visitdir}}`}}'/scan/i14-'{{`{{inputs.parameters.singleFirst}}`}}'.nxs \
+            -p process_configfile /tmp/config.yaml \
             -p outpath '{{`{{inputs.parameters.outputFolder}}`}}'
           python -m jupyter nbconvert --execute --allow-errors --to html --output dpc --output-dir /tmp /tmp/notebook-parametrized.ipynb
         volumeMounts:

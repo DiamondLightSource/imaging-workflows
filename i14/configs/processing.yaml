@@ -1,0 +1,195 @@
+notebooks: /dls_sw/i14/ops/notebooks
+deim:
+  Fe_Ka_Oct:
+    maps: null
+    number_oversamples: 0
+    number_significant_components: 10
+    offset: 2.52
+    standards: /dls/i14/data/2021/mg28835-1/processing/Fe_marked.nor
+    pca_outfile: /dls/i14/data/2021/mg28835-1/processing/fast_xanes/Fe_Ka_Oct_deim_pca_20.csv
+    deim_pointsfile: /dls/i14/data/2021/mg28835-1/processing/fast_xanes/Fe_Ka_Oct_deim_points_20.csv
+  Fe_K_9:
+    maps: null
+    number_oversamples: 0
+    number_significant_components: 8
+    offset: 2.8
+    standards: /dls/i14/data/2021/cm28142-1/processing/fe_full_marked_all.nor
+    pca_outfile: /dls/i14/data/2021/cm28142-1/processing/fast_xanes/Fe_K_9_deim_pca.csv
+    deim_pointsfile: /dls/i14/data/2021/cm28142-1/processing/fast_xanes/Fe_K_9_deim_points.csv
+  Fe_K_short:
+    maps: null
+    number_oversamples: 0
+    number_significant_components: 3
+    offset: 2.8
+    standards: /dls/i14/data/2021/cm28142-1/processing/fe_short_marked.nor
+    pca_outfile: /dls/i14/data/2021/cm28142-1/processing/fast_xanes/Fe_K_short_deim_pca.csv
+    deim_pointsfile: /dls/i14/data/2021/cm28142-1/processing/fast_xanes/Fe_K_short_deim_points.csv
+  Fe_K_13:
+    maps: null
+    number_oversamples: 0
+    number_significant_components: 12
+    offset: 2.8
+    standards: /dls/i14/data/2021/cm28142-1/processing/fe_full_marked_all.nor
+    pca_outfile: /dls/i14/data/2021/cm28142-1/processing/fast_xanes/Fe_K_13_deim_pca.csv
+    deim_pointsfile: /dls/i14/data/2021/cm28142-1/processing/fast_xanes/Fe_K_13_deim_points.csv
+  Fe_K_Clarke:
+    maps: null
+    number_oversamples: 0
+    number_significant_components: 10
+    offset: -0.2
+    standards: /dls/i14/data/2022/mg28835-3/processing/fe_clarke_all.nor
+    pca_outfile: /dls/i14/data/2022/mg28835-3/processing/fast_xanes/Fe_K_Clarke_deim_pca.csv
+    deim_pointsfile: /dls/i14/data/2022/mg28835-3/processing/fast_xanes/Fe_K_Clarke_deim_points.csv
+  Pt_La:
+    maps: null
+    number_oversamples: 0
+    number_significant_components: null
+    offset: 0.0
+    standards: /dls/i14/data/2020/cm26479-3/processing/deim/pt_marked.nor
+  output: processing/fast_xanes
+  use: Fe_K_Clarke
+dpc:
+  crop_size: 256
+  dpc_exclude_crop_size: 256
+  dpc_include_crop_size: 128
+  fractional_dark: 1.05
+  pixel_size: 55.0e-6
+  absorption_map: true
+  scatter_map: true
+  radial_scatter_map: true
+  quick_mask: false
+  dpc_include_beam: true
+  dpc_exclude_beam: true
+  offset_x : 0
+  offset_y : 0
+  mirror: true
+  anti: true
+  zeropad: false
+  high_pass_filter: false
+  regularisation: false
+io:
+  dpc:
+  - /entry/merlin_addetector
+  i0:
+  - /entry/I0_1/data
+  - /entry/I0_2/data
+  - /entry/I0_3/data
+  - /entry/I0_4/data
+  metadata_keys:
+  - instrument/dcm_enrg
+  - instrument/sample/sample_rot
+  - instrument/detectors/excalibur_z
+  output:
+    csv_folder: ../processing/auto/txt
+    html_folder: ../processing/auto/html
+    image_folder: ../processing/auto/images
+    nexus_folder: processing/auto/nexus
+  xrd:
+  - /entry/excalibur_addetector
+  xrf:
+  - /entry/xsp3_addetector
+mapping:
+  entry.instrument.dcm_enrg.value.value:
+  - Acquisition_instrument.XRF.beam_energy
+  - null
+  entry.instrument.sample.sample_rot.value:
+  - Acquisition_instrument.XRF.stage.rotation
+  - null
+  entry.instrument.detectors.excalibur_z.value:
+  - Acquisition_instrument.DPC.distance
+  - null
+external_configs:
+  pymca: /dls_sw/i14/ops/processing/auto/config/pymca.cfg
+  ptypy_focus: /dls_sw/i14/ops/processing/auto/config/ptypy_focus.yaml
+  ptypy_long: /dls_sw/i14/ops/processing/auto/config/ptypy_known_probe.yaml
+  pycho: /dls_sw/i14/ops/processing/auto/config/pycho.json
+  pyfai: /dls_sw/i14/ops/processing/auto/pyfai.yaml
+stack:
+  sort_by: Acquisition_instrument.XRF.beam_energy
+  to_stack:
+  - xrf
+  - dpc
+  - xrd
+stack_alignment:
+  align_with: Phase
+  alignment_method: mutual
+  crop: true
+  pyramid_minimum: 16
+  save_tiffs: false
+  update_from_scan: true
+  use_pyramid_levels: true
+tomo:
+  reconstruction_method: null
+xanes:
+  cluster:
+    cluster_source: decomposition
+    method: kmeans
+    preprocessing: norm
+    source_for_centers: signal
+  cluster_estimate:
+    cluster_source: decomposition
+    metric: gap
+  normalization: null
+xanes_edge: Pt
+xrd:
+  calibration_file: /dls/i14/data/2020/sp20420-5/processing/current_calibrations/97420_18keV_xrd1_calibration.nxs
+  dilate_mask: true
+  flat_field: /dls/i14/data/2020/sp20420-5/processing/current_calibrations/ffcoeffs_Zr_fixed.hdf
+  mask_file: /dls/i14/data/2020/sp20420-5/processing/current_calibrations/mask.nxs
+  dataset_path_mask: /entry/mask/masl2
+  polarization_factor: 0.95
+  unit: 2th_deg
+xrf_calibration:
+  approximation: thin_film
+  calibrant: axo
+  scaling_file: null
+xrf_windowing:
+  background:
+    apply_snip: false
+    snip_iterations: 30
+    snip_width: 16
+  calibration:
+    label: Energy
+    offset: 0.0
+    scale: 0.01
+    units: keV
+  elements:
+  - Fe
+  - Cu
+  - S
+  - K
+  - Zn
+  - Ni
+  - Cr
+  - Ar
+  - Pt
+  - Ca
+  - Cl
+  extra_lines:
+  - scatter
+  - compton
+  mva:
+  - S_Ka
+  - Zn_Ka
+  - Pt_La
+  - K_Ka
+  update_from_matches: true
+  xray_lines:
+  - Fe_Ka
+  - Cu_Ka
+  - S_Ka
+  - K_Ka
+  - Zn_Ka
+  - Ni_Ka
+  - Cr_Ka
+  - Ni_La
+  - Ar_Ka
+  - Cu_La
+  - Pt_La
+  - Ca_Ka
+  - Cl_Ka
+  - Mg_Ka
+  - Br_La
+  - Ti_Ka
+  - Ne_Ka
+  - Ga_Ka
