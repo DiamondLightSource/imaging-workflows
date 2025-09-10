@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "properties": {
+    "outputFolder": {
+      "type": "string",
+      "title": "Output Folder"
+    },
+    "singleFirst": {
+      "type": "integer",
+      "title": "Single First"
+    }
+  },
+  "required": ["outputFolder", "singleFirst"]
+}
