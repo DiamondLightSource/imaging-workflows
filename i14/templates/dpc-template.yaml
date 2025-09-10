@@ -54,7 +54,7 @@ spec:
         command: [bash]
         source: |
           python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
-            -p inpath '{{`{{workflow.parameters.visitdir}}`}}'/nexus/i14-'{{`{{inputs.parameters.singleFirst}}`}}'.nxs \
+            -p inpath '{{`{{workflow.parameters.visitdir}}`}}'/scan/i14-'{{`{{inputs.parameters.singleFirst}}`}}'.nxs \
             -p outpath '{{`{{inputs.parameters.outputFolder}}`}}'
           python -m jupyter nbconvert --execute --allow-errors --to html --output notebook --output-dir /tmp /tmp/notebook-parametrized.ipynb
         volumeMounts:
