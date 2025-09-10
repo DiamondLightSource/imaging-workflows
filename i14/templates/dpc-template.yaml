@@ -56,7 +56,7 @@ spec:
           python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
             -p inpath '{{`{{workflow.parameters.visitdir}}`}}'/scan/i14-'{{`{{inputs.parameters.singleFirst}}`}}'.nxs \
             -p outpath '{{`{{inputs.parameters.outputFolder}}`}}'
-          python -m jupyter nbconvert --execute --allow-errors --to html --output notebook --output-dir /tmp /tmp/notebook-parametrized.ipynb
+          python -m jupyter nbconvert --execute --allow-errors --to html --output dpc --output-dir /tmp /tmp/notebook-parametrized.ipynb
         volumeMounts:
           - name: session
             mountPath: "{{`{{workflow.parameters.visitdir}}`}}"
