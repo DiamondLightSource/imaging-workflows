@@ -9,7 +9,7 @@ metadata:
     workflows.diamond.ac.uk/parameter-schema: |
       {{- .Files.Get "schema/dpcSchema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
-      {{- .Files.Get "schema/dpcUiSchema.json" | nindent 6 }}
+      {{- .Files.Get "schema/dpcUISchema.json" | nindent 6 }}
 spec:
   entrypoint: dpc
   arguments:
