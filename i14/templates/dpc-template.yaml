@@ -55,13 +55,13 @@ spec:
         command: [bash]
         source: |
           python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
-            -p inpath '{{`{{workflow.parameters.visitdir}}`}}'/scan/i14-'{{`{{inputs.parameters.singleFirst}}`}}'.nxs \
+            -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.singleFirst }}`}}.nxs" \
             -p process_configfile /tmp/config.yaml \
-            -p outpath '{{`{{inputs.parameters.outputFolder}}`}}'
+            -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}"
           python -m jupyter nbconvert --execute --allow-errors --to html --output dpc --output-dir /tmp /tmp/notebook-parametrized.ipynb
         volumeMounts:
           - name: session
-            mountPath: "{{`{{workflow.parameters.visitdir}}`}}"
+            mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
           - name: tmp
             mountPath: /tmp
       outputs:
@@ -83,7 +83,7 @@ spec:
       volumes:
         - name: session
           hostPath:
-            path: "{{`{{workflow.parameters.visitdir}}`}}"
+            path: "{{`{{ workflow.parameters.visitdir }}`}}"
             type: Directory
     - name: dpc
       dag:
