@@ -19,6 +19,10 @@ spec:
           configMapKeyRef:
             name: sessionspaces
             key: data_directory
+      - name: outputFolder
+        value: /tmp/output
+      - name: singleFirst
+        value: 395329
   volumeClaimTemplates:
     - metadata:
         name: tmp
@@ -44,9 +48,9 @@ spec:
       inputs:
         parameters:
             - name: outputFolder
-              value: /tmp/output
+              value: "{{`{{ workflow.parameters.outputFolder }}`}}"
             - name: singleFirst
-              value: 280793
+              value: "{{`{{ workflow.parameters.singleFirst }}`}}"
       script:
         image: gitlab.diamond.ac.uk:5050/i14/i14_utility/dpc:v0.1
         env:
