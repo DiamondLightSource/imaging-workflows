@@ -1,0 +1,34 @@
+{
+  "type": "object",
+  "properties": {
+    "outputFolder": {
+      "type": "string",
+      "title": "Output Folder"
+    },
+    "xrdProcessConfigUpload": {
+      "type": "string",
+      "title": "Config Folder"
+    },
+    "singleFirst": {
+      "type": "integer",
+      "title": "Single First"
+    },
+    "calibrationPath": {
+      "type": "string",
+      "title": "Calibration Path"
+    },
+    "maskPath": {
+      "type": "string",
+      "title": "Mask Path"
+    },
+    "flatPath": {
+      "type": "string",
+      "title": "Flat Path"
+    }
+  },
+  "required": [
+    "outputFolder",
+    "xrdProcessConfigUpload",
+    "singleFirst"
+  ]
+}
