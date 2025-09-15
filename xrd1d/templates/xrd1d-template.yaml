@@ -1,0 +1,128 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: xrd1d
+  annotations:
+    workflows.argoproj.io/title: xrd1d
+    workflows.argoproj.io/description: |
+      xrd1d is a utility which performs Azimuthal integration (ExcaliburXRDIntegration), removes/smooths background if needed, writes the spectrum to the output file.
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/xrd1dSchema.json" | nindent 6 }}
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/xrd1dUISchema.json" | nindent 6 }}
+spec:
+  entrypoint: xrd1d
+  arguments:
+    parameters:
+      - name: visitdir
+        valueFrom:
+          configMapKeyRef:
+            name: sessionspaces
+            key: data_directory
+      - name: outputFolder
+        value: /tmp/output
+      - name: singleFirst
+        value: 391572
+      - name: xrdProcessConfigUpload
+        value: /tmp/config.yaml
+      - name: calibrationPath
+        value: ""
+      - name: maskPath
+        value: ""
+      - name: flatPath
+        value: ""
+      - name: backgroundType
+        value: ""
+      - name: polynomialOrder
+        value: 0
+  volumeClaimTemplates:
+    - metadata:
+        name: tmp
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 20Gi
+        storageClassName: netapp
+  templates:
+    - name: xrd1d-mount-files
+      script:
+        image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xrd:v0.1
+        command: [bash]
+        source: |
+          echo '{{ .Files.Get "notebooks/xrd1d_batch3.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
+          echo '{{ .Files.Get "configs/pyfai_live_cm40631-2_centre.yaml" | b64enc }}' | base64 -d > /tmp/config.yaml
+        volumeMounts:
+          - name: tmp
+            mountPath: /tmp
+    - name: xrd1d-notebook
+      inputs:
+        parameters:
+            - name: outputFolder
+              value: "{{`{{ workflow.parameters.outputFolder }}`}}"
+            - name: singleFirst
+              value: "{{`{{ workflow.parameters.singleFirst }}`}}"
+            - name: xrdProcessConfigUpload
+              value: "{{`{{ workflow.parameters.xrdProcessConfigUpload }}`}}"
+            - name: calibrationPath
+              value: "{{`{{ workflow.parameters.calibrationPath }}`}}"
+            - name: maskPath
+              value: "{{`{{ workflow.parameters.maskPath }}`}}"
+            - name: flatPath
+              value: "{{`{{ workflow.parameters.flatPath }}`}}"
+            - name: backgroundType
+              value: "{{`{{ workflow.parameters.backgroundType }}`}}"
+            - name: polynomialOrder
+              value: "{{`{{ workflow.parameters.polynomialOrder }}`}}"
+      script:
+        image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xrd:v0.1
+        env:
+        - name: HOME
+          value: /tmp
+        command: [bash]
+        source: |
+          python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+            -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.singleFirst }}`}}.nxs" \
+            -p process_configfile "{{`{{ inputs.parameters.xrdProcessConfigUpload }}`}}" \
+            -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}" \
+            -p calibration_path "{{`{{ inputs.parameters.calibrationPath }}`}}" \
+            -p mask_path "{{`{{ inputs.parameters.maskPath }}`}}" \
+            -p flat_path "{{`{{ inputs.parameters.flatPath }}`}}" \
+            -p background_type "{{`{{ inputs.parameters.backgroundType }}`}}" \
+            -p polynomial_order "{{`{{ inputs.parameters.polynomialOrder }}`}}"
+          python -m jupyter nbconvert --execute --allow-errors --to html --output xrd1d --output-dir /tmp /tmp/notebook-parametrized.ipynb
+        volumeMounts:
+          - name: session
+            mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+          - name: tmp
+            mountPath: /tmp
+      outputs:
+        artifacts:
+          - name: xrd1d
+            path: /tmp/xrd1d.html
+            archive:
+              none: {}
+      podSpecPatch: |
+        containers:
+        - name: main
+          resources:
+            requests:
+              cpu: 10
+              memory: 30Gi
+            limits:
+              cpu: 10
+              memory: 30Gi
+      volumes:
+        - name: session
+          hostPath:
+            path: "{{`{{ workflow.parameters.visitdir }}`}}"
+            type: Directory
+    - name: xrd1d
+      dag:
+        tasks:
+        - name: files
+          template: xrd1d-mount-files
+        - name: notebook
+          template: xrd1d-notebook
+          dependencies: [files]
