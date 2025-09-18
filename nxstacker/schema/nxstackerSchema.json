@@ -277,6 +277,10 @@
     "rescale": {
       "type": "boolean",
       "title": "Rescale"
+    },
+    "ignoreRaw": {
+      "type": "boolean",
+      "title": "Ignore Raw"
     }
   },
   "required": ["experimentType"]

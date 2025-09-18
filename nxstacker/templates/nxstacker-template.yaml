@@ -44,6 +44,7 @@ spec:
           - name: padToMax
           - name: compress
           - name: skipCheck
+          - name: ignoreRaw
           # DPC specific arguments
           - name: retrievalMethod
           # XRF specific arguments
@@ -77,6 +78,7 @@ spec:
           [[ "{{`{{inputs.parameters.medianNorm}}`}}" == "true" ]] && cmd+=("--median-norm")
           [[ "{{`{{inputs.parameters.unwrapPhase}}`}}" == "true" ]] && cmd+=("--unwrap-phase")
           [[ "{{`{{inputs.parameters.rescale}}`}}" == "true" ]] && cmd+=("--rescale")
+          [[ "{{`{{inputs.parameters.ignoreRaw}}`}}" == "true" ]] && cmd+=("--ignore-raw")
 
           [[ -n "{{`{{inputs.parameters.projDir}}`}}" ]] && cmd+=("--proj-dir={{`{{inputs.parameters.projDir}}`}}")
           [[ -n "{{`{{inputs.parameters.projFile}}`}}" ]] && cmd+=("--proj-file={{`{{inputs.parameters.projFile}}`}}")
@@ -94,6 +96,7 @@ spec:
           [[ -n "{{`{{inputs.parameters.excludeAngle}}`}}" ]] && cmd+=("--exclude-angle={{`{{inputs.parameters.excludeAngle}}`}}")
           [[ -n "{{`{{inputs.parameters.retrievalMethod}}`}}" ]] && cmd+=("--retrieval-method={{`{{inputs.parameters.retrievalMethod}}`}}")
           [[ -n "{{`{{inputs.parameters.transition}}`}}" ]] && cmd+=("--transition={{`{{inputs.parameters.transition}}`}}")
+          [[ -n "{{`{{inputs.parameters.ignoreRaw}}`}}" ]] && cmd+=("--ignore-raw={{`{{inputs.parameters.ignoreRaw}}`}}")
 
           echo "Executing: ${cmd[*]}"
           exec "${cmd[@]}"
