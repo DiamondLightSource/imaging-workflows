@@ -5,7 +5,7 @@ metadata:
   annotations:
     workflows.argoproj.io/title: dpc
     workflows.argoproj.io/description: |
-      dpc is a utility which takes in a scan file inpath, reconstructs the differential phase contrast (DPC) images, and saves the results to an outpath.
+      dpc is a utility which takes in a scan file, reconstructs the differential phase contrast (DPC) images, and saves the results to an outpath.
     workflows.diamond.ac.uk/parameter-schema: |
       {{- .Files.Get "schema/dpcSchema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
