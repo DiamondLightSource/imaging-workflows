@@ -1,0 +1,57 @@
+calibration_path: /dls/i14/data/2025/cm40631-3/processing/xrd_calibration/centre/18keV_xrdcalibration_391572_centre.nxs
+dataset_key: /entry/excalibur_addetector/data
+dataset_path: /entry/excalibur_addetector
+mask:
+  mask_path: /dls/i14/data/2025/cm40631-3/processing/xrd_calibration/centre/mask.nxs
+  mask_key: /entry/mask/mask
+  dilate_mask: true
+flat:
+  flat_path: /dls/i14/data/2025/cm40631-3/processing/xrd_calibration/centre/ffcoeffs_Zr_fixed.hdf
+  flat_key: /entry/data
+do_regrid: true
+xrd1d:
+  perform: true #for autoprocessing only
+  npt_rad: 2048
+  # q_nm^-1, q_A^-1 or 2th_deg
+  unit: q_A^-1
+  toSave: true
+  correctSolidAngle: true
+  polarization_factor: 0.95
+  # set to null for using the min and max of the data
+  radial_min: null
+  radial_max: null
+  safe: false
+xrd2d:
+  perform: false #for autoprocessing only
+  compress: true
+  npt_azim: 1024
+  azimuthal_min: -180
+  azimuthal_max: 180
+# The navigation dimension can be cropped. The first entry is the starting pixel
+# (start from 0) and the second entry is the last pixel. For example, if only
+# the first 10 pixels in the x coordinate is needed, set crop/x/start to
+# 0 or null and crop/x/end to 10.
+# If no cropping is needed, just leave them as null
+crop:
+  x:
+    start: null
+    end: null
+  y:
+    start: null
+    end: null
+background_removal:
+  # perform background removal or not
+  remove_background: false
+  # can be Doniach, Exponential, Gaussian, Lorentzian, Offset, Polynomial,
+  # Power law, Split Voigt, Voigt, or Empty
+  background_type: Exponential
+  # only active if Polynomial is chosen
+  polynomial_order: 7
+  # only active if Empty is chosen
+  background_file: null
+  # the range of the radial axis that the background model is to be fitted
+  # set to null for full range
+  bg_start: null
+  bg_end: null
+  # smoothing weight for total variation denoising, 0 for no smoothing
+  smoothing_weight: 0
