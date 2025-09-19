@@ -61,9 +61,10 @@ spec:
           python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
             -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.singleFirst }}`}}.nxs" \
             -p process_configfile /tmp/config.yaml \
-            -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}" \
+            -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}_dpc-phase.nxs" \
             -p auto_processing False
-          python -m jupyter nbconvert --execute --allow-errors --to html --output dpc --output-dir /tmp /tmp/notebook-parametrized.ipynb
+          python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output dpc-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+          python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-notebook.ipynb" --to html --no-input --output dpc-output --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
         volumeMounts:
           - name: session
             mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -71,8 +72,16 @@ spec:
             mountPath: /tmp
       outputs:
         artifacts:
-          - name: dpc
-            path: /tmp/dpc.html
+          - name: dpc-notebook
+            path: "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-notebook.ipynb"
+            archive:
+              none: {}
+          - name: dpc-phase-nxs
+            path: "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}_dpc-phase.nxs"
+            archive:
+              none: {}
+          - name: dpc-output
+            path: "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-output.html"
             archive:
               none: {}
       podSpecPatch: |
