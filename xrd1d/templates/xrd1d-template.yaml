@@ -85,13 +85,14 @@ spec:
           python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
             -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.singleFirst }}`}}.nxs" \
             -p process_configfile "{{`{{ inputs.parameters.xrdProcessConfigUpload }}`}}" \
-            -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}" \
+            -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}-xrd1d.nxs" \
             -p calibration_path "{{`{{ inputs.parameters.calibrationPath }}`}}" \
             -p mask_path "{{`{{ inputs.parameters.maskPath }}`}}" \
             -p flat_path "{{`{{ inputs.parameters.flatPath }}`}}" \
             -p background_type "{{`{{ inputs.parameters.backgroundType }}`}}" \
             -p polynomial_order "{{`{{ inputs.parameters.polynomialOrder }}`}}"
-          python -m jupyter nbconvert --execute --allow-errors --to html --output xrd1d --output-dir /tmp /tmp/notebook-parametrized.ipynb
+          python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output xrd1d-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+          python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xrd1d-notebook.ipynb" --to html --no-input --output xrd1d-output --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
         volumeMounts:
           - name: session
             mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -99,8 +100,16 @@ spec:
             mountPath: /tmp
       outputs:
         artifacts:
-          - name: xrd1d
-            path: /tmp/xrd1d.html
+          - name: xrd1d-notebook
+            path: "{{`{{ inputs.parameters.outputFolder }}`}}/xrd1d-notebook.ipynb"
+            archive:
+              none: {}
+          - name: xrd1d-nxs
+            path: "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}-xrd1d.nxs"
+            archive:
+              none: {}
+          - name: xrd1d-output
+            path: "{{`{{ inputs.parameters.outputFolder }}`}}/xrd1d-output.html"
             archive:
               none: {}
       podSpecPatch: |
