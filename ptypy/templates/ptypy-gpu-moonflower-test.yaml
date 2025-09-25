@@ -40,7 +40,7 @@ spec:
       - name: memory
         value: 20Gi
     container:
-      image: gcr.io/diamond-privreg/ptypy/test_openmpi_cupy:0.1
+      image: ghcr.io/ptycho/ptypy_cupy_openmpi:v0.9.0
       env:
       - name: CUPY_CACHE_DIR
         value: /tmp/.cupy/kernel_cache
@@ -93,6 +93,10 @@ spec:
     - key: nodetype
       operator: Equal
       value: gpu
+      effect: NoSchedule
+    - key: nodegroup
+      operator: Equal
+      value: workflows
       effect: NoSchedule
     volumes:
     - name: session
