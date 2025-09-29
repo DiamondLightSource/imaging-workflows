@@ -122,6 +122,21 @@ spec:
             limits:
               cpu: 10
               memory: 30Gi
+      tolerations:
+      - key: nodegroup
+        operator: Equal
+        value: workflows
+        effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: nodegroup
+                operator: In
+                values:
+                - workflows
       volumes:
         - name: session
           hostPath:
