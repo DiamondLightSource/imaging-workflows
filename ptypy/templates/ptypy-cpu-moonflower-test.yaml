@@ -76,6 +76,15 @@ spec:
       operator: Equal
       value: workflows
       effect: NoSchedule
+    affinity:
+      nodeAffinity:
+       requiredDuringSchedulingIgnoredDuringExecution:
+         nodeSelectorTerms:
+         - matchExpressions:
+           - key: nodegroup
+             operator: In
+             values:
+             - workflows
     volumes:
     - name: session
       hostPath:
