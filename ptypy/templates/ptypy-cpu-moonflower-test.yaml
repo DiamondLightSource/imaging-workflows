@@ -78,9 +78,9 @@ spec:
       effect: NoSchedule
     affinity:
       nodeAffinity:
-       requiredDuringSchedulingIgnoredDuringExecution:
-         nodeSelectorTerms:
-         - matchExpressions:
+       preferredDuringSchedulingIgnoredDuringExecution:
+       - preference:
+           matchExpressions:
            - key: nodegroup
              operator: In
              values:
