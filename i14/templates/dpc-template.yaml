@@ -14,111 +14,111 @@ spec:
   entrypoint: dpc
   arguments:
     parameters:
-      - name: visitdir
-        valueFrom:
-          configMapKeyRef:
-            name: sessionspaces
-            key: data_directory
-      - name: outputFolder
-        value: /tmp/output
-      - name: singleFirst
-        value: 395329
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+    - name: outputFolder
+      value: /tmp/output
+    - name: singleFirst
+      value: 395329
   volumeClaimTemplates:
-    - metadata:
-        name: tmp
-      spec:
-        accessModes:
-          - ReadWriteOnce
+  - metadata:
+      name: tmp
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 20Gi
+      storageClassName: netapp
+  templates:
+  - name: dpc-mount-files
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/dpc:v0.1
+      command: [bash]
+      source: |
+        echo '{{ .Files.Get "notebooks/dpc_autoprocess3.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
+        echo '{{ .Files.Get "configs/processing.yaml" | b64enc }}' | base64 -d > /tmp/config.yaml
+      volumeMounts:
+      - name: tmp
+        mountPath: /tmp
+  - name: dpc-notebook
+    inputs:
+      parameters:
+      - name: outputFolder
+        value: "{{`{{ workflow.parameters.outputFolder }}`}}"
+      - name: singleFirst
+        value: "{{`{{ workflow.parameters.singleFirst }}`}}"
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/dpc:v0.1
+      env:
+      - name: HOME
+        value: /tmp
+      command: [bash]
+      source: |
+        python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+          -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.singleFirst }}`}}.nxs" \
+          -p process_configfile /tmp/config.yaml \
+          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}_dpc-phase.nxs" \
+          -p auto_processing False
+        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output dpc-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-notebook.ipynb" --to html --no-input --output dpc-output --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: dpc-notebook
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-notebook.ipynb"
+        archive:
+          none: {}
+      - name: dpc-phase-nxs
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}_dpc-phase.nxs"
+        archive:
+          none: {}
+      - name: dpc-output
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-output.html"
+        archive:
+          none: {}
+    podSpecPatch: |
+      containers:
+      - name: main
         resources:
           requests:
-            storage: 20Gi
-        storageClassName: netapp
-  templates:
-    - name: dpc-mount-files
-      script:
-        image: gitlab.diamond.ac.uk:5050/i14/i14_utility/dpc:v0.1
-        command: [bash]
-        source: |
-          echo '{{ .Files.Get "notebooks/dpc_autoprocess3.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
-          echo '{{ .Files.Get "configs/processing.yaml" | b64enc }}' | base64 -d > /tmp/config.yaml
-        volumeMounts:
-          - name: tmp
-            mountPath: /tmp
-    - name: dpc-notebook
-      inputs:
-        parameters:
-            - name: outputFolder
-              value: "{{`{{ workflow.parameters.outputFolder }}`}}"
-            - name: singleFirst
-              value: "{{`{{ workflow.parameters.singleFirst }}`}}"
-      script:
-        image: gitlab.diamond.ac.uk:5050/i14/i14_utility/dpc:v0.1
-        env:
-        - name: HOME
-          value: /tmp
-        command: [bash]
-        source: |
-          python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
-            -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.singleFirst }}`}}.nxs" \
-            -p process_configfile /tmp/config.yaml \
-            -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}_dpc-phase.nxs" \
-            -p auto_processing False
-          python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output dpc-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
-          python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-notebook.ipynb" --to html --no-input --output dpc-output --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
-        volumeMounts:
-          - name: session
-            mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
-          - name: tmp
-            mountPath: /tmp
-      outputs:
-        artifacts:
-          - name: dpc-notebook
-            path: "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-notebook.ipynb"
-            archive:
-              none: {}
-          - name: dpc-phase-nxs
-            path: "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}_dpc-phase.nxs"
-            archive:
-              none: {}
-          - name: dpc-output
-            path: "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-output.html"
-            archive:
-              none: {}
-      podSpecPatch: |
-        containers:
-        - name: main
-          resources:
-            requests:
-              cpu: 10
-              memory: 30Gi
-            limits:
-              cpu: 10
-              memory: 30Gi
-      tolerations:
-      - key: nodegroup
-        operator: Equal
-        value: workflows
-        effect: NoSchedule
-      affinity:
-        nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            preference:
-              matchExpressions:
-              - key: nodegroup
-                operator: In
-                values:
-                - workflows
-      volumes:
-        - name: session
-          hostPath:
-            path: "{{`{{ workflow.parameters.visitdir }}`}}"
-            type: Directory
-    - name: dpc
-      dag:
-        tasks:
-        - name: files
-          template: dpc-mount-files
-        - name: notebook
-          template: dpc-notebook
-          dependencies: [files]
+            cpu: 10
+            memory: 30Gi
+          limits:
+            cpu: 10
+            memory: 30Gi
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: nodegroup
+              operator: In
+              values:
+              - workflows
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+  - name: dpc
+    dag:
+      tasks:
+      - name: files
+        template: dpc-mount-files
+      - name: notebook
+        template: dpc-notebook
+        dependencies: [files]
