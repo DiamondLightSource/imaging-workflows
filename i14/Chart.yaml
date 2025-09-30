@@ -1,5 +1,5 @@
 apiVersion: v2
-name: dpc
-description: DPC is a utility which takes a scan file, reconstructs the differential phase contrast (DPC) images, and saves the results to an outpath.
+name: i14
+description: I14 workflows
 type: application
 version: 0.0.1
