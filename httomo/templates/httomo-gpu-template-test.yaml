@@ -81,6 +81,10 @@ spec:
       operator: Equal
       value: gpu
       effect: NoSchedule
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
     volumes:
     - name: session
       hostPath:
