@@ -1,0 +1,13 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Control",
+      "scope": "#/properties/multiRange"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/edgeElement"
+    }
+  ]
+}
