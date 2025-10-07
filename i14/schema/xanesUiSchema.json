@@ -1,0 +1,25 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Control",
+      "scope": "#/properties/outputFolder"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/multiRange"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/edgeElement"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/elementToAlign"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/method"
+    }
+  ]
+}
