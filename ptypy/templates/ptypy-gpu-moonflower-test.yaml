@@ -13,13 +13,6 @@ spec:
         requests:
           storage: 1Gi
       storageClassName: netapp
-  arguments:
-    parameters:
-    - name: visitdir
-      valueFrom:
-        configMapKeyRef:
-          name: sessionspaces
-          key: data_directory
   templates:
   - name: ptypy-run
     inputs:
@@ -66,8 +59,6 @@ spec:
       - "-f"
       - "{{`{{ inputs.parameters.fftlib }}`}}"
       volumeMounts:
-      - name: session
-        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmpdir
         mountPath: /tmp
     sidecars:
@@ -105,8 +96,3 @@ spec:
       operator: Equal
       value: workflows
       effect: NoSchedule
-    volumes:
-    - name: session
-      hostPath:
-        path:  "{{`{{ workflow.parameters.visitdir }}`}}"
-        type: Directory
