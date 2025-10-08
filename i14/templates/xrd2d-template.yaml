@@ -24,7 +24,7 @@ spec:
     - name: singleFirst
       value: 391572
     - name: xrdProcessConfigUpload
-      value: /tmp/config.yaml
+      value: ""
     - name: calibrationPath
       value: ""
     - name: maskPath
@@ -48,7 +48,6 @@ spec:
       command: [bash]
       source: |
         echo '{{ .Files.Get "notebooks/xrd2d_batch3.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
-        echo '{{ .Files.Get "configs/pyfai_live_cm40631-2_centre.yaml" | b64enc }}' | base64 -d > /tmp/config.yaml
       volumeMounts:
       - name: tmp
         mountPath: /tmp
