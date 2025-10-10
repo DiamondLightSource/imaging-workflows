@@ -1,0 +1,37 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Control",
+      "scope": "#/properties/outputFolder"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/xrdProcessConfigUpload"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/singleFirst"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/calibrationPath"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/maskPath"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/flatPath"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/backgroundType"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/polynomialOrder"
+    }
+  ]
+}
