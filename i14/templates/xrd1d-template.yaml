@@ -103,10 +103,6 @@ spec:
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/xrd1d-notebook.ipynb"
         archive:
           none: {}
-      - name: xrd1d-nxs
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}-xrd1d.nxs"
-        archive:
-          none: {}
       - name: xrd1d-output
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/xrd1d-output.html"
         archive:

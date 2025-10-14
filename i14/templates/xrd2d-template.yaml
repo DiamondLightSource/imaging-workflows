@@ -93,10 +93,6 @@ spec:
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/xrd2d-notebook.ipynb"
         archive:
           none: {}
-      - name: xrd2d-nxs
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}-xrd2d.nxs"
-        archive:
-          none: {}
       - name: xrd2d-output
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/xrd2d-output.html"
         archive:

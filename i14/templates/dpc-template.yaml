@@ -76,10 +76,6 @@ spec:
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-notebook.ipynb"
         archive:
           none: {}
-      - name: dpc-phase-nxs
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}_dpc-phase.nxs"
-        archive:
-          none: {}
       - name: dpc-output
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-output.html"
         archive:
