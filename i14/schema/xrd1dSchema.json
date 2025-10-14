@@ -1,0 +1,55 @@
+{
+  "type": "object",
+  "properties": {
+    "outputFolder": {
+      "type": "string",
+      "title": "Output Folder"
+    },
+    "xrdProcessConfigUpload": {
+      "type": "string",
+      "title": "Config Folder"
+    },
+    "singleFirst": {
+      "type": "integer",
+      "title": "Single First"
+    },
+    "calibrationPath": {
+      "type": "string",
+      "title": "Calibration Path"
+    },
+    "maskPath": {
+      "type": "string",
+      "title": "Mask Path"
+    },
+    "flatPath": {
+      "type": "string",
+      "title": "Flat Path"
+    },
+    "backgroundType": {
+      "type": "string",
+      "enum": [
+        "Doniach",
+        "Gaussian",
+        "Lorentzian",
+        "Offset",
+        "Polynomial",
+        "PowerLaw",
+        "Exponential",
+        "SkewNormal",
+        "SplitVoigt",
+        "Voigt",
+        "Empty"
+      ],
+      "title": "Background Type"
+    },
+    "polynomialOrder": {
+      "type": "integer",
+      "title": "Polynomial Order"
+    }
+  },
+  "required": [
+    "outputFolder",
+    "xrdProcessConfigUpload",
+    "singleFirst"
+  ]
+}

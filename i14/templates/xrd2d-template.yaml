@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: dpc
+  name: xrd2d
   annotations:
-    workflows.argoproj.io/title: dpc
+    workflows.argoproj.io/title: xrd2d
     workflows.argoproj.io/description: |
-      dpc is a utility which takes in a scan file, reconstructs the differential phase contrast (DPC) images, and saves the results to an outpath.
+      xrd2d is a utility which performs Azimuthal integration (ExcaliburXRDIntegration) and saves result to a nxs file
     workflows.diamond.ac.uk/parameter-schema: |
-      {{- .Files.Get "schema/dpcSchema.json" | nindent 6 }}
+      {{- .Files.Get "schema/xrd2dSchema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
-      {{- .Files.Get "schema/dpcUISchema.json" | nindent 6 }}
+      {{- .Files.Get "schema/xrd2dUISchema.json" | nindent 6 }}
 spec:
-  entrypoint: dpc
+  entrypoint: xrd2d
   arguments:
     parameters:
     - name: visitdir
@@ -22,7 +22,15 @@ spec:
     - name: outputFolder
       value: /tmp/output
     - name: singleFirst
-      value: 395329
+      value: 391572
+    - name: xrdProcessConfigUpload
+      value: ""
+    - name: calibrationPath
+      value: ""
+    - name: maskPath
+      value: ""
+    - name: flatPath
+      value: ""
   volumeClaimTemplates:
   - metadata:
       name: tmp
@@ -34,25 +42,32 @@ spec:
           storage: 20Gi
       storageClassName: netapp
   templates:
-  - name: dpc-mount-files
+  - name: xrd2d-mount-files
     script:
-      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/dpc:v0.1
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xrd:v0.1
       command: [bash]
       source: |
-        echo '{{ .Files.Get "notebooks/dpc_autoprocess3.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
-        echo '{{ .Files.Get "configs/processing.yaml" | b64enc }}' | base64 -d > /tmp/config.yaml
+        echo '{{ .Files.Get "notebooks/xrd2d_batch3.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
       volumeMounts:
       - name: tmp
         mountPath: /tmp
-  - name: dpc-notebook
+  - name: xrd2d-notebook
     inputs:
       parameters:
       - name: outputFolder
         value: "{{`{{ workflow.parameters.outputFolder }}`}}"
       - name: singleFirst
         value: "{{`{{ workflow.parameters.singleFirst }}`}}"
+      - name: xrdProcessConfigUpload
+        value: "{{`{{ workflow.parameters.xrdProcessConfigUpload }}`}}"
+      - name: calibrationPath
+        value: "{{`{{ workflow.parameters.calibrationPath }}`}}"
+      - name: maskPath
+        value: "{{`{{ workflow.parameters.maskPath }}`}}"
+      - name: flatPath
+        value: "{{`{{ workflow.parameters.flatPath }}`}}"
     script:
-      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/dpc:v0.1
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xrd:v0.1
       env:
       - name: HOME
         value: /tmp
@@ -60,11 +75,13 @@ spec:
       source: |
         python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
           -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.singleFirst }}`}}.nxs" \
-          -p process_configfile /tmp/config.yaml \
-          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}_dpc-phase.nxs" \
-          -p auto_processing False
-        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output dpc-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
-        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-notebook.ipynb" --to html --no-input --output dpc-output --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+          -p process_configfile "{{`{{ inputs.parameters.xrdProcessConfigUpload }}`}}" \
+          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}-xrd2d.nxs" \
+          -p calibration_path "{{`{{ inputs.parameters.calibrationPath }}`}}" \
+          -p mask_path "{{`{{ inputs.parameters.maskPath }}`}}" \
+          -p flat_path "{{`{{ inputs.parameters.flatPath }}`}}"
+        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output xrd2d-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xrd2d-notebook.ipynb" --to html --no-input --output xrd2d-output --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -72,12 +89,12 @@ spec:
         mountPath: /tmp
     outputs:
       artifacts:
-      - name: dpc-notebook
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-notebook.ipynb"
+      - name: xrd2d-notebook
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xrd2d-notebook.ipynb"
         archive:
           none: {}
-      - name: dpc-output
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-output.html"
+      - name: xrd2d-output
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xrd2d-output.html"
         archive:
           none: {}
     podSpecPatch: |
@@ -110,11 +127,11 @@ spec:
       hostPath:
         path: "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
-  - name: dpc
+  - name: xrd2d
     dag:
       tasks:
       - name: files
-        template: dpc-mount-files
+        template: xrd2d-mount-files
       - name: notebook
-        template: dpc-notebook
+        template: xrd2d-notebook
         dependencies: [files]
