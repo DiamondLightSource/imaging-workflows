@@ -1,0 +1,114 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: extract-raw-projections
+spec:
+  entrypoint: extract-raw-projections
+  volumeClaimTemplates:
+  - metadata:
+      name: tmpdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: netapp
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+  templates:
+  - name: extract-raw-projections
+    inputs:
+      parameters:
+      - name: input
+      - name: dataset-path
+      - name: projection-indices
+      - name: nprocs
+        value: 1
+      - name: memory
+        value: 20Gi
+      - name: tmpdir-path
+        value: /tmp
+      - name: output-filename
+        value: projections.zip
+    script:
+      image: ghcr.io/diamondlightsource/httomo:latest
+      command: [/opt/conda/bin/python]
+      source: |
+        import io
+        import zipfile
+        from pathlib import Path
+
+        import h5py
+        import numpy as np
+        from PIL import Image
+
+
+        INPUT_FILEPATH = Path("{{`{{ inputs.parameters.input }}`}}")
+        OUT_PATH = "{{`{{ inputs.parameters.tmpdir-path }}`}}/{{`{{ inputs.parameters.output-filename }}`}}"
+
+        string_indices = "{{`{{ inputs.parameters.projection-indices }}`}}".strip(",").replace(" ", "").split(",")
+        int_indices = [int(idx) for idx in string_indices]
+
+        with h5py.File(INPUT_FILEPATH, "r") as f:
+            dataset = f["{{`{{ inputs.parameters.dataset-path }}`}}"]
+            projections = [dataset[idx, :, :] for idx in int_indices]
+
+        buffers = [io.BytesIO() for _ in projections]
+        pngs = [Image.fromarray(arr) for arr in projections]
+        for buf, image in zip(buffers, pngs):
+            image.save(buf, "PNG")
+        for buf in buffers:
+            buf.seek(0)
+
+        with zipfile.ZipFile(OUT_PATH, "a") as f:
+            for idx, buf in zip(int_indices, buffers):
+                f.writestr(
+                    f"{idx}.png",
+                    buf.read(),
+                )
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmpdir
+        mountPath: "{{`{{ inputs.parameters.tmpdir-path }}`}}"
+    volumes:
+    - name: session
+      hostPath:
+        path:  "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+    outputs:
+      artifacts:
+      - name: projections
+        path: "{{`{{ inputs.parameters.tmpdir-path }}`}}/{{`{{ inputs.parameters.output-filename }}`}}"
+        archive:
+          none: { }
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+          limits:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    affinity:
+      nodeAffinity:
+       preferredDuringSchedulingIgnoredDuringExecution:
+       - weight: 100
+         preference:
+           matchExpressions:
+           - key: nodegroup
+             operator: In
+             values:
+             - workflows
