@@ -1,0 +1,29 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Control",
+      "scope": "#/properties/inpath"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/outpath"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/padding"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/minSize"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/erosionRadius"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/dilationRadius"
+    }
+  ]
+}
