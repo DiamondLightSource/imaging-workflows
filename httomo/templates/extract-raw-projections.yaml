@@ -34,18 +34,16 @@ spec:
       - name: tmpdir-path
         value: /tmp
       - name: output-filename
-        value: projections.zip
+        value: projections.tif
     script:
       image: ghcr.io/diamondlightsource/httomo:latest
       command: [/opt/conda/bin/python]
       source: |
-        import io
-        import zipfile
         from pathlib import Path
 
         import h5py
+        import imageio
         import numpy as np
-        from PIL import Image
 
 
         INPUT_FILEPATH = Path("{{`{{ inputs.parameters.input }}`}}")
@@ -56,21 +54,15 @@ spec:
 
         with h5py.File(INPUT_FILEPATH, "r") as f:
             dataset = f["{{`{{ inputs.parameters.dataset-path }}`}}"]
-            projections = [dataset[idx, :, :] for idx in int_indices]
+            assert isinstance(dataset, h5py.Dataset)
+            projections = np.empty(
+                (len(int_indices), dataset.shape[1], dataset.shape[2]), dtype=dataset.dtype
+            )
+            for array_idx, image_idx in enumerate(int_indices):
+                projections[array_idx] = dataset[image_idx, :, :]
 
-        buffers = [io.BytesIO() for _ in projections]
-        pngs = [Image.fromarray(arr) for arr in projections]
-        for buf, image in zip(buffers, pngs):
-            image.save(buf, "PNG")
-        for buf in buffers:
-            buf.seek(0)
+        imageio.mimwrite(OUT_PATH, projections)
 
-        with zipfile.ZipFile(OUT_PATH, "a") as f:
-            for idx, buf in zip(int_indices, buffers):
-                f.writestr(
-                    f"{idx}.png",
-                    buf.read(),
-                )
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
