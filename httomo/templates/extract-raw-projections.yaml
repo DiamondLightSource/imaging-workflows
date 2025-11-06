@@ -42,7 +42,7 @@ spec:
         from pathlib import Path
 
         import h5py
-        import imageio
+        import tifffile
         import numpy as np
 
 
@@ -61,7 +61,7 @@ spec:
             for array_idx, image_idx in enumerate(int_indices):
                 projections[array_idx] = dataset[image_idx, :, :]
 
-        imageio.mimwrite(OUT_PATH, projections)
+        tifffile.tifffile.imwrite(OUT_PATH, projections, photometric="minisblack")
 
       volumeMounts:
       - name: session
