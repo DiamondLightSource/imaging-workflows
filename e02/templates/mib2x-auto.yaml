@@ -21,6 +21,8 @@ spec:
   arguments:
     parameters:
       - name: base_path
+      - name: Scan_X
+        value: 256
   volumeClaimTemplates:
   - metadata:
       name: tmpdir
