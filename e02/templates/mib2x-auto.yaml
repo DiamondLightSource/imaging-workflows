@@ -21,7 +21,6 @@ spec:
       inputs:
         parameters:
           - name: base_path
-            value: "{{`{{workflow.parameters.base_path}}`}}"
       steps:
       - - name: check
           template: e02-auto-check
@@ -30,7 +29,7 @@ spec:
               - name: base_path
                 value: "{{`{{inputs.parameters.base_path}}`}}"
       - - name: create
-          template: e02-auto-create-debug
+          template: e02-auto-run
           arguments:
             parameters:
               - name: mib_path
@@ -56,7 +55,7 @@ spec:
           paths = [base + scan for scan in scans]
           json.dump(paths, sys.stdout)
 
-    - name: e02-auto-create-debug
+    - name: e02-auto-run
       inputs:
         parameters:
           - name: mib_path
