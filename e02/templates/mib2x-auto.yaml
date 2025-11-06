@@ -2,6 +2,20 @@ apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
   name: e02-auto-mib2x
+  annotations:
+    workflows.argoproj.io/title: ePSIC automatic mib conversion
+    workflows.argoproj.io/description: |
+      Convert MIB file to hdf5/hspy files
+    workflows.diamond.ac.uk/parameter-schema.base_path: |
+      {
+        "type": "string"
+      }
+    workflows.diamond.ac.uk/parameter-schema.Scan_X: |
+      {
+        "type": "integer",
+        "minimum": 0,
+        "default": 256
+      }
 spec:
   entrypoint: e02-mib2x-auto
   arguments:
@@ -62,8 +76,7 @@ spec:
       container:
         image: alpine:latest
         command: [sh, -c]
-        args: ["echo {{`{{inputs.parameters.mib_path}}`}}"]
-
+        args: ["echo {{`{{inputs.parameters.mib_path}}`}} and {{` {{workflow.parameters.Scan_X}}`}}"]
     - name: e02-auto-create
       inputs:
         parameters:
