@@ -1,0 +1,132 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: xanes-sparse
+  annotations:
+    workflows.argoproj.io/title: Xanes-sparse
+    workflows.argoproj.io/description: |
+      Xanes-sparse is a utility which takes the last scan file of a sparse XANES scan (inpath), defines the 2D full grid,
+      inserts the data in the correct rows, stack the images, and completes the missing data by using looped alternating
+      steepest descent (ASD). There are 3 output files: the incomplete NeXuS file, the incomplete MANTIS file,
+      the complete MANTIS file.
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/xanesSparseSchema.json" | nindent 6 }}
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/xanesSparseUISchema.json" | nindent 6 }}
+spec:
+  entrypoint: xanes-sparse
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+    - name: outputFolder
+      value: ""
+    - name: file_list
+      value: []
+    - name: edge_element
+      value: Zr-Ka
+    - name: normalise
+      value: true
+  volumeClaimTemplates:
+  - metadata:
+      name: tmp
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 20Gi
+      storageClassName: netapp
+  templates:
+  - name: xanes-sparse-mount-files
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xrd:v0.1
+      command: [bash]
+      source: |
+        echo '{{ .Files.Get "notebooks/xanes_sparse_stack_autoprocessing0.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
+      volumeMounts:
+      - name: tmp
+        mountPath: /tmp
+  - name: xanes-sparse-notebook
+    inputs:
+      parameters:
+      - name: outputFolder
+        value: "{{`{{ workflow.parameters.outputFolder }}`}}"
+      - name: file_list
+        value: "{{`{{ workflows.parameters.file_list }}`}}"
+      - name: edge_element
+        value: "{{`{{ workflow.parameters.edge_element }}`}}"
+      - name: normalise
+        value: "{{`{{ workflow.parameters.normalise }}`}}"
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      env:
+      - name: HOME
+        value: /tmp
+      command: [bash]
+      source: |
+        python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}_xanes_sparse_stack_autoprocessing0.nxs" \
+          -p file_list "{{`{{ inputs.parameters.file_list }}`}}" \
+          -p edge_element "{{`{{ inputs.parameters.edge_element }}`}}" \
+          -p sztol 0.9 \
+          -p completion_rank 6 \
+          -p tol_residual 1e-4 \
+          -p num_short_iteration 75 \
+          -p num_final_iteration 2000 \
+          -p normalised "{{`{{ inputs.parameters.normalise }}`}}" \
+          -p auto_processing False
+        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output xanes-sparse-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-sparse-notebook.ipynb" --to html --output xanes-sparse-output --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: xanes-sparse
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-sparse-output.html"
+        archive:
+          none: {}
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: 10
+            memory: 30Gi
+          limits:
+            cpu: 10
+            memory: 30Gi
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: nodegroup
+              operator: In
+              values:
+              - workflows
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+  - name: xanes-sparse
+    dag:
+      tasks:
+      - name: files
+        template: xanes-sparse-mount-files
+      - name: notebook
+        template: xanes-sparse-notebook
+        dependencies: [files]

@@ -1,0 +1,126 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: xanes-point
+  annotations:
+    workflows.argoproj.io/title: Xanes-point
+    workflows.argoproj.io/description: |
+      Xanes-point is a utility which takes in a scan file (inpath) and a line group (edge_element),
+      performs windowing of this line group, and saves a two-column text file (outpath): the first column
+      is the energy in keV, and the second column is the summed windowed MCA intensity across the 4 channels.
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/xanesPointSchema.json" | nindent 6 }}
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/xanesPointUISchema.json" | nindent 6 }}
+spec:
+  entrypoint: xanes-point
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+    - name: outputFolder
+      value: ""
+    - name: first
+      value: 386556
+    - name: edge_element
+      value: Fe-Ka
+    - name: normalise
+      value: true
+  volumeClaimTemplates:
+  - metadata:
+      name: tmp
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 20Gi
+      storageClassName: netapp
+  templates:
+  - name: xanes-point-mount-files
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      command: [bash]
+      source: |
+        echo '{{ .Files.Get "notebooks/xanes_point_autoprocessing0.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
+      volumeMounts:
+      - name: tmp
+        mountPath: /tmp
+  - name: xanes-point-notebook
+    inputs:
+      parameters:
+      - name: outputFolder
+        value: "{{`{{ workflow.parameters.outputFolder }}`}}"
+      - name: first
+        value: "{{`{{ workflow.parameters.first }}`}}"
+      - name: edge_element
+        value: "{{`{{ workflow.parameters.edge_element }}`}}"
+      - name: normalise
+        value: "{{`{{ workflow.parameters.normalise }}`}}"
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      env:
+      - name: HOME
+        value: /tmp
+      command: [bash]
+      source: |
+        python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+          -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.first }}`}}.nxs" \
+          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.first }}`}}xanes_point.txt" \
+          -p edge_element "{{`{{ inputs.parameters.edge_element }}`}}" \
+          -p normalise "{{`{{ inputs.parameters.normalise }}`}}" \
+          -p auto_processing False
+        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output xanes-point-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-point-notebook.ipynb" --to html --output xanes-point-output --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: xanes-point-output
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-point-output.html"
+        archive:
+          none: {}
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: 10
+            memory: 30Gi
+          limits:
+            cpu: 10
+            memory: 30Gi
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: nodegroup
+              operator: In
+              values:
+              - workflows
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+  - name: xanes-point
+    dag:
+      tasks:
+      - name: files
+        template: xanes-point-mount-files
+      - name: notebook
+        template: xanes-point-notebook
+        dependencies: [files]
