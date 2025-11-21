@@ -1,0 +1,118 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: align
+  annotations:
+    workflows.argoproj.io/title: Align data
+    workflows.argoproj.io/description: |
+      A utility which takes in a file path, a mask, aligns data according to vertical mass or phase correlation between images, and saves the results.
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/alignSchema.json" | nindent 6 }}
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/alignUISchema.json" | nindent 6 }}
+spec:
+  entrypoint: align
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+    - name: inpath
+      value: ""
+    - name: maskpath
+      value: ""
+    - name: outpath
+      value: ""
+  volumeClaimTemplates:
+  - metadata:
+      name: tmp
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 20Gi
+      storageClassName: netapp
+  templates:
+  - name: align-mount-files
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xrd:v0.1
+      command: [bash]
+      source: |
+        echo '{{ .Files.Get "notebooks/ptycho-tomo-align.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
+      volumeMounts:
+      - name: tmp
+        mountPath: /tmp
+  - name: align-notebook
+    inputs:
+      parameters:
+      - name: inpath
+        value: "{{`{{ workflow.parameters.inpath }}`}}"
+      - name: maskpath
+        value: "{{`{{ workflow.parameters.maskpath }}`}}"
+      - name: outpath
+        value: "{{`{{ workflow.parameters.outpath }}`}}"
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xrd:v0.1
+      env:
+      - name: HOME
+        value: /tmp
+      command: [bash]
+      source: |
+        python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+          -p inpath "{{`{{ inputs.parameters.inpath }}`}}" \
+          -p maskpath "{{`{{ inputs.parameters.maskpath }}`}}" \
+          -p outpath "{{`{{ inputs.parameters.outpath }}`}}"
+        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output align-notebook --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
+        python -m jupyter nbconvert "{{`{{ inputs.parameters.outpath }}`}}/align-notebook.ipynb" --to html --output align-output --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: align-output
+        path: "{{`{{ inputs.parameters.outpath }}`}}/align-output.html"
+        archive:
+          none: {}
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: 10
+            memory: 30Gi
+          limits:
+            cpu: 10
+            memory: 30Gi
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: nodegroup
+              operator: In
+              values:
+              - workflows
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+  - name: align
+    dag:
+      tasks:
+      - name: files
+        template: align-mount-files
+      - name: notebook
+        template: align-notebook
+        dependencies: [files]

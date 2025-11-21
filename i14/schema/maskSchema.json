@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "properties": {
+    "inpath": {
+      "type": "string",
+      "title": "Input file",
+      "default": ""
+    },
+    "outpath": {
+      "type": "string",
+      "title": "Output folder",
+      "default": ""
+    },
+    "padding": {
+      "type": "integer",
+      "title": "Padding",
+      "default": 50
+    },
+    "minSize": {
+      "type": "integer",
+      "title": "Minimum size",
+      "default": 5000
+    },
+    "erosionRadius": {
+      "type": "integer",
+      "title": "Erosion radius",
+      "default": 18
+    },
+    "dilationRadius": {
+      "type": "integer",
+      "title": "Dilation radius",
+      "default": 5
+    }
+  },
+  "required": ["inpath"]
+}
