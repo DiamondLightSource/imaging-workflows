@@ -26,7 +26,9 @@ spec:
     - name: first
       value: 386556
     - name: edge_element
-      value: Fe-Ka
+      value: Fe
+    - name: edge_transition
+      value: Ka
     - name: normalise
       value: true
   volumeClaimTemplates:
@@ -57,7 +59,7 @@ spec:
       - name: first
         value: "{{`{{ workflow.parameters.first }}`}}"
       - name: edge_element
-        value: "{{`{{ workflow.parameters.edge_element }}`}}"
+        value: "{{`{{ workflow.parameters.edge_element }}`}}-{{`{{ workflow.parameters.edge_transition }}`}}"
       - name: normalise
         value: "{{`{{ workflow.parameters.normalise }}`}}"
     script:
