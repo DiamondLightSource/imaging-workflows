@@ -7,11 +7,19 @@
     },
     {
       "type": "Control",
-      "scope": "#/properties/multiRange"
+      "scope": "#/properties/scanRange",
+      "label": "Scan Range",
+      "options": {
+        "useScanRangeControl": true
+      }
     },
     {
       "type": "Control",
       "scope": "#/properties/edgeElement"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/edgeTransition"
     },
     {
       "type": "Control",
