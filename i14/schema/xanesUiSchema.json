@@ -7,7 +7,11 @@
     },
     {
       "type": "Control",
-      "scope": "#/properties/multiRange"
+      "scope": "#/properties/scanRange",
+      "label": "Scan Range",
+      "options": {
+        "useScanRangeControl": true
+      }
     },
     {
       "type": "Control",
@@ -15,7 +19,15 @@
     },
     {
       "type": "Control",
+      "scope": "#/properties/edgeTransition"
+    },
+    {
+      "type": "Control",
       "scope": "#/properties/elementToAlign"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/transitionToAlign"
     },
     {
       "type": "Control",
