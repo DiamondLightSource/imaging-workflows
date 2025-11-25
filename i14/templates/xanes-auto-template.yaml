@@ -29,8 +29,12 @@ spec:
     - name: method
       value: mutual
     - name: edge_element
-      value: Pb-La
+      value: Pb
+    - name: edge_transition
+      value: La
     - name: element_to_align
+      value: None
+    - name: transition_to_align
       value: None
     - name: normalise
       value: true
@@ -62,9 +66,9 @@ spec:
       - name: file_list
         value: "{{`{{ workflows.parameters.file_list }}`}}"
       - name: edge_element
-        value: "{{`{{ workflow.parameters.edge_element }}`}}"
+        value: "{{`{{ workflow.parameters.edge_element }}`}}-{{`{{ workflow.parameters.edge_transition }}`}}"
       - name: element_to_align
-        value: "{{`{{ workflow.parameters.element_to_align }}`}}"
+        value: "{{`{{ workflow.parameters.element_to_align }}`}}-{{`{{ workflow.parameters.transition_to_align }}`}}"
       - name: method
         value: "{{`{{ workflow.parameters.method }}`}}"
       - name: normalise

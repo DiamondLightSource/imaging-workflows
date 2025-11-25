@@ -27,7 +27,9 @@ spec:
     - name: file_list
       value: []
     - name: edge_element
-      value: Zr-Ka
+      value: Zr
+    - name: edge_transition
+      value: Ka
     - name: normalise
       value: true
   volumeClaimTemplates:
@@ -58,7 +60,7 @@ spec:
       - name: file_list
         value: "{{`{{ workflows.parameters.file_list }}`}}"
       - name: edge_element
-        value: "{{`{{ workflow.parameters.edge_element }}`}}"
+        value: "{{`{{ workflow.parameters.edge_element }}`}}-{{`{{ workflow.parameters.edge_transition }}`}}"
       - name: normalise
         value: "{{`{{ workflow.parameters.normalise }}`}}"
     script:
