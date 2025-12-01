@@ -1,0 +1,137 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: mask
+  annotations:
+    workflows.argoproj.io/title: Generate a Mask
+    workflows.argoproj.io/description: |
+      A utility which takes in a file, such as one with complex or phase information, creates a mask, and saves the results.
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/maskSchema.json" | nindent 6 }}
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/maskUISchema.json" | nindent 6 }}
+spec:
+  entrypoint: mask
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+    - name: inpath
+      value: ""
+    - name: outpath
+      value: ""
+    - name: padding
+      value: 50
+    - name: minSize
+      value: 5000
+    - name: erosionRadius
+      value: 18
+    - name: dilationRadius
+      value: 5
+  volumeClaimTemplates:
+  - metadata:
+      name: tmp
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 20Gi
+      storageClassName: netapp
+  templates:
+  - name: mask-mount-files
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xrd:v0.1
+      command: [bash]
+      source: |
+        echo '{{ .Files.Get "notebooks/ptycho-tomo-mask.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
+      volumeMounts:
+      - name: tmp
+        mountPath: /tmp
+  - name: mask-notebook
+    inputs:
+      parameters:
+      - name: inpath
+        value: "{{`{{ workflow.parameters.inpath }}`}}"
+      - name: outpath
+        value: "{{`{{ workflow.parameters.outpath }}`}}"
+      - name: padding
+        value: "{{`{{ workflow.parameters.padding }}`}}"
+      - name: minSize
+        value: "{{`{{ workflow.parameters.minSize }}`}}"
+      - name: erosionRadius
+        value: "{{`{{ workflow.parameters.erosionRadius }}`}}"
+      - name: dilationRadius
+        value: "{{`{{ workflow.parameters.dilationRadius }}`}}"
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xrd:v0.1
+      env:
+      - name: HOME
+        value: /tmp
+      command: [bash]
+      source: |
+        python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+          -p inpath "{{`{{ inputs.parameters.inpath }}`}}" \
+          -p outpath "{{`{{ inputs.parameters.outpath }}`}}" \
+          -p padding "{{`{{ inputs.parameters.padding }}`}}" \
+          -p min_size "{{`{{ inputs.parameters.minSize }}`}}" \
+          -p erosion_radius "{{`{{ inputs.parameters.erosionRadius }}`}}" \
+          -p dilation_radius "{{`{{ inputs.parameters.dilationRadius }}`}}"
+        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output mask-notebook --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
+        python -m jupyter nbconvert "{{`{{ inputs.parameters.outpath }}`}}/mask-notebook.ipynb" --to html --output mask-output --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: mask-notebook
+        path: "{{`{{ inputs.parameters.outpath }}`}}/mask-notebook.ipynb"
+        archive:
+          none: {}
+      - name: mask-output
+        path: "{{`{{ inputs.parameters.outpath }}`}}/mask-output.html"
+        archive:
+          none: {}
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: 10
+            memory: 30Gi
+          limits:
+            cpu: 10
+            memory: 30Gi
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: nodegroup
+              operator: In
+              values:
+              - workflows
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+  - name: mask
+    dag:
+      tasks:
+      - name: files
+        template: mask-mount-files
+      - name: notebook
+        template: mask-notebook
+        dependencies: [files]

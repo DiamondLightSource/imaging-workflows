@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "properties": {
+    "inpath": {
+      "type": "string",
+      "title": "Input data",
+      "default": ""
+    },
+    "maskpath": {
+      "type": "string",
+      "title": "Mask file",
+      "default": ""
+    },
+    "normalise": {
+      "type": "boolean",
+      "title": "Normalise data",
+      "default": ""
+    },
+    "outpath": {
+      "type": "string",
+      "title": "Output folder",
+      "default": ""
+    }
+  },
+  "required": ["inpath"]
+}

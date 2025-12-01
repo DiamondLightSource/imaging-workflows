@@ -1,0 +1,123 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: phase
+  annotations:
+    workflows.argoproj.io/title: Create phase data
+    workflows.argoproj.io/description: |
+      A utility which takes in a complex file, a mask, creates the phase data, and saves the results.
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/phaseSchema.json" | nindent 6 }}
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/phaseUISchema.json" | nindent 6 }}
+spec:
+  entrypoint: phase
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+    - name: inpath
+      value: ""
+    - name: maskpath
+      value: ""
+    - name: normalise
+      value: False
+    - name: outpath
+      value: ""
+  volumeClaimTemplates:
+  - metadata:
+      name: tmp
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 20Gi
+      storageClassName: netapp
+  templates:
+  - name: phase-mount-files
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xrd:v0.1
+      command: [bash]
+      source: |
+        echo '{{ .Files.Get "notebooks/ptycho-tomo-phase.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
+      volumeMounts:
+      - name: tmp
+        mountPath: /tmp
+  - name: phase-notebook
+    inputs:
+      parameters:
+      - name: inpath
+        value: "{{`{{ workflow.parameters.inpath }}`}}"
+      - name: maskpath
+        value: "{{`{{ workflow.parameters.maskpath }}`}}"
+      - name: normalise
+        value: "{{`{{ workflow.parameters.normalise }}`}}"
+      - name: outpath
+        value: "{{`{{ workflow.parameters.outpath }}`}}"
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xrd:v0.1
+      env:
+      - name: HOME
+        value: /tmp
+      command: [bash]
+      source: |
+        python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+          -p inpath "{{`{{ inputs.parameters.inpath }}`}}" \
+          -p maskpath "{{`{{ inputs.parameters.maskpath }}`}}" \
+          -p normalise "{{`{{ inputs.parameters.normalise }}`}}" \
+          -p outpath "{{`{{ inputs.parameters.outpath }}`}}"
+        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output phase-notebook --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
+        python -m jupyter nbconvert "{{`{{ inputs.parameters.outpath }}`}}/phase-notebook.ipynb" --to html --output phase-output --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: phase-output
+        path: "{{`{{ inputs.parameters.outpath }}`}}/phase-output.html"
+        archive:
+          none: {}
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: 10
+            memory: 30Gi
+          limits:
+            cpu: 10
+            memory: 30Gi
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: nodegroup
+              operator: In
+              values:
+              - workflows
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+  - name: phase
+    dag:
+      tasks:
+      - name: files
+        template: phase-mount-files
+      - name: notebook
+        template: phase-notebook
+        dependencies: [files]
