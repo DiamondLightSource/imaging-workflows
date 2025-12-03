@@ -23,11 +23,11 @@ spec:
           key: data_directory
     - name: outputFolder
       value: ""
-    - name: first
+    - name: scanNumber
       value: 386556
-    - name: edge_element
+    - name: edgeElement
       value: Fe
-    - name: edge_transition
+    - name: edgeTransition
       value: Ka
     - name: normalise
       value: true
@@ -56,10 +56,10 @@ spec:
       parameters:
       - name: outputFolder
         value: "{{`{{ workflow.parameters.outputFolder }}`}}"
-      - name: first
-        value: "{{`{{ workflow.parameters.first }}`}}"
-      - name: edge_element
-        value: "{{`{{ workflow.parameters.edge_element }}`}}-{{`{{ workflow.parameters.edge_transition }}`}}"
+      - name: scanNumber
+        value: "{{`{{ workflow.parameters.scanNumber }}`}}"
+      - name: edgeElement
+        value: "{{`{{ workflow.parameters.edgeElement }}`}}-{{`{{ workflow.parameters.edgeTransition }}`}}"
       - name: normalise
         value: "{{`{{ workflow.parameters.normalise }}`}}"
     script:
@@ -70,9 +70,9 @@ spec:
       command: [bash]
       source: |
         python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
-          -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.first }}`}}.nxs" \
-          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.first }}`}}xanes_point.txt" \
-          -p edge_element "{{`{{ inputs.parameters.edge_element }}`}}" \
+          -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.scanNumber }}`}}.nxs" \
+          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.scanNumber }}`}}xanes_point.txt" \
+          -p edge_element "{{`{{ inputs.parameters.edgeElement }}`}}" \
           -p normalise "{{`{{ inputs.parameters.normalise }}`}}" \
           -p auto_processing False
         python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output xanes-point-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
