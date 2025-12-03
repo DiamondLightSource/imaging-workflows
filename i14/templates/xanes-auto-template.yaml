@@ -3,9 +3,9 @@ kind: ClusterWorkflowTemplate
 metadata:
   name: xanes
   annotations:
-    workflows.argoproj.io/title: Xanes
+    workflows.argoproj.io/title: XANES (X-ray Absorption Near Edge Structure)
     workflows.argoproj.io/description: |
-      Xanes is a utility which attempts to stack a sequence of datasets acquired at different energy for a particular
+      XANES is a utility which attempts to stack a sequence of datasets acquired at different energy for a particular
       line group and perform alignment based on a line group. Some functionalities like normalisation, cropping and
       removing inconsistent size of scanning axis are incoporated. An algorithm for alignment is chosen. The aligned
       stack is saved as an hdf5 file.
@@ -24,17 +24,17 @@ spec:
           key: data_directory
     - name: outputFolder
       value: ""
-    - name: file_list
-      value: []
+    - name: scanRange
+      value: '[{ "start": "393420", "end": "393571", "exclude": [] }]'
     - name: method
       value: mutual
-    - name: edge_element
-      value: Pb
-    - name: edge_transition
-      value: La
-    - name: element_to_align
+    - name: edgeElement
+      value: "Pb"
+    - name: edgeTransition
+      value: "La"
+    - name: elementToAlign
       value: None
-    - name: transition_to_align
+    - name: transitionToAlign
       value: None
     - name: normalise
       value: true
@@ -59,20 +59,55 @@ spec:
       - name: tmp
         mountPath: /tmp
   - name: xanes-notebook
+    steps:
+    - - name: gen-scan-numbers
+        template: gen-scan-number-list
+        arguments:
+          parameters:
+            - name: first
+              value: "{{`{{ item.start }}`}}"
+            - name: last
+              value: "{{`{{ item.end }}`}}"
+            - name: exclude
+              value: "{{`{{ item.exclude }}`}}"
+        withParam: "{{`{{ workflow.parameters.scanRange }}`}}"
+    - - name: list-to-notebook
+        template: gen-notebook
+        arguments:
+          parameters:
+          - name: outputFolder
+            value: "{{`{{ workflow.parameters.outputFolder }}`}}"
+          - name: fileList
+            value: "{{`{{ steps.gen-scan-numbers.outputs.result }}`}}"
+          - name: edgeElement
+            value: "{{`{{ workflow.parameters.edgeElement }}`}}-{{`{{ workflow.parameters.edgeTransition }}`}}"
+          - name: elementToAlign
+            value: "{{`{{ workflow.parameters.elementToAlign }}`}}-{{`{{ workflow.parameters.transitionToAlign }}`}}"
+          - name: method
+            value: "{{`{{ workflow.parameters.method }}`}}"
+          - name: normalise
+            value: "{{`{{ workflow.parameters.normalise }}`}}"
+  - name: gen-scan-number-list
+    inputs:
+      parameters:
+      - name: first
+      - name: last
+      - name: exclude
+    script:
+      image: python:3.10
+      command: [python]
+      source: |
+        import json, sys
+        json.dump([f"{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{x}.nxs" for x in range({{`{{ inputs.parameters.first }}`}}, {{`{{ inputs.parameters.last }}`}} + 1) if x not in {{`{{ inputs.parameters.exclude }}`}}], sys.stdout)
+  - name: gen-notebook
     inputs:
       parameters:
       - name: outputFolder
-        value: "{{`{{ workflow.parameters.outputFolder }}`}}"
-      - name: file_list
-        value: "{{`{{ workflows.parameters.file_list }}`}}"
-      - name: edge_element
-        value: "{{`{{ workflow.parameters.edge_element }}`}}-{{`{{ workflow.parameters.edge_transition }}`}}"
-      - name: element_to_align
-        value: "{{`{{ workflow.parameters.element_to_align }}`}}-{{`{{ workflow.parameters.transition_to_align }}`}}"
+      - name: fileList
+      - name: edgeElement
+      - name: elementToAlign
       - name: method
-        value: "{{`{{ workflow.parameters.method }}`}}"
       - name: normalise
-        value: "{{`{{ workflow.parameters.normalise }}`}}"
     script:
       image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
       env:
@@ -81,12 +116,12 @@ spec:
       command: [bash]
       source: |
         python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
-          -p file_list "{{`{{ inputs.parameters.file_list }}`}}" \
+          -p file_list "{{`{{ inputs.parameters.fileList }}`}}" \
           -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/aligned.nxs" \
           -p normalised "{{`{{ inputs.parameters.normalise }}`}}" \
           -p method "{{`{{ inputs.parameters.method }}`}}" \
-          -p edge_element "{{`{{ inputs.parameters.edge_element }}`}}" \
-          -p element_to_align "{{`{{ inputs.parameters.element_to_align }}`}}" \
+          -p edge_element "{{`{{ inputs.parameters.edgeElement }}`}}" \
+          -p element_to_align "{{`{{ inputs.parameters.elementToAlign }}`}}" \
           -p window_width 40 \
           -p sztol 0.9 \
           -p ref_index None \

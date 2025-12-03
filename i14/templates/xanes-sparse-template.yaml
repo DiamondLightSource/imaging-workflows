@@ -24,11 +24,11 @@ spec:
           key: data_directory
     - name: outputFolder
       value: ""
-    - name: file_list
+    - name: scanRange
       value: []
-    - name: edge_element
+    - name: edgeElement
       value: Zr
-    - name: edge_transition
+    - name: edgeTransition
       value: Ka
     - name: normalise
       value: true
@@ -57,10 +57,10 @@ spec:
       parameters:
       - name: outputFolder
         value: "{{`{{ workflow.parameters.outputFolder }}`}}"
-      - name: file_list
-        value: "{{`{{ workflows.parameters.file_list }}`}}"
-      - name: edge_element
-        value: "{{`{{ workflow.parameters.edge_element }}`}}-{{`{{ workflow.parameters.edge_transition }}`}}"
+      - name: fileList
+        value: "{{`{{ workflows.parameters.scanRange }}`}}"
+      - name: edgeElement
+        value: "{{`{{ workflow.parameters.edgeElement }}`}}-{{`{{ workflow.parameters.edgeTransition }}`}}"
       - name: normalise
         value: "{{`{{ workflow.parameters.normalise }}`}}"
     script:
@@ -72,8 +72,8 @@ spec:
       source: |
         python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
           -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}_xanes_sparse_stack_autoprocessing0.nxs" \
-          -p file_list "{{`{{ inputs.parameters.file_list }}`}}" \
-          -p edge_element "{{`{{ inputs.parameters.edge_element }}`}}" \
+          -p file_list "{{`{{ inputs.parameters.fileList }}`}}" \
+          -p edge_element "{{`{{ inputs.parameters.edgeElement }}`}}" \
           -p sztol 0.9 \
           -p completion_rank 6 \
           -p tol_residual 1e-4 \
