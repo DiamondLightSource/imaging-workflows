@@ -7,8 +7,10 @@ metadata:
     workflows.argoproj.io/description: |
       XRD 1D is a utility which performs Azimuthal integration (ExcaliburXRDIntegration), removes/smooths background if needed, writes the spectrum to the output file.
     workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/singleSchema.json" | nindent 6 }}
       {{- .Files.Get "schema/xrd1dSchema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/singleUISchema.json" | nindent 6 }}
       {{- .Files.Get "schema/xrd1dUISchema.json" | nindent 6 }}
 spec:
   entrypoint: xrd1d

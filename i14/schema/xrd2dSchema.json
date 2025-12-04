@@ -9,10 +9,6 @@
       "type": "string",
       "title": "Config Folder"
     },
-    "scanNumber": {
-      "type": "integer",
-      "title": "Scan Number"
-    },
     "calibrationPath": {
       "type": "string",
       "title": "Calibration Path"
@@ -28,7 +24,6 @@
   },
   "required": [
     "outputFolder",
-    "xrdProcessConfigUpload",
-    "scanNumber"
+    "xrdProcessConfigUpload"
   ]
 }
