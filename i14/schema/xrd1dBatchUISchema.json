@@ -11,7 +11,7 @@
     },
     {
       "type": "Control",
-      "scope": "#/properties/scanNumber"
+      "scope": "#/properties/scanNumnbers"
     },
     {
       "type": "Control",
@@ -24,6 +24,14 @@
     {
       "type": "Control",
       "scope": "#/properties/flatPath"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/backgroundType"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/polynomialOrder"
     }
   ]
 }

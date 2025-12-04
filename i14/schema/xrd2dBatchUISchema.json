@@ -11,7 +11,7 @@
     },
     {
       "type": "Control",
-      "scope": "#/properties/scanNumber"
+      "scope": "#/properties/scanNumbers"
     },
     {
       "type": "Control",

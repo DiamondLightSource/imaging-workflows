@@ -9,9 +9,9 @@
       "type": "string",
       "title": "Config Folder"
     },
-    "scanNumber": {
-      "type": "integer",
-      "title": "Scan number"
+    "scanNumbers": {
+      "type": "list",
+      "title": "Scan Numbers"
     },
     "calibrationPath": {
       "type": "string",
@@ -24,32 +24,11 @@
     "flatPath": {
       "type": "string",
       "title": "Flat Path"
-    },
-    "backgroundType": {
-      "type": "string",
-      "enum": [
-        "Doniach",
-        "Gaussian",
-        "Lorentzian",
-        "Offset",
-        "Polynomial",
-        "PowerLaw",
-        "Exponential",
-        "SkewNormal",
-        "SplitVoigt",
-        "Voigt",
-        "Empty"
-      ],
-      "title": "Background Type"
-    },
-    "polynomialOrder": {
-      "type": "integer",
-      "title": "Polynomial Order"
     }
   },
   "required": [
     "outputFolder",
     "xrdProcessConfigUpload",
-    "scanNumber"
+    "scanNumbers"
   ]
 }

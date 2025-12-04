@@ -9,9 +9,9 @@
       "type": "string",
       "title": "Config Folder"
     },
-    "singleFirst": {
+    "scanNumber": {
       "type": "integer",
-      "title": "Single First"
+      "title": "Scan Number"
     },
     "calibrationPath": {
       "type": "string",
@@ -29,6 +29,6 @@
   "required": [
     "outputFolder",
     "xrdProcessConfigUpload",
-    "singleFirst"
+    "scanNumber"
   ]
 }
