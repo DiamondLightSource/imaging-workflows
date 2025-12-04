@@ -5,10 +5,12 @@ metadata:
   annotations:
     workflows.argoproj.io/title: xrd2d
     workflows.argoproj.io/description: |
-      xrd2d is a utility which performs Azimuthal integration (ExcaliburXRDIntegration) and saves result to a nxs file
+      XRD 2D is a utility which performs Azimuthal integration (ExcaliburXRDIntegration) and saves result to a nxs file
     workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/singleSchema.json" | nindent 6 }}
       {{- .Files.Get "schema/xrd2dSchema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/singleUISchema.json" | nindent 6 }}
       {{- .Files.Get "schema/xrd2dUISchema.json" | nindent 6 }}
 spec:
   entrypoint: xrd2d

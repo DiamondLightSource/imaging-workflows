@@ -11,10 +11,6 @@
     },
     {
       "type": "Control",
-      "scope": "#/properties/scanNumber"
-    },
-    {
-      "type": "Control",
       "scope": "#/properties/calibrationPath"
     },
     {
