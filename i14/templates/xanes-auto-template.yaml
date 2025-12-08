@@ -37,7 +37,7 @@ spec:
     - name: transitionToAlign
       value: None
     - name: normalise
-      value: true
+      value: "True"
   volumeClaimTemplates:
   - metadata:
       name: tmp
@@ -61,33 +61,42 @@ spec:
   - name: xanes-notebook
     steps:
     - - name: gen-scan-numbers
-        template: gen-scan-number-list
+        template: gen-scan-numbers-tmp
         arguments:
           parameters:
-            - name: first
-              value: "{{`{{ item.start }}`}}"
-            - name: last
-              value: "{{`{{ item.end }}`}}"
-            - name: exclude
-              value: "{{`{{ item.exclude }}`}}"
+          - name: first
+            value: "{{`{{ item.start }}`}}"
+          - name: last
+            value: "{{`{{ item.end }}`}}"
+          - name: exclude
+            value: "{{`{{ item.exclude }}`}}"
         withParam: "{{`{{ workflow.parameters.scanRange }}`}}"
-    - - name: list-to-notebook
-        template: gen-notebook
+    - - name: gen-element-to-align
+        template: gen-element-to-align-tmp
+        arguments:
+          parameters:
+          - name: edgeElement
+            value: "{{`{{ workflow.parameters.edgeElement }}`}}-{{`{{ workflow.parameters.edgeTransition }}`}}"
+          - name: elementToAlign
+            value: "{{`{{ workflow.parameters.elementToAlign }}`}}-{{`{{ workflow.parameters.transitionToAlign }}`}}"
+    - - name: gen-notebook
+        template: gen-notebook-tmp
         arguments:
           parameters:
           - name: outputFolder
             value: "{{`{{ workflow.parameters.outputFolder }}`}}"
           - name: fileList
-            value: "{{`{{ steps.gen-scan-numbers.outputs.result }}`}}"
+            value: "{{`{{ item }}`}}"
           - name: edgeElement
             value: "{{`{{ workflow.parameters.edgeElement }}`}}-{{`{{ workflow.parameters.edgeTransition }}`}}"
           - name: elementToAlign
-            value: "{{`{{ workflow.parameters.elementToAlign }}`}}-{{`{{ workflow.parameters.transitionToAlign }}`}}"
+            value: "{{`{{ steps.gen-element-to-align.outputs.result }}`}}"
           - name: method
             value: "{{`{{ workflow.parameters.method }}`}}"
           - name: normalise
             value: "{{`{{ workflow.parameters.normalise }}`}}"
-  - name: gen-scan-number-list
+        withParam: "{{`{{ steps.gen-scan-numbers.outputs.result }}`}}"
+  - name: gen-scan-numbers-tmp
     inputs:
       parameters:
       - name: first
@@ -99,7 +108,20 @@ spec:
       source: |
         import json, sys
         json.dump([f"{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{x}.nxs" for x in range({{`{{ inputs.parameters.first }}`}}, {{`{{ inputs.parameters.last }}`}} + 1) if x not in {{`{{ inputs.parameters.exclude }}`}}], sys.stdout)
-  - name: gen-notebook
+  - name: gen-element-to-align-tmp
+    inputs:
+      parameters:
+      - name: edgeElement
+      - name: elementToAlign
+    script:
+      image: python:3.10
+      command: [python]
+      source: |
+        if "None" in "{{`{{ workflow.parameters.elementToAlign }}`}}":
+          elementToAlign = "None"
+          # elementToAlign = f"{{`{{ workflow.parameters.edgeElement }}`}}"
+        print(elementToAlign)
+  - name: gen-notebook-tmp
     inputs:
       parameters:
       - name: outputFolder

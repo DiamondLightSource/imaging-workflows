@@ -3,9 +3,9 @@ kind: ClusterWorkflowTemplate
 metadata:
   name: xanes-sparse
   annotations:
-    workflows.argoproj.io/title: Xanes-sparse
+    workflows.argoproj.io/title: XANES-Sparse (X-ray Absorption Near Edge Structure)
     workflows.argoproj.io/description: |
-      Xanes-sparse is a utility which takes the last scan file of a sparse XANES scan (inpath), defines the 2D full grid,
+      XANES-sparse is a utility which takes the last scan file of a sparse XANES scan (inpath), defines the 2D full grid,
       inserts the data in the correct rows, stack the images, and completes the missing data by using looped alternating
       steepest descent (ASD). There are 3 output files: the incomplete NeXuS file, the incomplete MANTIS file,
       the complete MANTIS file.
@@ -25,13 +25,13 @@ spec:
     - name: outputFolder
       value: ""
     - name: scanRange
-      value: []
+      value: '[{ "start": "393420", "end": "393571", "exclude": [] }]'
     - name: edgeElement
-      value: Zr
+      value: "Zr"
     - name: edgeTransition
-      value: Ka
+      value: "Ka"
     - name: normalise
-      value: true
+      value: "True"
   volumeClaimTemplates:
   - metadata:
       name: tmp
@@ -45,7 +45,7 @@ spec:
   templates:
   - name: xanes-sparse-mount-files
     script:
-      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xrd:v0.1
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
       command: [bash]
       source: |
         echo '{{ .Files.Get "notebooks/xanes_sparse_stack_autoprocessing0.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
@@ -53,16 +53,50 @@ spec:
       - name: tmp
         mountPath: /tmp
   - name: xanes-sparse-notebook
+    steps:
+    - - name: gen-scan-numbers
+        template: gen-scan-numbers-tmp
+        arguments:
+          parameters:
+          - name: first
+            value: "{{`{{ item.start }}`}}"
+          - name: last
+            value: "{{`{{ item.end }}`}}"
+          - name: exclude
+            value: "{{`{{ item.exclude }}`}}"
+        withParam: "{{`{{ workflow.parameters.scanRange }}`}}"
+    - - name: gen-notebook
+        template: gen-notebook-tmp
+        arguments:
+          parameters:
+          - name: outputFolder
+            value: "{{`{{ workflow.parameters.outputFolder }}`}}"
+          - name: fileList
+            value: "{{`{{ item }}`}}"
+          - name: edgeElement
+            value: "{{`{{ workflow.parameters.edgeElement }}`}}-{{`{{ workflow.parameters.edgeTransition }}`}}"
+          - name: normalise
+            value: "{{`{{ workflow.parameters.normalise }}`}}"
+        withParam: "{{`{{ steps.gen-scan-numbers.outputs.result }}`}}"
+  - name: gen-scan-numbers-tmp
+    inputs:
+      parameters:
+      - name: first
+      - name: last
+      - name: exclude
+    script:
+      image: python:3.10
+      command: [python]
+      source: |
+        import json, sys
+        json.dump([f"{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{x}.nxs" for x in range({{`{{ inputs.parameters.first }}`}}, {{`{{ inputs.parameters.last }}`}} + 1) if x not in {{`{{ inputs.parameters.exclude }}`}}], sys.stdout)
+  - name: gen-notebook-tmp
     inputs:
       parameters:
       - name: outputFolder
-        value: "{{`{{ workflow.parameters.outputFolder }}`}}"
       - name: fileList
-        value: "{{`{{ workflows.parameters.scanRange }}`}}"
       - name: edgeElement
-        value: "{{`{{ workflow.parameters.edgeElement }}`}}-{{`{{ workflow.parameters.edgeTransition }}`}}"
       - name: normalise
-        value: "{{`{{ workflow.parameters.normalise }}`}}"
     script:
       image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
       env:
