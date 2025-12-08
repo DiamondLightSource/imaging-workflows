@@ -25,6 +25,10 @@
       "type": "string",
       "enum": ["mutual", "fourier"],
       "title": "Method"
+    },
+    "normalise": {
+      "type": "boolean",
+      "title": "Normalise"
     }
   },
   "required": ["outputFolder", "scanRange", "edgeElement", "edgeTransition"],

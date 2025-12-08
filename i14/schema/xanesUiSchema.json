@@ -32,6 +32,10 @@
     {
       "type": "Control",
       "scope": "#/properties/method"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/normalise"
     }
   ]
 }
