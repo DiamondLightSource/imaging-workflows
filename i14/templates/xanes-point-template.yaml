@@ -3,9 +3,9 @@ kind: ClusterWorkflowTemplate
 metadata:
   name: xanes-point
   annotations:
-    workflows.argoproj.io/title: Xanes-point
+    workflows.argoproj.io/title: XANES-Point (X-ray Absorption Near Edge Structure)
     workflows.argoproj.io/description: |
-      Xanes-point is a utility which takes in a scan file (inpath) and a line group (edge_element),
+      XANES-point is a utility which takes in a scan file (inpath) and a line group (edge_element),
       performs windowing of this line group, and saves a two-column text file (outpath): the first column
       is the energy in keV, and the second column is the summed windowed MCA intensity across the 4 channels.
     workflows.diamond.ac.uk/parameter-schema: |
@@ -26,11 +26,11 @@ spec:
     - name: scanNumber
       value: 386556
     - name: edgeElement
-      value: Fe
+      value: "Fe"
     - name: edgeTransition
-      value: Ka
+      value: "Ka"
     - name: normalise
-      value: true
+      value: "True"
   volumeClaimTemplates:
   - metadata:
       name: tmp
