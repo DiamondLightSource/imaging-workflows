@@ -3,7 +3,7 @@ kind: ClusterWorkflowTemplate
 metadata:
   name: dpc-batch
   annotations:
-    workflows.argoproj.io/title: Batch DPC (Differential Phase Contrast)
+    workflows.argoproj.io/title: DPC (Differential Phase Contrast)
     workflows.argoproj.io/description: |
       DPC is a utility which takes in a scan file, reconstructs the differential phase contrast (DPC) images, and saves the results to an outpath.
     workflows.diamond.ac.uk/parameter-schema: |
