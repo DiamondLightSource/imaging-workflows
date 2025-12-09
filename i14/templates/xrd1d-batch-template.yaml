@@ -3,7 +3,7 @@ kind: ClusterWorkflowTemplate
 metadata:
   name: xrd1d-batch
   annotations:
-    workflows.argoproj.io/title: Batch XRD 1D
+    workflows.argoproj.io/title: XRD 1D (X-ray Diffraction)
     workflows.argoproj.io/description: |
       XRD 1D is a utility which performs Azimuthal integration (ExcaliburXRDIntegration), removes/smooths background if needed, writes the spectrum to the output file.
     workflows.diamond.ac.uk/parameter-schema: |

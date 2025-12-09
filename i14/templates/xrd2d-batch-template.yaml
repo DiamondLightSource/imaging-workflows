@@ -3,7 +3,7 @@ kind: ClusterWorkflowTemplate
 metadata:
   name: xrd2dbatch
   annotations:
-    workflows.argoproj.io/title: Batch XRD 2D
+    workflows.argoproj.io/title: XRD 2D (X-ray Diffraction)
     workflows.argoproj.io/description: |
       XRD 2D is a utility which performs Azimuthal integration (ExcaliburXRDIntegration) and saves result to a nxs file
     workflows.diamond.ac.uk/parameter-schema: |
