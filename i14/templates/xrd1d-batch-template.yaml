@@ -3,9 +3,10 @@ kind: ClusterWorkflowTemplate
 metadata:
   name: xrd1d-batch
   annotations:
-    workflows.argoproj.io/title: XRD 1D (X-ray Diffraction)
+    workflows.argoproj.io/title: XRD (X-ray Diffraction) - 1D maps
     workflows.argoproj.io/description: |
-      XRD 1D is a utility which performs Azimuthal integration (ExcaliburXRDIntegration), removes/smooths background if needed, writes the spectrum to the output file.
+      XRD can be used to spatially map changes in crystallographic direction, d-spacing or strain across a sample. A 2D XRD pattern is collected per pixel, in concert with the XRF signal.
+      Using this notebook, an Azimuthal integration is performed to present the XRD data as one-line graphical representation, removing/smoothing the background if needed.
     workflows.diamond.ac.uk/parameter-schema: |
       {{- .Files.Get "schema/batchSchema.json" | nindent 6 }}
       {{- .Files.Get "schema/xrd1dSchema.json" | nindent 6 }}
