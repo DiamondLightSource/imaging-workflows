@@ -1,14 +1,38 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: e02-auto-mib2x
+  name: e02mib2x
   annotations:
-    workflows.argoproj.io/title: ePSIC automatic mib conversion
+    workflows.argoproj.io/title: ePSIC mib conversion
     workflows.argoproj.io/description: |
       Convert MIB file to hdf5/hspy files
-    workflows.diamond.ac.uk/parameter-schema.base_path: |
+    workflows.diamond.ac.uk/parameter-schema.mib_path: |
       {
         "type": "string"
+        "default": "this should be left empty"
+      }
+    workflows.diamond.ac.uk/parameter-schema.reshape_option: |
+      {
+        "type": "string",
+        "oneOf": [
+          {
+            "const": "--auto-reshape",
+            "title": "Auto"
+          },
+          {
+            "const": "--no-reshaping",
+            "title": "None"
+          },
+          {
+            "const": "--use-fly-back",
+            "title": "Fly-back"
+          },
+          {
+            "const": "--known-shape",
+            "title": "By known shape"
+          }
+        ],
+        "default": "--auto-reshape"
       }
     workflows.diamond.ac.uk/parameter-schema.Scan_X: |
       {
@@ -16,87 +40,326 @@ metadata:
         "minimum": 0,
         "default": 256
       }
+    workflows.diamond.ac.uk/parameter-schema.Scan_Y: |
+      {
+        "type": "integer",
+        "minimum": 0,
+        "default": 256
+      }
+    workflows.diamond.ac.uk/parameter-schema.iBF: |
+      {
+        "type": "boolean",
+        "default": true
+      }
+    workflows.diamond.ac.uk/parameter-schema.bin_sig_factor: |
+      {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 8,
+        "default": 4
+      }
+    workflows.diamond.ac.uk/parameter-schema.bin_nav_factor: |
+      {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 8,
+        "default": 4
+      }
+    workflows.diamond.ac.uk/parameter-schema.create_json: |
+      {
+        "type": "boolean",
+        "default": false
+      }
+    workflows.diamond.ac.uk/parameter-schema.ptycho_config: |
+      {
+        "type": "string",
+        "default": ""
+      }
+    workflows.diamond.ac.uk/parameter-schema.ptycho_template: |
+      {
+        "type": "string",
+        "default": ""
+      }
+    workflows.diamond.ac.uk/parameter-schema.nprocs: |
+      {
+        "type": "integer",
+        "minimum": 0,
+        "default": 8
+      }
+    workflows.diamond.ac.uk/parameter-schema.memory: |
+      {
+        "type": "string",
+        "pattern": "^[0-9]+[GMK]i$",
+        "default": "16Gi"
+      }
+    workflows.diamond.ac.uk/parameter-schema.DEBUG: |
+      {
+        "type": "integer",
+        "default": 1
+      }
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/mib2x_ui.json" | nindent 6 }}
 spec:
-  entrypoint: e02-mib2x-auto
+  entrypoint: mib2x-auto
   arguments:
     parameters:
-      - name: base_path
-      - name: Scan_X
-        value: 256
-  volumeClaimTemplates:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+  ###
+  volumes:
+  - name: session
+    hostPath:
+      path:  "{{ workflow.parameters.visitdir }}"
+      type: Directory
+  volumeClaimTemplates:      # I think this is just defining resources be alloted to this task
   - metadata:
       name: tmpdir
     spec:
-      accessModes: [ "ReadWriteOnce" ]
+      accessModes: [ "ReadWriteOnce" ]  # I am guess this means only allowed one action?
       resources:
         requests:
           storage: 1Gi
       storageClassName: netapp
+  ###
   templates:
-    - name: e02-mib2x-auto
-      inputs:
-        parameters:
-          - name: base_path
-      steps:
-      - - name: check
-          template: e02-auto-check
+    - name: mib2x-auto
+      #inputs should go here if I need them
+        #then parameters
+          #- name: #name parameters here
+      steps: #steps is on the name level as inputs
+      - - name: find
+          template: find-mib-files
+          #arguments:
+            #parameters:
+              #- name: base_path
+              #value: "{{`{{}}`}}"
+      - - name: print-mib
+          template: print-found-mib-files
           arguments:
             parameters:
-              - name: base_path
-                value: "{{`{{inputs.parameters.base_path}}`}}"
-      - - name: create
-          template: e02-auto-run
-          arguments:
-            parameters:
-              - name: mib_path
-                value: "{{`{{item}}`}}"
-          withParam: "{{`{{steps.check.outputs.result}}`}}"
-
-    - name: e02-auto-check
+              - name: mibfiles
+                value: "{{item}}"
+          withParam: "{{steps.find.outputs.result}}"
+  ###
+    - name: find-mib-files
       inputs:
         parameters:
-          - name: base_path
+        - name: visit
+          value: cm40603-1
+        - name: sample_name
+          value: Fred_auto_ptycho_debugging
+      outputs:
+        artifacts:
+        - name: find_files_logging
+          path: /tmp/find_files_logging.txt
+          archive:
+            none: {}
       script:
         image: python:3.10
         volumeMounts:
+          - name: session
+            mountPath: "{{ workflow.parameters.visitdir }}"
           - name: tmpdir
             mountPath: /tmp
         command: [python]
         source: |
-          import json, sys
+          #The aim of this code is to produce a "json list" such that withParams can the start parrelle
+          #jobs based around this list, where each element of this list the uses on index of that list as 
+          #input
+          
+          #imports
+          import json
+          import sys
+          import os
+          import glob 
+          import traceback
 
-          base = "/dls/e02/data/2024/cm37231-4/Merlin/WS2_n_fred_40um/"
-          scans = ["20240821_145850/20240821_145844_data.mib",
-                   "20240821_150039/20240821_150035_data.mib"]
-          paths = [base + scan for scan in scans]
-          json.dump(paths, sys.stdout)
+          #creating temp varilbes to sort directory info
+          mib_files = []
+          converted_files = []
+          mib_timestamps = []
+          hdf5_timestamps = []
+          data_to_convert = []
+          logging = []
+          #debugging print check
+          verbose = True
 
-    - name: e02-auto-run
+          #start search for MIB files
+          os.chdir(f'/dls/e02/data/2025/{"{{inputs.parameters.visit}}"}/Merlin/{"{{inputs.parameters.sample_name}}"}')
+
+          source_path = os.getcwd() + '/'
+          #print(f'Current path: {source_path}')
+          logging.append(f'Current path: {source_path}')
+
+          #some simple example code to find the instances of mib files in a particular location
+
+          #print(f'***\nSearching the following path: {source_path}\n***')
+          logging.append(f'***\nSearching the following path: {source_path}\n***')
+          for num, file in enumerate(sorted(list(glob.glob('*/**.mib*')))):
+            if verbose:
+              logging.append(f'{num}: {source_path}/{file}')
+              #print(f'{num}: {source_path}/{file}')
+            whole_file = os.path.join(source_path,file)
+            mib_timestamps.append(whole_file.split('/')[-1][:-9])
+            mib_files.append(whole_file)
+          #print(f'total .mib files found: {num}')
+          logging.append(f'total .mib files found: {num}')
+          mib_timestamps_set = set(mib_timestamps)
+          
+          
+          dest_path = f'/dls/e02/data/2025/{"{{inputs.parameters.visit}}"}/processing/Merlin/{"{{inputs.parameters.sample_name}}"}'
+          os.chdir(dest_path)
+          #print(f'***\nsearching destination path for already converted files: {dest_path}\n***')
+          logging.append(f'***\nsearching destination path for already converted files: {dest_path}\n***')
+
+          #ToDO wrap the rest of the function within this as means no other files have been created
+          if not os.path.exists(dest_path):
+            os.mkdir(dest_path)
+            #print('the following folder has been created')
+            logging.append(f'the following folder has been created: {dest_path}')
+          
+          for num, file in enumerate(sorted(list(glob.glob('*/**data.hdf5*')))):
+            converted_files.append(dest_path+file)
+            hdf5_timestamps.append(converted_files[num].split('/')[-1][:-10])
+            if verbose:
+              #print(f'{num}: {converted_files[num]}')    
+              logging.append(f'{num}: {converted_files[num]}')       
+          #print(f'Total converted files found: {num}')
+          logging.append(f'Total converted files found: {num}')
+
+          timestamp_diff = list(mib_timestamps_set.difference(hdf5_timestamps))
+          timestamp_diff.sort()
+          #print(f'***\nA total of {len(list(timestamp_diff))} files have not be converted\n***')
+          logging.append(f'***\nA total of {len(list(timestamp_diff))} files have not be converted\n***')
+          for num, ts in enumerate(timestamp_diff):
+            mib_index = mib_timestamps.index(ts)
+            #print(f'{num}: {mib_files[mib_index]}')
+            logging.append(f'{num}: {mib_files[mib_index]}')
+            data_to_convert.append(mib_files[mib_index])
+
+          #ToDo think about this printing in the context of an Error
+          #this should be try statement 
+          with open("/tmp/find_files_logging.txt",'w') as ofile:
+            for item in logging:
+              print(item,file=ofile)
+
+
+          json.dump(data_to_convert, sys.stdout)
+
+          #so the end code has to look something like this
+          #json.dumps(mib_file_list)
+
+    - name: print-found-mib-files
       inputs:
         parameters:
-          - name: mib_path
-      container:
-        image: alpine:latest
-        command: [sh, -c]
-        args: ["echo {{`{{inputs.parameters.mib_path}}`}} and {{` {{workflow.parameters.Scan_X}}`}}"]
-    - name: e02-auto-create
-      inputs:
-        parameters:
-          - name: mib_path
-      resource:
-        action: create
-        manifest: |
-          apiVersion: argoproj.io/v1alpha1
-          kind: Workflow
-          metadata:
-            generateName: e02-mib2x-
-          spec:
-            arguments:
-              parameters:
-              - name: mib_path
-                value: "{{`{{inputs.parameters.mib_path}}`}}"
-            workflowTemplateRef:
-              name: e02-mib2x
-        successCondition: status.phase == Succeeded
-        failureCondition: status.phase in (Failed, Error)
-      podSpecPatch: '{"initContainers":[{"name":"init","volumeMounts":[{"name":"init-temp-dir","mountPath":"/tmp"}]}],"volumes":[{"name":"init-temp-dir","emptyDir":{"sizeLimit":"50Mi"}}]}'
+        - name: mibfiles
+      script:
+        image: python:3.10
+        volumeMounts:
+          - name: tmpdir    #session
+            mountPath: /tmp
+        command: [python]
+        source: |
+          print("{{inputs.parameters.mibfiles}}")
+          #print(f'This workflow was given the following MIB file to convert: {"{{inputs.parameters.mibfiles}}"}')
+
+
+    # - name: mib2x
+    #   inputs:
+    #     parameters:
+    #     - name: mib_path
+    #     - name: reshape_option
+    #       value: "--auto-reshape"
+    #     - name: Scan_X
+    #       value: 256
+    #     - name: Scan_Y
+    #       value: 256
+    #     - name: iBF
+    #       value: true
+    #     - name: bin_sig_factor
+    #       value: 4
+    #     - name: bin_nav_factor
+    #       value: 4
+    #     - name: create_json
+    #       value: true
+    #     - name: ptycho_config
+    #       value: ""
+    #     - name: ptycho_template
+    #       value: ""
+    #     - name: nprocs
+    #       value: 8
+    #     - name: memory
+    #       value: 16Gi
+    #     - name: DEBUG
+    #       value: 1
+    #   script:
+    #     image: ghcr.io/epsic-dls/mib2x:1.0.0
+    #     imagePullPolicy: Always
+    #     env:
+    #     - name: BLOSC_NTHREADS
+    #       value: "{{`{{ inputs.parameters.nprocs }}`}}"
+    #     - name: OMP_NUM_THREADS
+    #       value: "{{`{{ inputs.parameters.nprocs }}`}}"
+    #     - name: M2X_DEBUG
+    #       value: "{{`{{ inputs.parameters.DEBUG }}`}}"
+    #     command: [sh]
+    #     source: |
+    #       #!/bin/sh
+    #       set -e
+
+    #       cmd=("python" "mib_convert.py")
+    #       cmd+=("--mib-path={{`{{ inputs.parameters.mib_path }}`}}")
+    #       cmd+=("{{`{{ inputs.parameters.reshape_option }}`}}")
+    #       cmd+=("--scan-x={{`{{ inputs.parameters.Scan_X }}`}}")
+    #       cmd+=("--scan-y={{`{{ inputs.parameters.Scan_Y }}`}}")
+    #       if [ "{{`{{ inputs.parameters.iBF }}`}}" = "true" ]
+    #       then
+    #         cmd+=("--ibf")
+    #       fi
+    #       cmd+=("--bin-sig-factor={{`{{ inputs.parameters.bin_sig_factor }}`}}")
+    #       cmd+=("--bin-nav-factor={{`{{ inputs.parameters.bin_nav_factor }}`}}")
+    #       if [ "{{`{{ inputs.parameters.create_json }}`}}" = "true" ]
+    #       then
+    #         cmd+=("--create-json")
+    #       fi
+    #       if [ -n "{{`{{ inputs.parameters.ptycho_config }}`}}" ]
+    #       then
+    #         cmd+=("--ptycho-config={{`{{ inputs.parameters.ptycho_config }}`}}")
+    #       fi
+    #       if [ -n "{{`{{ inputs.parameters.ptycho_template }}`}}" ]
+    #       then
+    #         cmd+=("--ptycho-template={{`{{ inputs.parameters.ptycho_template }}`}}")
+    #       fi
+    #       # use exec to make application as PID 1 for signal handling
+    #       echo "Executing: ${cmd[@]}"
+    #       exec "${cmd[@]}"
+    #     volumeMounts:
+    #     - name: session
+    #       mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+    #   podSpecPatch: |
+    #     containers:
+    #     - name: main
+    #       resources:
+    #         requests:
+    #           cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+    #           memory: "{{`{{ inputs.parameters.memory }}`}}"
+    #         limits:
+    #           cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+    #           memory: "{{`{{ inputs.parameters.memory }}`}}"
+    #   tolerations:
+    #   - key: nodetype
+    #     operator: Equal
+    #     value: cs05r_gpfs
+    #   affinity:
+    #     nodeAffinity:
+    #       preferredDuringSchedulingIgnoredDuringExecution:
+    #       - weight: 1
+    #         preference:
+    #           matchExpressions:
+    #           - key: has_gpfs03
+    #             operator: In
+    #             values:
+    #             - "true"
