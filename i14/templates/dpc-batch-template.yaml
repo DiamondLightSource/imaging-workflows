@@ -60,6 +60,10 @@ spec:
             value: "{{`{{ item }}`}}"
         withParam: "{{`{{ workflow.parameters.scanNumbers }}`}}"
   - name: gen-notebook
+    inputs:
+      parameters:
+      - name: outputFolder
+      - name: scanNumber
     script:
       image: gitlab.diamond.ac.uk:5050/i14/i14_utility/dpc:v0.1
       env:
