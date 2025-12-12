@@ -103,11 +103,11 @@ spec:
       - name: last
       - name: exclude
     script:
-      image: python:3.10
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
       command: [python]
       source: |
-        import json, sys
-        json.dump([f"{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{x}.nxs" for x in range({{`{{ inputs.parameters.first }}`}}, {{`{{ inputs.parameters.last }}`}} + 1) if x not in {{`{{ inputs.parameters.exclude }}`}}], sys.stdout)
+        import sys, json, yaml
+        yaml.safe_dump(json.dump([f"{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{x}.nxs" for x in range({{`{{ inputs.parameters.first }}`}}, {{`{{ inputs.parameters.last }}`}} + 1) if x not in {{`{{ inputs.parameters.exclude }}`}}], sys.stdout))
   - name: gen-element-to-align-tmp
     inputs:
       parameters:
@@ -138,7 +138,7 @@ spec:
       command: [bash]
       source: |
         python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
-          -p file_list "{{`{{ inputs.parameters.fileList }}`}}" \
+          -y "{{`{{ inputs.parameters.fileList }}`}}" \
           -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/aligned.nxs" \
           -p normalised "{{`{{ inputs.parameters.normalise }}`}}" \
           -p method "{{`{{ inputs.parameters.method }}`}}" \

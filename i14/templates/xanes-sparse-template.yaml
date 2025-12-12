@@ -85,11 +85,11 @@ spec:
       - name: last
       - name: exclude
     script:
-      image: python:3.10
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
       command: [python]
       source: |
-        import json, sys
-        json.dump([f"{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{x}.nxs" for x in range({{`{{ inputs.parameters.first }}`}}, {{`{{ inputs.parameters.last }}`}} + 1) if x not in {{`{{ inputs.parameters.exclude }}`}}], sys.stdout)
+        import sys, json, yaml
+        yaml.safe_dump(json.dump([f"{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{x}.nxs" for x in range({{`{{ inputs.parameters.first }}`}}, {{`{{ inputs.parameters.last }}`}} + 1) if x not in {{`{{ inputs.parameters.exclude }}`}}], sys.stdout))
   - name: gen-notebook-tmp
     inputs:
       parameters:
@@ -105,8 +105,8 @@ spec:
       command: [bash]
       source: |
         python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
-          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}_xanes_sparse_stack_autoprocessing0.nxs" \
-          -p file_list "{{`{{ inputs.parameters.fileList }}`}}" \
+          -y "{{`{{ inputs.parameters.fileList }}`}}" \
+          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-xanes_sparse_stack_autoprocessing0.nxs" \
           -p edge_element "{{`{{ inputs.parameters.edgeElement }}`}}" \
           -p sztol 0.9 \
           -p completion_rank 6 \
