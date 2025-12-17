@@ -25,9 +25,9 @@ spec:
     - name: outputFolder
       value: ""
     - name: scanRange
-      value: '[{ "start": "393420", "end": "393571", "exclude": [] }]'
+      value: '[{ "start": "406681", "end": "406832", "exclude": [] }]'
     - name: edgeElement
-      value: "Zr"
+      value: "Fe"
     - name: edgeTransition
       value: "Ka"
     - name: normalise
@@ -54,49 +54,33 @@ spec:
         mountPath: /tmp
   - name: xanes-sparse-notebook
     steps:
-    - - name: gen-scan-numbers
-        template: gen-scan-numbers-tmp
-        arguments:
-          parameters:
-          - name: first
-            value: "{{`{{ item.start }}`}}"
-          - name: last
-            value: "{{`{{ item.end }}`}}"
-          - name: exclude
-            value: "{{`{{ item.exclude }}`}}"
-        withParam: "{{`{{ workflow.parameters.scanRange }}`}}"
     - - name: gen-notebook
         template: gen-notebook-tmp
         arguments:
           parameters:
           - name: outputFolder
             value: "{{`{{ workflow.parameters.outputFolder }}`}}"
-          - name: fileList
-            value: "{{`{{ item }}`}}"
+          - name: visitDir
+            value: "{{`{{ workflow.parameters.visitdir }}`}}"
+          - name: first
+            value: "{{`{{ item.start }}`}}"
+          - name: last
+            value: "{{`{{ item.end }}`}}"
+          - name: exclude
+            value: "{{`{{ item.exclude }}`}}"
           - name: edgeElement
             value: "{{`{{ workflow.parameters.edgeElement }}`}}-{{`{{ workflow.parameters.edgeTransition }}`}}"
           - name: normalise
             value: "{{`{{ workflow.parameters.normalise }}`}}"
-        withParam: "{{`{{ steps.gen-scan-numbers.outputs.result }}`}}"
-  - name: gen-scan-numbers-tmp
-    inputs:
-      parameters:
-      - name: first
-      - name: last
-      - name: exclude
-    script:
-      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
-      command: [python]
-      source: |
-        import base64, json, sys, yaml
-        yaml_fl = yaml.safe_dump({"file_list":[f"{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{x}.nxs" for x in range({{`{{ inputs.parameters.first }}`}}, {{`{{ inputs.parameters.last }}`}} + 1) if x not in {{`{{ inputs.parameters.exclude }}`}}]})
-        base_fl = base64.b64encode(bytes(str(yaml_fl), 'utf-8'))
-        json.dump(base_fl.decode("utf-8"),sys.stdout)
+        withParam: "{{`{{ workflow.parameters.scanRange }}`}}"
   - name: gen-notebook-tmp
     inputs:
       parameters:
+      - name: visitDir
+      - name: first
+      - name: last
+      - name: exclude
       - name: outputFolder
-      - name: fileList
       - name: edgeElement
       - name: normalise
     script:
@@ -107,7 +91,10 @@ spec:
       command: [bash]
       source: |
         python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
-          -b "{{`{{ inputs.parameters.fileList }}`}}" \
+          -p first "{{`{{ inputs.parameters.first }}`}}" \
+          -p last "{{`{{ inputs.parameters.last }}`}}" \
+          -p exclude "{{`{{ inputs.parameters.exclude }}`}}" \
+          -p visit_dir "{{`{{ inputs.parameters.visitDir }}`}}" \
           -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-xanes_sparse_stack_autoprocessing0.nxs" \
           -p edge_element "{{`{{ inputs.parameters.edgeElement }}`}}" \
           -p sztol 0.9 \
