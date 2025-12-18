@@ -126,8 +126,10 @@ spec:
   ###
   templates:
     - name: mib2x-auto
-      #inputs should go here if I need them
-        #then parameters
+      #inputs: 
+      #  parameters: 
+
+
           #- name: #name parameters here
       steps: #steps is on the name level as inputs
       - - name: find
@@ -247,14 +249,72 @@ spec:
       inputs:
         parameters:
         - name: mibfiles
+        - name: reshape_option
+          value: "--auto-reshape"
+        - name: Scan_X
+          value: 256
+        - name: Scan_Y
+          value: 256
+        - name: iBF
+          value: "true"
+        - name: bin_sig_factor
+          value: 4
+        - name: bin_nav_factor
+          value: 4
+        - name: nprocs
+          value: 8
+        - name: memory
+          value: 16Gi
+        - name: DEBUG
+          value: 1
       script:
-        image: python:3.10
+        image: ghcr.io/epsic-dls/mib2x:1.0.0
+        imagePullPolicy: Always
+        env:
+        - name: BLOSC_NTHREADS
+          value: "{{`{{ inputs.parameters.nprocs }}`}}"
+        - name: OMP_NUM_THREADS
+          value: "{{`{{ inputs.parameters.nprocs }}`}}"
+        - name: M2X_DEBUG
+          value: "{{`{{ inputs.parameters.DEBUG }}`}}"
         volumeMounts:
           - name: tmpdir    #session
             mountPath: /tmp
-        command: [python]
+          - name: session
+            mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+        command: [sh]
         source: |
-          print("{{`{{inputs.parameters.mibfiles}}`}}")
+          #!/bin/sh
+          set -e
+
+          cmd=("python" "mib_convert.py")
+          cmd+=("--mib-path={{`{{inputs.parameters.mibfiles}}`}}")
+          cmd+=("{{`{{inputs.parameters.reshape_option}}`}}")
+          cmd+=("--scan-x={{`{{inputs.parameters.Scan_X}}`}}")
+          cmd+=("--scan-y={{`{{inputs.parameters.Scan_Y}}`}}")
+          if [ "{{`{{inputs.parameters.iBF}}`}}" = "true" ]
+          then
+            cmd+=("--ibf")
+          fi
+          cmd+=("--bin-sig-factor={{`{{ inputs.parameters.bin_sig_factor }}`}}")
+          cmd+=("--bin-nav-factor={{`{{ inputs.parameters.bin_nav_factor }}`}}")
+
+          # use exec to make application as PID 1 for signal handling
+          echo "Executing: ${cmd[@]}"
+          exec "${cmd[@]}"
+
+      podSpecPatch: |
+        containers:
+        - name: main
+          resources:
+            requests:
+              cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+              memory: "{{`{{ inputs.parameters.memory }}`}}"
+            limits:
+              cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+              memory: "{{`{{ inputs.parameters.memory }}`}}"
+    
+
 
 
 
