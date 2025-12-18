@@ -88,6 +88,8 @@ spec:
       env:
       - name: HOME
         value: /tmp
+      - name: HDF5_PLUGIN_PATH
+        value: /opt/venv/lib64/python3.12/site-packages/hdf5plugin/plugins/
       command: [bash]
       source: |
         python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
