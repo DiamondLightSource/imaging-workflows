@@ -6,25 +6,28 @@
       "title": "Output Folder"
     },
     "scanRange": {
-      "type": "string",
+      "type": "object",
       "title": "Scan Range"
     },
-    "edgeElement": { "$ref": "#/$defs/elements" },
+    "edgeElement": {
+      "$ref": "#/$defs/elements"
+    },
     "edgeTransition": {
       "type": "string",
-      "enum": ["", "Ka", "Kb", "La", "Lb", "M"],
-      "title": "Edge transition"
+      "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
     },
-    "elementToAlign": { "$ref": "#/$defs/elements" },
+    "elementToAlign": {
+      "$ref": "#/$defs/elements"
+    },
     "transitionToAlign": {
       "type": "string",
-      "enum": ["", "Ka", "Kb", "La", "Lb", "M"],
-      "title": "Transition to Align"
+      "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
     },
     "method": {
       "type": "string",
       "enum": ["mutual", "fourier"],
-      "title": "Method"
+      "title": "Method",
+      "description": "The method to use for alignment. `mutual` (mutual information) or `fourier` (Fourier correlation)."
     },
     "normalise": {
       "type": "boolean",
@@ -155,8 +158,7 @@
         "Lv",
         "Ts",
         "Og"
-      ],
-      "title": "Element to Align"
+      ]
     }
   }
 }

@@ -5,9 +5,9 @@
       "type": "string",
       "title": "Output Folder"
     },
-    "scanRange": {
-      "type": "string",
-      "title": "Scan Range"
+    "scanNumber": {
+      "type": "integer",
+      "title": "Scan Number"
     },
     "edgeElement": {
       "type": "string",
@@ -131,18 +131,16 @@
         "Lv",
         "Ts",
         "Og"
-        ],
-      "title": "Edge Element"
-      },
+        ]
+    },
     "edgeTransition": {
       "type": "string",
-      "enum": ["", "Ka", "Kb", "La", "Lb", "M"],
-      "title": "Edge Transition"
+      "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
     },
     "normalise": {
       "type": "boolean",
       "title": "Normalise"
     }
   },
-  "required": ["outputFolder", "scanRange", "edgeElement", "edgeTransition"]
+  "required": ["outputFolder", "scanNumber", "edgeElement", "edgeTransition"]
 }

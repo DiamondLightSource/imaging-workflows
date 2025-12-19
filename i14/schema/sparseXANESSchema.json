@@ -6,7 +6,7 @@
       "title": "Output Folder"
     },
     "scanRange": {
-      "type": "string",
+      "type": "object",
       "title": "Scan Range"
     },
     "edgeElement": {
@@ -131,13 +131,11 @@
         "Lv",
         "Ts",
         "Og"
-        ],
-      "title": "Edge Element"
+        ]
       },
     "edgeTransition": {
       "type": "string",
-      "enum": ["", "Ka", "Kb", "La", "Lb", "M"],
-      "title": "Edge Transition"
+      "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
     }
   },
   "required": ["outputFolder", "scanRange", "edgeElement", "edgeTransition"]
