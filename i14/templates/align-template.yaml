@@ -23,6 +23,8 @@ spec:
       value: ""
     - name: maskpath
       value: ""
+    - name: complexpath
+      value: ""
     - name: outpath
       value: ""
   volumeClaimTemplates:
@@ -52,6 +54,8 @@ spec:
         value: "{{`{{ workflow.parameters.inpath }}`}}"
       - name: maskpath
         value: "{{`{{ workflow.parameters.maskpath }}`}}"
+      - name: complexpath
+        value: "{{`{{ workflow.parameters.complexpath }}`}}"
       - name: outpath
         value: "{{`{{ workflow.parameters.outpath }}`}}"
     script:
@@ -64,6 +68,7 @@ spec:
         python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
           -p inpath "{{`{{ inputs.parameters.inpath }}`}}" \
           -p maskpath "{{`{{ inputs.parameters.maskpath }}`}}" \
+          -p complexpath "{{`{{ inputs.parameters.complexpath }}`}}" \
           -p outpath "{{`{{ inputs.parameters.outpath }}`}}"
         python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output align-notebook --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
         python -m jupyter nbconvert "{{`{{ inputs.parameters.outpath }}`}}/align-notebook.ipynb" --to html --output align-output --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
