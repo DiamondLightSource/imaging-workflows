@@ -1,17 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: xrd1d
+  name: xrd1d-batch
   annotations:
-    workflows.argoproj.io/title: xrd1d
+    workflows.argoproj.io/title: XRD (X-ray Diffraction) - 1D maps
     workflows.argoproj.io/description: |
-      xrd1d is a utility which performs Azimuthal integration (ExcaliburXRDIntegration), removes/smooths background if needed, writes the spectrum to the output file.
+      XRD can be used to spatially map changes in crystallographic direction, d-spacing or strain across a sample. A 2D XRD pattern is collected per pixel, in concert with the XRF signal.
+      Using this notebook, an Azimuthal integration is performed to present the XRD data as one-line graphical representation, removing/smoothing the background if needed.
     workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/batchSchema.json" | nindent 6 }}
       {{- .Files.Get "schema/xrd1dSchema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/batchUISchema.json" | nindent 6 }}
       {{- .Files.Get "schema/xrd1dUISchema.json" | nindent 6 }}
 spec:
-  entrypoint: xrd1d
+  entrypoint: xrd1d-batch
   arguments:
     parameters:
     - name: visitdir
@@ -21,8 +24,8 @@ spec:
           key: data_directory
     - name: outputFolder
       value: /tmp/output
-    - name: singleFirst
-      value: 391572
+    - name: scanNumbers
+      value: "[391572]"
     - name: xrdProcessConfigUpload
       value: ""
     - name: calibrationPath
@@ -56,24 +59,39 @@ spec:
       - name: tmp
         mountPath: /tmp
   - name: xrd1d-notebook
+    steps:
+    - - name: loop-notebooks
+        template: gen-notebook
+        arguments:
+          parameters:
+          - name: outputFolder
+            value: "{{`{{ workflow.parameters.outputFolder }}`}}"
+          - name: scanNumber
+            value: "{{`{{ item }}`}}"
+          - name: xrdProcessConfigUpload
+            value: "{{`{{ workflow.parameters.xrdProcessConfigUpload }}`}}"
+          - name: calibrationPath
+            value: "{{`{{ workflow.parameters.calibrationPath }}`}}"
+          - name: maskPath
+            value: "{{`{{ workflow.parameters.maskPath }}`}}"
+          - name: flatPath
+            value: "{{`{{ workflow.parameters.flatPath }}`}}"
+          - name: backgroundType
+            value: "{{`{{ workflow.parameters.backgroundType }}`}}"
+          - name: polynomialOrder
+            value: "{{`{{ workflow.parameters.polynomialOrder }}`}}"
+        withParam: "{{`{{ workflow.parameters.scanNumbers }}`}}"
+  - name: gen-notebook
     inputs:
       parameters:
       - name: outputFolder
-        value: "{{`{{ workflow.parameters.outputFolder }}`}}"
-      - name: singleFirst
-        value: "{{`{{ workflow.parameters.singleFirst }}`}}"
+      - name: scanNumber
       - name: xrdProcessConfigUpload
-        value: "{{`{{ workflow.parameters.xrdProcessConfigUpload }}`}}"
       - name: calibrationPath
-        value: "{{`{{ workflow.parameters.calibrationPath }}`}}"
       - name: maskPath
-        value: "{{`{{ workflow.parameters.maskPath }}`}}"
       - name: flatPath
-        value: "{{`{{ workflow.parameters.flatPath }}`}}"
       - name: backgroundType
-        value: "{{`{{ workflow.parameters.backgroundType }}`}}"
       - name: polynomialOrder
-        value: "{{`{{ workflow.parameters.polynomialOrder }}`}}"
     script:
       image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xrd:v0.1
       env:
@@ -82,16 +100,16 @@ spec:
       command: [bash]
       source: |
         python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
-          -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.singleFirst }}`}}.nxs" \
+          -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.scanNumber }}`}}.nxs" \
           -p process_configfile "{{`{{ inputs.parameters.xrdProcessConfigUpload }}`}}" \
-          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}-xrd1d.nxs" \
+          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.scanNumber }}`}}-xrd1d.nxs" \
           -p calibration_path "{{`{{ inputs.parameters.calibrationPath }}`}}" \
           -p mask_path "{{`{{ inputs.parameters.maskPath }}`}}" \
           -p flat_path "{{`{{ inputs.parameters.flatPath }}`}}" \
           -p background_type "{{`{{ inputs.parameters.backgroundType }}`}}" \
           -p polynomial_order "{{`{{ inputs.parameters.polynomialOrder }}`}}"
-        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output xrd1d-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
-        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xrd1d-notebook.ipynb" --to html --no-input --output xrd1d-output --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output xrd1d-notebook-{{`{{ inputs.parameters.scanNumber }}`}} --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xrd1d-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" --to html --no-input --output xrd1d-output-{{`{{ inputs.parameters.scanNumber }}`}} --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -99,12 +117,8 @@ spec:
         mountPath: /tmp
     outputs:
       artifacts:
-      - name: xrd1d-notebook
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xrd1d-notebook.ipynb"
-        archive:
-          none: {}
       - name: xrd1d-output
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xrd1d-output.html"
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xrd1d-output-{{`{{ inputs.parameters.scanNumber }}`}}.html"
         archive:
           none: {}
     podSpecPatch: |
@@ -137,7 +151,7 @@ spec:
       hostPath:
         path: "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
-  - name: xrd1d
+  - name: xrd1d-batch
     dag:
       tasks:
       - name: files

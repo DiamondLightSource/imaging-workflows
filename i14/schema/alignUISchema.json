@@ -11,6 +11,10 @@
     },
     {
       "type": "Control",
+      "scope": "#/properties/complexpath"
+    },
+    {
+      "type": "Control",
       "scope": "#/properties/outpath"
     }
   ]

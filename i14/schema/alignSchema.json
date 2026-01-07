@@ -11,6 +11,11 @@
       "title": "Mask file",
       "default": ""
     },
+    "complexpath": {
+      "type": "string",
+      "title": "Complex file",
+      "default": ""
+    },
     "outpath": {
       "type": "string",
       "title": "Output folder",

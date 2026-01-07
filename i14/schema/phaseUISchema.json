@@ -2,16 +2,21 @@
   "type": "VerticalLayout",
   "elements": [
     {
-      "type": "Control",
-      "scope": "#/properties/inpath"
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/inpath"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/normalise"
+        }
+      ]
     },
     {
       "type": "Control",
       "scope": "#/properties/maskpath"
-    },
-    {
-      "type": "Control",
-      "scope": "#/properties/normalise"
     },
     {
       "type": "Control",

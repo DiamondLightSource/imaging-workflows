@@ -3,37 +3,35 @@
   "elements": [
     {
       "type": "Control",
-      "scope": "#/properties/inpath"
+      "scope": "#/properties/scanNumber",
+      "label": "Scan Number"
     },
     {
       "type": "Control",
-      "scope": "#/properties/outpath"
+      "scope": "#/properties/normalise"
     },
     {
       "type": "Group",
+      "label": "Edge Element",
       "elements": [
         {
           "type": "HorizontalLayout",
           "elements": [
             {
               "type": "Control",
-              "scope": "#/properties/padding"
+              "scope": "#/properties/edgeElement"
             },
             {
               "type": "Control",
-              "scope": "#/properties/minSize"
-            },
-            {
-              "type": "Control",
-              "scope": "#/properties/erosionRadius"
-            },
-            {
-              "type": "Control",
-              "scope": "#/properties/dilationRadius"
+              "scope": "#/properties/edgeTransition"
             }
           ]
         }
       ]
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/outputFolder"
     }
   ]
 }

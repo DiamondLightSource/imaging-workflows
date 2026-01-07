@@ -9,10 +9,6 @@
       "type": "string",
       "title": "Config Folder"
     },
-    "singleFirst": {
-      "type": "integer",
-      "title": "Single First"
-    },
     "calibrationPath": {
       "type": "string",
       "title": "Calibration Path"
@@ -28,7 +24,6 @@
   },
   "required": [
     "outputFolder",
-    "xrdProcessConfigUpload",
-    "singleFirst"
+    "xrdProcessConfigUpload"
   ]
 }

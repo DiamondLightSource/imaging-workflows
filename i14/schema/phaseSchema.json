@@ -14,7 +14,7 @@
     "normalise": {
       "type": "boolean",
       "title": "Normalise data",
-      "default": ""
+      "default": false
     },
     "outpath": {
       "type": "string",
