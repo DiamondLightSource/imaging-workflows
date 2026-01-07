@@ -1,0 +1,12 @@
+{
+  "type": "object",
+  "properties": {
+    "scanNumbers": {
+      "type": "list",
+      "title": "Scan Numbers"
+    }
+  },
+  "required": [
+    "scanNumbers"
+  ]
+}

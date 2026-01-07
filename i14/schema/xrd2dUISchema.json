@@ -11,10 +11,6 @@
     },
     {
       "type": "Control",
-      "scope": "#/properties/singleFirst"
-    },
-    {
-      "type": "Control",
       "scope": "#/properties/calibrationPath"
     },
     {

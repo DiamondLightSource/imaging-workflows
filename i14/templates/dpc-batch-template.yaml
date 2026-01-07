@@ -1,17 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: dpc
+  name: dpc-batch
   annotations:
-    workflows.argoproj.io/title: dpc
+    workflows.argoproj.io/title: DPC (Differential Phase Contrast)
     workflows.argoproj.io/description: |
-      dpc is a utility which takes in a scan file, reconstructs the differential phase contrast (DPC) images, and saves the results to an outpath.
+      DPC imaging produces an image of the phase shifts to the X-ray beam as a result of interaction with the sample by measuring the gradient of the phase and retrieving the phase shifts by a straightforward integration step.
+      Although the resolution of the DPC image is limited by the beam size, the simplicity of the measurement and phase-retrieval step can provide rapid feedback during experiments and produces good representative images of the sample, even with challenging, weakly scattering samples.
+      This methodology is described in Quinn et al. 2023 - Journal of Synchrotron Radiation: Volume 30| Part 1| January 2023| Pages 200-207, https://doi.org/10.1107/S1600577522010633
     workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/batchSchema.json" | nindent 6 }}
       {{- .Files.Get "schema/dpcSchema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/batchUISchema.json" | nindent 6 }}
       {{- .Files.Get "schema/dpcUISchema.json" | nindent 6 }}
 spec:
-  entrypoint: dpc
+  entrypoint: dpc-batch
   arguments:
     parameters:
     - name: visitdir
@@ -21,8 +25,8 @@ spec:
           key: data_directory
     - name: outputFolder
       value: /tmp/output
-    - name: singleFirst
-      value: 395329
+    - name: scanNumbers
+      value: "[395329]"
   volumeClaimTemplates:
   - metadata:
       name: tmp
@@ -45,12 +49,21 @@ spec:
       - name: tmp
         mountPath: /tmp
   - name: dpc-notebook
+    steps:
+    - - name: loop-notebooks
+        template: gen-notebook
+        arguments:
+          parameters:
+          - name: outputFolder
+            value: "{{`{{ workflow.parameters.outputFolder }}`}}"
+          - name: scanNumber
+            value: "{{`{{ item }}`}}"
+        withParam: "{{`{{ workflow.parameters.scanNumbers }}`}}"
+  - name: gen-notebook
     inputs:
       parameters:
       - name: outputFolder
-        value: "{{`{{ workflow.parameters.outputFolder }}`}}"
-      - name: singleFirst
-        value: "{{`{{ workflow.parameters.singleFirst }}`}}"
+      - name: scanNumber
     script:
       image: gitlab.diamond.ac.uk:5050/i14/i14_utility/dpc:v0.1
       env:
@@ -59,12 +72,12 @@ spec:
       command: [bash]
       source: |
         python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
-          -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.singleFirst }}`}}.nxs" \
+          -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.scanNumber }}`}}.nxs" \
           -p process_configfile /tmp/config.yaml \
-          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.singleFirst }}`}}_dpc-phase.nxs" \
+          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.scanNumber }}`}}_dpc-phase.nxs" \
           -p auto_processing False
-        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output dpc-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
-        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-notebook.ipynb" --to html --no-input --output dpc-output --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output dpc-notebook-{{`{{ inputs.parameters.scanNumber }}`}} --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" --to html --no-input --output dpc-output-{{`{{ inputs.parameters.scanNumber }}`}} --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -72,12 +85,8 @@ spec:
         mountPath: /tmp
     outputs:
       artifacts:
-      - name: dpc-notebook
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-notebook.ipynb"
-        archive:
-          none: {}
       - name: dpc-output
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-output.html"
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-output-{{`{{ inputs.parameters.scanNumber }}`}}.html"
         archive:
           none: {}
     podSpecPatch: |
@@ -110,7 +119,7 @@ spec:
       hostPath:
         path: "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
-  - name: dpc
+  - name: dpc-batch
     dag:
       tasks:
       - name: files
