@@ -1,0 +1,37 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Control",
+      "scope": "#/properties/scanNumber",
+      "label": "Scan Number"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/normalise"
+    },
+    {
+      "type": "Group",
+      "label": "Edge Element",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/edgeElement"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/edgeTransition"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/outputFolder"
+    }
+  ]
+}

@@ -1,0 +1,193 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: xanes
+  annotations:
+    workflows.argoproj.io/title: XANES (X-ray Absorption Near Edge Structure)
+    workflows.argoproj.io/description: |
+      XANES is a utility which attempts to stack a sequence of datasets acquired at different energy for a particular
+      line group and perform alignment based on a line group. Some functionalities like normalisation, cropping and
+      removing inconsistent size of scanning axis are incoporated. An algorithm for alignment is chosen. The aligned
+      stack is saved as an hdf5 file.
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/xanesSchema.json" | nindent 6 }}
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/xanesUISchema.json" | nindent 6 }}
+spec:
+  entrypoint: xanes
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+    - name: outputFolder
+      value: ""
+    - name: scanRange
+      value: '[{ "start": "393420", "end": "393571", "exclude": [] }]'
+    - name: method
+      value: mutual
+    - name: edgeElement
+      value: "Pb"
+    - name: edgeTransition
+      value: "La"
+    - name: elementToAlign
+      value: None
+    - name: transitionToAlign
+      value: None
+    - name: normalise
+      value: "True"
+  volumeClaimTemplates:
+  - metadata:
+      name: tmp
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 20Gi
+      storageClassName: netapp
+  templates:
+  - name: xanes-mount-files
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      command: [bash]
+      source: |
+        echo '{{ .Files.Get "notebooks/xanes_autoprocessing0.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
+      volumeMounts:
+      - name: tmp
+        mountPath: /tmp
+  - name: xanes-notebook
+    steps:
+    - - name: gen-element-to-align
+        template: gen-element-to-align-tmp
+        arguments:
+          parameters:
+          - name: edgeElement
+            value: "{{`{{ workflow.parameters.edgeElement }}`}}-{{`{{ workflow.parameters.edgeTransition }}`}}"
+          - name: elementToAlign
+            value: "{{`{{ workflow.parameters.elementToAlign }}`}}-{{`{{ workflow.parameters.transitionToAlign }}`}}"
+    - - name: gen-notebook
+        template: gen-notebook-tmp
+        arguments:
+          parameters:
+          - name: outputFolder
+            value: "{{`{{ workflow.parameters.outputFolder }}`}}"
+          - name: visitDir
+            value: "{{`{{ workflow.parameters.visitdir }}`}}"
+          - name: first
+            value: "{{`{{ item.start }}`}}"
+          - name: last
+            value: "{{`{{ item.end }}`}}"
+          - name: exclude
+            value: "{{`{{ item.exclude }}`}}"
+          - name: edgeElement
+            value: "{{`{{ workflow.parameters.edgeElement }}`}}-{{`{{ workflow.parameters.edgeTransition }}`}}"
+          - name: elementToAlign
+            value: "{{`{{ steps.gen-element-to-align.outputs.result }}`}}"
+          - name: method
+            value: "{{`{{ workflow.parameters.method }}`}}"
+          - name: normalise
+            value: "{{`{{ workflow.parameters.normalise }}`}}"
+        withParam: "{{`{{ workflow.parameters.scanRange }}`}}"
+  - name: gen-element-to-align-tmp
+    inputs:
+      parameters:
+      - name: edgeElement
+      - name: elementToAlign
+    script:
+      image: python:3.10
+      command: [python]
+      source: |
+        if "None" in "{{`{{ workflow.parameters.elementToAlign }}`}}":
+          elementToAlign = "None"
+          # elementToAlign = f"{{`{{ workflow.parameters.edgeElement }}`}}"
+        print(elementToAlign)
+  - name: gen-notebook-tmp
+    inputs:
+      parameters:
+      - name: visitDir
+      - name: first
+      - name: last
+      - name: exclude
+      - name: outputFolder
+      - name: edgeElement
+      - name: elementToAlign
+      - name: method
+      - name: normalise
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      env:
+      - name: HOME
+        value: /tmp
+      - name: HDF5_PLUGIN_PATH
+        value: /opt/venv/lib64/python3.12/site-packages/hdf5plugin/plugins/
+      command: [bash]
+      source: |
+        python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+          -p first "{{`{{ inputs.parameters.first }}`}}" \
+          -p last "{{`{{ inputs.parameters.last }}`}}" \
+          -p exclude "{{`{{ inputs.parameters.exclude }}`}}" \
+          -p visit_dir "{{`{{ inputs.parameters.visitDir }}`}}" \
+          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-xanes-auto.nxs" \
+          -p normalised "{{`{{ inputs.parameters.normalise }}`}}" \
+          -p method "{{`{{ inputs.parameters.method }}`}}" \
+          -p edge_element "{{`{{ inputs.parameters.edgeElement }}`}}" \
+          -p element_to_align "{{`{{ inputs.parameters.elementToAlign }}`}}" \
+          -p window_width 40 \
+          -p sztol 0.9 \
+          -p ref_index None \
+          -p max_fractional_shift 0.2 \
+          -p auto_processing False
+        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output xanes-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-notebook.ipynb" --to html --output xanes-output --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: xanes-output
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-output.html"
+        archive:
+          none: {}
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: 10
+            memory: 30Gi
+          limits:
+            cpu: 10
+            memory: 30Gi
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: nodegroup
+              operator: In
+              values:
+              - workflows
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+  - name: xanes
+    dag:
+      tasks:
+      - name: files
+        template: xanes-mount-files
+      - name: notebook
+        template: xanes-notebook
+        dependencies: [files]

@@ -1,0 +1,159 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: xanes-sparse
+  annotations:
+    workflows.argoproj.io/title: XANES-Sparse (X-ray Absorption Near Edge Structure)
+    workflows.argoproj.io/description: |
+      XANES-sparse is a utility which takes the last scan file of a sparse XANES scan (inpath), defines the 2D full grid,
+      inserts the data in the correct rows, stack the images, and completes the missing data by using looped alternating
+      steepest descent (ASD). There are 3 output files: the incomplete NeXuS file, the incomplete MANTIS file,
+      the complete MANTIS file.
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/xanesSparseSchema.json" | nindent 6 }}
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/xanesSparseUISchema.json" | nindent 6 }}
+spec:
+  entrypoint: xanes-sparse
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+    - name: outputFolder
+      value: ""
+    - name: scanRange
+      value: '[{ "start": "406681", "end": "406832", "exclude": [] }]'
+    - name: edgeElement
+      value: "Fe"
+    - name: edgeTransition
+      value: "Ka"
+    - name: normalise
+      value: "True"
+  volumeClaimTemplates:
+  - metadata:
+      name: tmp
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 20Gi
+      storageClassName: netapp
+  templates:
+  - name: xanes-sparse-mount-files
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      command: [bash]
+      source: |
+        echo '{{ .Files.Get "notebooks/xanes_sparse_stack_autoprocessing0.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
+      volumeMounts:
+      - name: tmp
+        mountPath: /tmp
+  - name: xanes-sparse-notebook
+    steps:
+    - - name: gen-notebook
+        template: gen-notebook-tmp
+        arguments:
+          parameters:
+          - name: outputFolder
+            value: "{{`{{ workflow.parameters.outputFolder }}`}}"
+          - name: visitDir
+            value: "{{`{{ workflow.parameters.visitdir }}`}}"
+          - name: first
+            value: "{{`{{ item.start }}`}}"
+          - name: last
+            value: "{{`{{ item.end }}`}}"
+          - name: exclude
+            value: "{{`{{ item.exclude }}`}}"
+          - name: edgeElement
+            value: "{{`{{ workflow.parameters.edgeElement }}`}}-{{`{{ workflow.parameters.edgeTransition }}`}}"
+          - name: normalise
+            value: "{{`{{ workflow.parameters.normalise }}`}}"
+        withParam: "{{`{{ workflow.parameters.scanRange }}`}}"
+  - name: gen-notebook-tmp
+    inputs:
+      parameters:
+      - name: visitDir
+      - name: first
+      - name: last
+      - name: exclude
+      - name: outputFolder
+      - name: edgeElement
+      - name: normalise
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      env:
+      - name: HOME
+        value: /tmp
+      - name: HDF5_PLUGIN_PATH
+        value: /opt/venv/lib64/python3.12/site-packages/hdf5plugin/plugins/
+      command: [bash]
+      source: |
+        python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+          -p first "{{`{{ inputs.parameters.first }}`}}" \
+          -p last "{{`{{ inputs.parameters.last }}`}}" \
+          -p exclude "{{`{{ inputs.parameters.exclude }}`}}" \
+          -p visit_dir "{{`{{ inputs.parameters.visitDir }}`}}" \
+          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-xanes_sparse_stack_autoprocessing0.nxs" \
+          -p edge_element "{{`{{ inputs.parameters.edgeElement }}`}}" \
+          -p sztol 0.9 \
+          -p completion_rank 6 \
+          -p tol_residual 1e-4 \
+          -p num_short_iteration 75 \
+          -p num_final_iteration 2000 \
+          -p normalised "{{`{{ inputs.parameters.normalise }}`}}" \
+          -p auto_processing False
+        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output xanes-sparse-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-sparse-notebook.ipynb" --to html --output xanes-sparse-output --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: xanes-sparse
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-sparse-output.html"
+        archive:
+          none: {}
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: 10
+            memory: 30Gi
+          limits:
+            cpu: 10
+            memory: 30Gi
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: nodegroup
+              operator: In
+              values:
+              - workflows
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+  - name: xanes-sparse
+    dag:
+      tasks:
+      - name: files
+        template: xanes-sparse-mount-files
+      - name: notebook
+        template: xanes-sparse-notebook
+        dependencies: [files]
