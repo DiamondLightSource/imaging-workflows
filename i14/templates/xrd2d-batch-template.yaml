@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: xrd2dbatch
+  name: xrd2d-batch
   annotations:
     workflows.argoproj.io/title: XRD (X-ray Diffraction) - 2D maps
     workflows.argoproj.io/description: |
@@ -13,7 +13,7 @@ metadata:
       {{- .Files.Get "schema/batchUISchema.json" | nindent 6 }}
       {{- .Files.Get "schema/xrd2dUISchema.json" | nindent 6 }}
 spec:
-  entrypoint: xrd2dbatch
+  entrypoint: xrd2d-batch
   arguments:
     parameters:
     - name: visitdir
@@ -24,7 +24,7 @@ spec:
     - name: outputFolder
       value: /tmp/output
     - name: scanNumbers
-      value: [391572]
+      value: "[391572]"
     - name: xrdProcessConfigUpload
       value: ""
     - name: calibrationPath
@@ -138,7 +138,7 @@ spec:
       hostPath:
         path: "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
-  - name: xrd2dbatch
+  - name: xrd2d-batch
     dag:
       tasks:
       - name: files
