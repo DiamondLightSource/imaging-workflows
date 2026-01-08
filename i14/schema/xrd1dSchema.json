@@ -1,6 +1,10 @@
 {
   "type": "object",
   "properties": {
+    "scanNumbers": {
+      "type": "list",
+      "title": "Scan Numbers"
+    },
     "outputFolder": {
       "type": "string",
       "title": "Output Folder"
@@ -44,7 +48,8 @@
     }
   },
   "required": [
+    "scanNumbers",
     "outputFolder",
-    "xrdProcessConfigUpload",
+    "xrdProcessConfigUpload"
   ]
 }
