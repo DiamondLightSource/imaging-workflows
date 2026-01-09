@@ -2,7 +2,7 @@
   "type": "object",
   "properties": {
     "scanNumbers": {
-      "type": "list",
+      "type": "string",
       "title": "Scan Numbers"
     },
     "outputFolder": {
