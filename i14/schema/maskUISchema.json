@@ -10,28 +10,23 @@
       "scope": "#/properties/outpath"
     },
     {
-      "type": "Group",
+      "type": "HorizontalLayout",
       "elements": [
         {
-          "type": "HorizontalLayout",
-          "elements": [
-            {
-              "type": "Control",
-              "scope": "#/properties/padding"
-            },
-            {
-              "type": "Control",
-              "scope": "#/properties/minSize"
-            },
-            {
-              "type": "Control",
-              "scope": "#/properties/erosionRadius"
-            },
-            {
-              "type": "Control",
-              "scope": "#/properties/dilationRadius"
-            }
-          ]
+          "type": "Control",
+          "scope": "#/properties/padding"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/minSize"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/erosionRadius"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/dilationRadius"
         }
       ]
     }
