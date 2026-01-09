@@ -8,10 +8,8 @@ metadata:
       XRD can be used to spatially map changes in crystallographic direction, d-spacing or strain across a sample. A 2D XRD pattern is collected per pixel, in concert with the XRF signal.
       Using this notebook, an Azimuthal integration is performed to present the XRD data as one-line graphical representation, removing/smoothing the background if needed.
     workflows.diamond.ac.uk/parameter-schema: |
-      {{- .Files.Get "schema/batchSchema.json" | nindent 6 }}
       {{- .Files.Get "schema/xrd1dSchema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
-      {{- .Files.Get "schema/batchUISchema.json" | nindent 6 }}
       {{- .Files.Get "schema/xrd1dUISchema.json" | nindent 6 }}
 spec:
   entrypoint: xrd1d-batch
