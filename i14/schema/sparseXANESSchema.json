@@ -132,7 +132,7 @@
         "Ts",
         "Og"
         ]
-      },
+    },
     "edgeTransition": {
       "type": "string",
       "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
