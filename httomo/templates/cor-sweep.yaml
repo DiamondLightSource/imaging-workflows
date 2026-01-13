@@ -6,6 +6,7 @@ metadata:
     workflows.diamond.ac.uk/science-group-extension: "imaging"
   annotations:
     workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
+    workflows.diamond.ac.uk/science-group-imaging: "true"
     workflows.diamond.ac.uk/parameter-schema.input: |
       {
         "type": "string"
