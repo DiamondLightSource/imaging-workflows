@@ -2,7 +2,10 @@ apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
   name: dpc-batch
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
+    workflows.diamond.ac.uk/repository: https://github.com/DiamondLightSource/imaging-workflows
     workflows.argoproj.io/title: DPC (Differential Phase Contrast)
     workflows.argoproj.io/description: |
       DPC imaging produces an image of the phase shifts to the X-ray beam as a result of interaction with the sample by measuring the gradient of the phase and retrieving the phase shifts by a straightforward integration step.
