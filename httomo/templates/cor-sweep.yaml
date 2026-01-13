@@ -3,10 +3,9 @@ kind: ClusterWorkflowTemplate
 metadata:
   name: httomo-cor-sweep
   labels:
-    workflows.diamond.ac.uk/science-group-extension: "imaging"
+    workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
     workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
-    workflows.diamond.ac.uk/science-group-imaging: "true"
     workflows.diamond.ac.uk/parameter-schema.input: |
       {
         "type": "string"
