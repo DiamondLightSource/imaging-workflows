@@ -2,28 +2,23 @@
   "type": "VerticalLayout",
   "elements": [
     {
-      "type": "VerticalLayout",
+      "type": "Control",
+      "scope": "#/properties/scanRange",
+      "label": "Scan Range",
+      "options": {
+        "useScanRangeControl": true
+      }
+    },
+    {
+      "type": "HorizontalLayout",
       "elements": [
         {
           "type": "Control",
-          "scope": "#/properties/scanRange",
-          "label": "Scan Range",
-          "options": {
-            "useScanRangeControl": true
-          }
+          "scope": "#/properties/method"
         },
         {
-          "type": "HorizontalLayout",
-          "elements": [
-            {
-              "type": "Control",
-              "scope": "#/properties/method"
-            },
-            {
-              "type": "Control",
-              "scope": "#/properties/normalise"
-            }
-          ]
+          "type": "Control",
+          "scope": "#/properties/normalise"
         }
       ]
     },

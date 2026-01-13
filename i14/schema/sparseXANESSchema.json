@@ -9,6 +9,10 @@
       "type": "object",
       "title": "Scan Range"
     },
+    "normalise": {
+      "type": "boolean",
+      "title": "Normalise"
+    },
     "edgeElement": {
       "type": "string",
       "enum": [
