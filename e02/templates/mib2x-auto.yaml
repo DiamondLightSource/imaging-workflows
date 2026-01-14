@@ -117,7 +117,7 @@ spec:
           mib_timestamps_set = set(mib_timestamps)
           
           
-          dest_path = '/dls/e02/data/2025/%s/processing/Merlin/%s' % ("{{`{{workflow.parameters.visitdir}}`}}", "{{`{{inputs.parameters.sample_name}}`}}")
+          dest_path = '%s/processing/Merlin/%s' % ("{{`{{workflow.parameters.visitdir}}`}}", "{{`{{inputs.parameters.sample_name}}`}}")
 
           if os.path.exists(dest_path):
             logging.append('\nThe following path exists: %s\nskipping creation of folder\n' %dest_path)
