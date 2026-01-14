@@ -6,99 +6,10 @@ metadata:
     workflows.argoproj.io/title: ePSIC mib automatic conversion
     workflows.argoproj.io/description: |
       Convert MIB file to hdf5/hspy files
-    workflows.diamond.ac.uk/parameter-schema.base_path: |
-      {
-        "type": "string"
-        "default": "this should be left empty"
-      }
-    workflows.diamond.ac.uk/parameter-schema.reshape_option: |
-      {
-        "type": "string",
-        "oneOf": [
-          {
-            "const": "--auto-reshape",
-            "title": "Auto"
-          },
-          {
-            "const": "--no-reshaping",
-            "title": "None"
-          },
-          {
-            "const": "--use-fly-back",
-            "title": "Fly-back"
-          },
-          {
-            "const": "--known-shape",
-            "title": "By known shape"
-          }
-        ],
-        "default": "--auto-reshape"
-      }
-    workflows.diamond.ac.uk/parameter-schema.Scan_X: |
-      {
-        "type": "integer",
-        "minimum": 0,
-        "default": 256
-      }
-    workflows.diamond.ac.uk/parameter-schema.Scan_Y: |
-      {
-        "type": "integer",
-        "minimum": 0,
-        "default": 256
-      }
-    workflows.diamond.ac.uk/parameter-schema.iBF: |
-      {
-        "type": "boolean",
-        "default": true
-      }
-    workflows.diamond.ac.uk/parameter-schema.bin_sig_factor: |
-      {
-        "type": "integer",
-        "minimum": 0,
-        "maximum": 8,
-        "default": 4
-      }
-    workflows.diamond.ac.uk/parameter-schema.bin_nav_factor: |
-      {
-        "type": "integer",
-        "minimum": 0,
-        "maximum": 8,
-        "default": 4
-      }
-    workflows.diamond.ac.uk/parameter-schema.create_json: |
-      {
-        "type": "boolean",
-        "default": false
-      }
-    workflows.diamond.ac.uk/parameter-schema.ptycho_config: |
-      {
-        "type": "string",
-        "default": ""
-      }
-    workflows.diamond.ac.uk/parameter-schema.ptycho_template: |
-      {
-        "type": "string",
-        "default": ""
-      }
-    workflows.diamond.ac.uk/parameter-schema.nprocs: |
-      {
-        "type": "integer",
-        "minimum": 0,
-        "default": 8
-      }
-    workflows.diamond.ac.uk/parameter-schema.memory: |
-      {
-        "type": "string",
-        "pattern": "^[0-9]+[GMK]i$",
-        "default": "16Gi"
-      }
-    workflows.diamond.ac.uk/parameter-schema.DEBUG: |
-      {
-        "type": "integer",
-        "default": 1
-      }
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/mib2x_auto_Schema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
-      {{- .Files.Get "schema/mib2x_ui.json" | nindent 6 }}
+      {{- .Files.Get "schema/mib2x_auto_ui.json" | nindent 6 }}
 spec:
   entrypoint: mib2x-auto
   arguments:
@@ -149,10 +60,8 @@ spec:
     - name: find-mib-files
       inputs:
         parameters:
-        - name: visit
-          value: cm40603-1
         - name: sample_name
-          value: Fred_auto_ptycho_debugging
+          value: "{{`{{workflow.parameters.sample_name}}`}}"
       outputs:
         artifacts:
         - name: find_files_logging
@@ -190,7 +99,7 @@ spec:
           verbose = True
 
           #start search for MIB files
-          os.chdir('/dls/e02/data/2025/%s/Merlin/%s' % ("{{`{{inputs.parameters.visit}}`}}", "{{`{{inputs.parameters.sample_name}}`}}"))
+          os.chdir('%s/Merlin/%s' % ("{{`{{workflow.parameters.visitdir}}`}}", "{{`{{ workflow.parameters.sample_name }}`}}"))
 
           source_path = os.getcwd() + '/'
           logging.append('Current path: %s' % source_path)
@@ -208,7 +117,14 @@ spec:
           mib_timestamps_set = set(mib_timestamps)
           
           
-          dest_path = '/dls/e02/data/2025/%s/processing/Merlin/%s' % ("{{`{{inputs.parameters.visit}}`}}", "{{`{{inputs.parameters.sample_name}}`}}")
+          dest_path = '/dls/e02/data/2025/%s/processing/Merlin/%s' % ("{{`{{workflow.parameters.visitdir}}`}}", "{{`{{inputs.parameters.sample_name}}`}}")
+
+          if os.path.exists(dest_path):
+            logging.append('\nThe following path exists: %s\nskipping creation of folder\n' %dest_path)
+          else:
+            logging.append('\nThe following path does not exists: %s\nTherefore creating this folder now...\n' %dest_path)
+            os.mkdir(dest_path)
+
           os.chdir(dest_path)
           logging.append('***\nsearching destination path for already converted files: %s\n***' % dest_path)
 
@@ -239,34 +155,31 @@ spec:
             for item in logging:
               print(item,file=ofile)
 
-
+          #This is used to produce the input for the next step .i.e inputs.parameters.mibfiles
           json.dump(data_to_convert, sys.stdout)
-
-          #so the end code has to look something like this
-          #json.dumps(mib_file_list)
 
     - name: print-found-mib-files
       inputs:
         parameters:
         - name: mibfiles
         - name: reshape_option
-          value: "--auto-reshape"
+          value: "{{`{{ workflow.parameters.reshape_option }}`}}"
         - name: Scan_X
-          value: 256
+          value: "{{`{{ workflow.parameters.Scan_X}}`}}"
         - name: Scan_Y
-          value: 256
+          value: "{{`{{ workflow.parameters.Scan_Y }}`}}"
         - name: iBF
-          value: "true"
+          value: "{{`{{ workflow.parameters.iBF }}`}}"
         - name: bin_sig_factor
-          value: 4
+          value: "{{`{{ workflow.parameters.bin_sig_factor }}`}}"
         - name: bin_nav_factor
-          value: 4
+          value: "{{`{{ workflow.parameters.bin_nav_factor }}`}}"
         - name: nprocs
-          value: 8
+          value: "{{`{{ workflow.parameters.nprocs }}`}}"
         - name: memory
-          value: 16Gi
+          value: "{{`{{ workflow.parameters.memory }}`}}" 
         - name: DEBUG
-          value: 1
+          value: "{{`{{ workflow.parameters.DEBUG }}`}}" 
       script:
         image: ghcr.io/epsic-dls/mib2x:1.0.0
         imagePullPolicy: Always
