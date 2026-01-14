@@ -132,6 +132,6 @@ spec:
       tasks:
       - name: setup
         template: mask-mount-files
-      - name: notebook
+      - name: run-mask-notebook
         template: mask-notebook
         dependencies: [setup]

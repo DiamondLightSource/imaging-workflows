@@ -191,6 +191,6 @@ spec:
       tasks:
       - name: setup
         template: xanes-mount-files
-      - name: notebook
+      - name: run-xanes-notebook
         template: xanes-notebook
         dependencies: [setup]

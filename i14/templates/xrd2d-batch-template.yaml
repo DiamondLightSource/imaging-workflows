@@ -56,7 +56,7 @@ spec:
         mountPath: /tmp
   - name: xrd2d-notebook
     steps:
-    - - name: loop-notebooks
+    - - name: xrd2d
         template: gen-notebook
         arguments:
           parameters:
@@ -144,6 +144,6 @@ spec:
       tasks:
       - name: setup
         template: xrd2d-mount-files
-      - name: notebook
+      - name: run-xrd2d-notebook
         template: xrd2d-notebook
         dependencies: [setup]

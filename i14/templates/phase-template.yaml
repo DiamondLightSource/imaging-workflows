@@ -118,6 +118,6 @@ spec:
       tasks:
       - name: setup
         template: phase-mount-files
-      - name: notebook
+      - name: run-phase-notebook
         template: phase-notebook
         dependencies: [setup]

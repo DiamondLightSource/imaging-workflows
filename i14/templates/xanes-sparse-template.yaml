@@ -57,7 +57,7 @@ spec:
         mountPath: /tmp
   - name: xanes-sparse-notebook
     steps:
-    - - name: gen-notebook
+    - - name: xanes-sparse
         template: gen-notebook-tmp
         arguments:
           parameters:
@@ -157,6 +157,6 @@ spec:
       tasks:
       - name: setup
         template: xanes-sparse-mount-files
-      - name: notebook
+      - name: run-xanes-sparse-notebook
         template: xanes-sparse-notebook
         dependencies: [setup]

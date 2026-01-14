@@ -61,7 +61,7 @@ spec:
         mountPath: /tmp
   - name: xrd1d-notebook
     steps:
-    - - name: loop-notebooks
+    - - name: xrd1d
         template: gen-notebook
         arguments:
           parameters:
@@ -157,6 +157,6 @@ spec:
       tasks:
       - name: setup
         template: xrd1d-mount-files
-      - name: notebook
+      - name: run-xrd1d-notebook
         template: xrd1d-notebook
         dependencies: [setup]
