@@ -1,0 +1,56 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Control",
+      "scope": "#/properties/scanRange",
+      "label": "Scan Range",
+      "options": {
+        "useScanRangeControl": true
+      }
+    },
+    {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/method"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/normalise"
+        }
+      ]
+    },
+    {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/edgeElement"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/edgeTransition"
+        }
+      ]
+    },
+    {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/elementToAlign"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/transitionToAlign"
+        }
+      ]
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/outputFolder"
+    }
+  ]
+}

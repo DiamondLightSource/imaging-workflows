@@ -10,21 +10,19 @@
       }
     },
     {
-      "type": "Group",
-      "label": "Edge Element",
+      "type": "Control",
+      "scope": "#/properties/normalise"
+    },
+    {
+      "type": "HorizontalLayout",
       "elements": [
         {
-          "type": "HorizontalLayout",
-          "elements": [
-            {
-              "type": "Control",
-              "scope": "#/properties/edgeElement"
-            },
-            {
-              "type": "Control",
-              "scope": "#/properties/edgeTransition"
-            }
-          ]
+          "type": "Control",
+          "scope": "#/properties/edgeElement"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/edgeTransition"
         }
       ]
     },

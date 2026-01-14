@@ -3,6 +3,10 @@
   "elements": [
     {
       "type": "Control",
+      "scope": "#/properties/scanNumbers"
+    },
+    {
+      "type": "Control",
       "scope": "#/properties/outputFolder"
     }
   ]

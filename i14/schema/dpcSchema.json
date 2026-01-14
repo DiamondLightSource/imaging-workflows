@@ -1,10 +1,14 @@
 {
   "type": "object",
   "properties": {
+    "scanNumbers": {
+      "type": "string",
+      "title": "Scan Numbers"
+    },
     "outputFolder": {
       "type": "string",
       "title": "Output Folder"
     }
   },
-  "required": ["outputFolder"]
+  "required": ["scanNumbers", "outputFolder"]
 }

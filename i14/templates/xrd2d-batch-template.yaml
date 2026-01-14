@@ -2,15 +2,16 @@ apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
   name: xrd2d-batch
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
+    workflows.diamond.ac.uk/repository: https://github.com/DiamondLightSource/imaging-workflows
     workflows.argoproj.io/title: XRD (X-ray Diffraction) - 2D maps
     workflows.argoproj.io/description: |
       XRD 2D is a utility which performs Azimuthal integration (ExcaliburXRDIntegration) and saves result to a nxs file
     workflows.diamond.ac.uk/parameter-schema: |
-      {{- .Files.Get "schema/batchSchema.json" | nindent 6 }}
       {{- .Files.Get "schema/xrd2dSchema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
-      {{- .Files.Get "schema/batchUISchema.json" | nindent 6 }}
       {{- .Files.Get "schema/xrd2dUISchema.json" | nindent 6 }}
 spec:
   entrypoint: xrd2d-batch

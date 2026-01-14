@@ -2,17 +2,18 @@ apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
   name: dpc-batch
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
+    workflows.diamond.ac.uk/repository: https://github.com/DiamondLightSource/imaging-workflows
     workflows.argoproj.io/title: DPC (Differential Phase Contrast)
     workflows.argoproj.io/description: |
       DPC imaging produces an image of the phase shifts to the X-ray beam as a result of interaction with the sample by measuring the gradient of the phase and retrieving the phase shifts by a straightforward integration step.
       Although the resolution of the DPC image is limited by the beam size, the simplicity of the measurement and phase-retrieval step can provide rapid feedback during experiments and produces good representative images of the sample, even with challenging, weakly scattering samples.
       This methodology is described in Quinn et al. 2023 - Journal of Synchrotron Radiation: Volume 30| Part 1| January 2023| Pages 200-207, https://doi.org/10.1107/S1600577522010633
     workflows.diamond.ac.uk/parameter-schema: |
-      {{- .Files.Get "schema/batchSchema.json" | nindent 6 }}
       {{- .Files.Get "schema/dpcSchema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
-      {{- .Files.Get "schema/batchUISchema.json" | nindent 6 }}
       {{- .Files.Get "schema/dpcUISchema.json" | nindent 6 }}
 spec:
   entrypoint: dpc-batch
