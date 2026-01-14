@@ -3,7 +3,8 @@
   "properties": {
     "outputFolder": {
       "type": "string",
-      "title": "Output Folder"
+      "title": "Output Folder",
+      "description": "The full path to the output directory to save the XANES stack to, which is compatible to Mantis"
     },
     "scanRange": {
       "type": "object",
@@ -31,7 +32,8 @@
     },
     "normalise": {
       "type": "boolean",
-      "title": "Normalise"
+      "title": "Normalise",
+      "description": "Whether to normalise the stack by I0"
     }
   },
   "required": ["outputFolder", "scanRange", "edgeElement", "edgeTransition"],

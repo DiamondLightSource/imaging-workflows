@@ -3,7 +3,8 @@
   "properties": {
     "outputFolder": {
       "type": "string",
-      "title": "Output Folder"
+      "title": "Output Folder",
+      "description": "The full path to the output directory, where the summed intensity as a two-column text file will be saved"
     },
     "scanNumber": {
       "type": "integer",
@@ -139,7 +140,8 @@
     },
     "normalise": {
       "type": "boolean",
-      "title": "Normalise"
+      "title": "Normalise",
+      "description": "Whether to normalise the windowed intensity by 'adc_ionCh1a'"
     }
   },
   "required": ["outputFolder", "scanNumber", "edgeElement", "edgeTransition"]

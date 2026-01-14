@@ -4,22 +4,26 @@
     "inpath": {
       "type": "string",
       "title": "Input data",
-      "default": ""
+      "default": "",
+      "description": "The full path to the file containing complex information"
     },
     "maskpath": {
       "type": "string",
       "title": "Mask file",
-      "default": ""
+      "default": "",
+      "description": "The full path to the file with the mask"
     },
     "normalise": {
       "type": "boolean",
       "title": "Normalise data",
-      "default": false
+      "default": false,
+      "description": "Select to apply normalisation"
     },
     "outpath": {
       "type": "string",
       "title": "Output folder",
-      "default": ""
+      "default": "",
+      "description": "The full path to the output folder"
     }
   },
   "required": ["inpath"]
