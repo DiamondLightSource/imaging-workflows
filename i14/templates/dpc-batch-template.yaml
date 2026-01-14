@@ -123,8 +123,8 @@ spec:
   - name: dpc-batch
     dag:
       tasks:
-      - name: files
+      - name: setup
         template: dpc-mount-files
       - name: notebook
         template: dpc-notebook
-        dependencies: [files]
+        dependencies: [setup]

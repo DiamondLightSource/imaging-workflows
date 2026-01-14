@@ -155,8 +155,8 @@ spec:
   - name: xrd1d-batch
     dag:
       tasks:
-      - name: files
+      - name: setup
         template: xrd1d-mount-files
       - name: notebook
         template: xrd1d-notebook
-        dependencies: [files]
+        dependencies: [setup]
