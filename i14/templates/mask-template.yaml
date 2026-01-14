@@ -130,8 +130,8 @@ spec:
   - name: mask
     dag:
       tasks:
-      - name: files
+      - name: setup
         template: mask-mount-files
-      - name: notebook
+      - name: run-mask-notebook
         template: mask-notebook
-        dependencies: [files]
+        dependencies: [setup]

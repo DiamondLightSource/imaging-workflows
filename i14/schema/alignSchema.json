@@ -4,22 +4,26 @@
     "inpath": {
       "type": "string",
       "title": "Input data",
-      "default": ""
+      "default": "",
+      "description": "The full path to the file containing data"
     },
     "maskpath": {
       "type": "string",
       "title": "Mask file",
-      "default": ""
+      "default": "",
+      "description": "The full path to the file containing the mask. If this is not provided, the input file is checked to see if it also contains a mask."
     },
     "complexpath": {
       "type": "string",
       "title": "Complex file",
-      "default": ""
+      "default": "",
+      "description": "The full path to the file containing the complex data."
     },
     "outpath": {
       "type": "string",
       "title": "Output folder",
-      "default": ""
+      "default": "",
+      "description": "The full path to the output folder. If an output file isn't specified, the output file will be saved to the same directory as the input data"
     }
   },
   "required": ["inpath"]

@@ -51,7 +51,7 @@ spec:
         mountPath: /tmp
   - name: dpc-notebook
     steps:
-    - - name: loop-notebooks
+    - - name: dpc
         template: gen-notebook
         arguments:
           parameters:
@@ -123,8 +123,8 @@ spec:
   - name: dpc-batch
     dag:
       tasks:
-      - name: files
+      - name: setup
         template: dpc-mount-files
-      - name: notebook
+      - name: run-dpc-notebook
         template: dpc-notebook
-        dependencies: [files]
+        dependencies: [setup]

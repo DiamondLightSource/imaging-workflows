@@ -116,8 +116,8 @@ spec:
   - name: align
     dag:
       tasks:
-      - name: files
+      - name: setup
         template: align-mount-files
-      - name: notebook
+      - name: run-align-notebook
         template: align-notebook
-        dependencies: [files]
+        dependencies: [setup]
