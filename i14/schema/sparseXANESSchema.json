@@ -3,7 +3,8 @@
   "properties": {
     "outputFolder": {
       "type": "string",
-      "title": "Output Folder"
+      "title": "Output Folder",
+      "description": "The full path of the output file"
     },
     "scanRange": {
       "type": "object",

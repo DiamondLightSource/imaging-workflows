@@ -4,32 +4,38 @@
     "inpath": {
       "type": "string",
       "title": "Input file",
-      "default": ""
+      "default": "",
+      "description": "The full path to the data file to create a mask from"
     },
     "outpath": {
       "type": "string",
       "title": "Output folder",
-      "default": ""
+      "default": "",
+      "description": "The full path to the output folder. If not provided the output will be saved to the same directory as the input file."
     },
     "padding": {
       "type": "integer",
       "title": "Padding",
-      "default": 50
+      "default": 50,
+      "description": "Amount to pad the mask by"
     },
     "minSize": {
       "type": "integer",
       "title": "Minimum size",
-      "default": 5000
+      "default": 5000,
+      "description": "The smallest allowable object size. Connected components smaller than the specified pixel size will be removed."
     },
     "erosionRadius": {
       "type": "integer",
       "title": "Erosion radius",
-      "default": 18
+      "default": 18,
+      "description": "Radius of circle to erode the sample mask by"
     },
     "dilationRadius": {
       "type": "integer",
       "title": "Dilation radius",
-      "default": 5
+      "default": 5,
+      "description": "Radius of circle to dilate the sample mask by"
     }
   },
   "required": ["inpath"]

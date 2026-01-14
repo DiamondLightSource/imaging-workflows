@@ -116,8 +116,8 @@ spec:
   - name: phase
     dag:
       tasks:
-      - name: files
+      - name: setup
         template: phase-mount-files
-      - name: notebook
+      - name: run-phase-notebook
         template: phase-notebook
-        dependencies: [files]
+        dependencies: [setup]

@@ -124,8 +124,8 @@ spec:
   - name: xanes-point
     dag:
       tasks:
-      - name: files
+      - name: setup
         template: xanes-point-mount-files
-      - name: notebook
+      - name: run-xanes-point-notebook
         template: xanes-point-notebook
-        dependencies: [files]
+        dependencies: [setup]
