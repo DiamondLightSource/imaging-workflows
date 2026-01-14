@@ -1,0 +1,101 @@
+{
+  "type": "VerticalLayout",
+  "options": {
+    "formWidth": "80%"
+  },
+  "elements": [
+    {
+      "type": "Group",
+      "label": "Input Files",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "label": "Name of the sample",
+              "scope": "#/properties/sample_name"
+            },
+            {
+              "type": "Control",
+              "label": "Generate integrated bright-field image",
+              "scope": "#/properties/iBF"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "VerticalLayout",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Group",
+              "label": "Reshape Options",
+              "elements": [
+                {
+                  "type": "Control",
+                  "label": "Reshape methods",
+                  "scope": "#/properties/reshape_option"
+                },
+                {
+                  "type": "Control",
+                  "label": "Dimension in x (row)",
+                  "scope": "#/properties/Scan_X"
+                },
+                {
+                  "type": "Control",
+                  "label": "Dimension in y (column)",
+                  "scope": "#/properties/Scan_Y"
+                }
+              ]
+            },
+            {
+              "type": "Group",
+              "label": "Pixel Binning",
+              "elements": [
+                {
+                  "type": "Control",
+                  "label": "Signal binning factor (detector)",
+                  "scope": "#/properties/bin_sig_factor"
+                },
+                {
+                  "type": "Control",
+                  "label": "Navigation binning factor",
+                  "scope": "#/properties/bin_nav_factor"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "HorizontalLayout",
+      "elements":
+      [
+        {
+          "type": "Group",
+          "label": "Resource and Debug Settings",
+          "elements": 
+          [
+            {
+              "type": "Control",
+              "scope": "#/properties/nprocs"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/memory"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/DEBUG"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
