@@ -1,0 +1,77 @@
+{
+  "type": "object",
+    "properties": {
+      "sample_name": {
+      "type": "string",
+      "minLength": 1
+      },
+      "iBF": {
+        "type": "boolean",
+        "default": "true"
+      },
+      "reshape_option": {
+        "type": "string",
+        "oneOf": [
+          {
+            "const": "--auto-reshape",
+            "title": "Auto"
+          },
+          {
+            "const": "--no-reshaping",
+            "title": "None"
+          },
+          {
+            "const": "--use-fly-back",
+            "title": "Fly-back"
+          },
+          {
+            "const": "--known-shape",
+            "title": "By known shape"
+          }
+        ],
+        "default": "--auto-reshape"
+      },
+      "Scan_X": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 512,
+        "default": 256
+      },
+      "Scan_Y": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 512,
+        "default": 256
+      },
+      "bin_sig_factor": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 8,
+        "default": 4
+      },
+      "bin_nav_factor": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 8,
+        "default": 4
+      },
+      "nprocs": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 8
+      },
+      "memory": 
+      {
+        "type": "string",
+        "pattern": "^[0-9]+[GMK]i$",
+        "default": "16Gi"
+      },
+      "DEBUG": 
+      {
+        "type": "integer",
+        "default": 1
+      }
+  }
+}
+    
+    
