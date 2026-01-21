@@ -3,7 +3,8 @@
   "properties": {
     "scanNumbers": {
       "type": "string",
-      "title": "Scan Numbers"
+      "title": "Scan Numbers",
+      "description": "A list containing scan numbers to be processed. Eg. [274317] or [274317, 274318, 274319]"
     },
     "outputFolder": {
       "type": "string",
