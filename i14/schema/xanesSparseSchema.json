@@ -6,9 +6,15 @@
       "title": "Output Folder",
       "description": "The full path of the output file"
     },
-    "scanRange": {
-      "type": "object",
-      "title": "Scan Range"
+    "multiScan": {
+      "title": "Scans",
+      "type": "array",
+      "items": {
+        "scanRange": {
+          "type": "object",
+          "title": "Scan Range"
+        }
+      }
     },
     "normalise": {
       "type": "boolean",

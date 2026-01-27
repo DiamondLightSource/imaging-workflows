@@ -3,10 +3,21 @@
   "elements": [
     {
       "type": "Control",
-      "scope": "#/properties/scanRange",
-      "label": "Scan Range",
+      "scope": "#/properties/multiScan",
       "options": {
-        "useScanRangeControl": true
+        "elementLabelProp": "scanRange",
+        "detail": {
+          "type": "VerticalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/multiScan/items/scanRange",
+              "options": {
+                "useScanRangeControl": true
+              }
+            }
+           ]
+        }
       }
     },
     {
