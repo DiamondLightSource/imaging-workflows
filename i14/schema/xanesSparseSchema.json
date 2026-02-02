@@ -9,12 +9,10 @@
     "multiScan": {
       "title": "Scans",
       "type": "array",
-      "items": {
-        "scanRange": {
-          "type": "object",
-          "title": "Scan Range"
+      "items":
+        {
+          "type": "object"
         }
-      }
     },
     "normalise": {
       "type": "boolean",
