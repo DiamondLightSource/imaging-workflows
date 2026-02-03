@@ -6,9 +6,13 @@
       "title": "Output Folder",
       "description": "The full path to the output directory to save the XANES stack to, which is compatible to Mantis"
     },
-    "scanRange": {
-      "type": "object",
-      "title": "Scan Range"
+    "multiScan": {
+      "title": "Scans",
+      "type": "array",
+      "items":
+        {
+          "type": "object"
+        }
     },
     "edgeElement": {
       "$ref": "#/$defs/elements"
@@ -36,7 +40,7 @@
       "description": "Whether to normalise the stack by I0"
     }
   },
-  "required": ["outputFolder", "scanRange", "edgeElement", "edgeTransition"],
+  "required": ["outputFolder", "multiScan", "edgeElement", "edgeTransition"],
   "$defs": {
     "elements": {
       "type": "string",

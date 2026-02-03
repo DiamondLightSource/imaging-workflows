@@ -27,8 +27,8 @@ spec:
           key: data_directory
     - name: outputFolder
       value: ""
-    - name: scanRange
-      value: '[{ "start": "406681", "end": "406832", "exclude": [] }]'
+    - name: multiScan
+      value: '[{"multiScan":{ "start": 406681, "end": 406832, "exclude": [] }}]'
     - name: edgeElement
       value: "Fe"
     - name: edgeTransition
@@ -66,16 +66,16 @@ spec:
           - name: visitDir
             value: "{{`{{ workflow.parameters.visitdir }}`}}"
           - name: first
-            value: "{{`{{ item.start }}`}}"
+            value: "{{`{{=jsonpath(item.multiScan,'$.start')}}`}}"
           - name: last
-            value: "{{`{{ item.end }}`}}"
+            value: "{{`{{=jsonpath(item.multiScan,'$.end')}}`}}"
           - name: exclude
-            value: "{{`{{ item.exclude }}`}}"
+            value: "{{`{{=jsonpath(item.multiScan,'$.exclude')}}`}}"
           - name: edgeElement
             value: "{{`{{ workflow.parameters.edgeElement }}`}}-{{`{{ workflow.parameters.edgeTransition }}`}}"
           - name: normalise
             value: "{{`{{ workflow.parameters.normalise }}`}}"
-        withParam: "{{`{{ workflow.parameters.scanRange }}`}}"
+        withParam: "{{`{{ workflow.parameters.multiScan }}`}}"
   - name: gen-notebook-tmp
     inputs:
       parameters:
