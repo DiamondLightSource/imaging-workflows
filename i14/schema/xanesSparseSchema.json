@@ -147,5 +147,5 @@
       "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
     }
   },
-  "required": ["outputFolder", "scanRange", "edgeElement", "edgeTransition"]
+  "required": ["outputFolder", "multiScan", "edgeElement", "edgeTransition"]
 }
