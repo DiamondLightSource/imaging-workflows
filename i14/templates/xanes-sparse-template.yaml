@@ -28,7 +28,7 @@ spec:
     - name: outputFolder
       value: ""
     - name: multiScan
-      value: '[{"multiScan":{ "start": 406681, "end": 406832, "exclude": [] }}]'
+      value: '[{"multiScan":{ "start": 406681, "end": 406832, "excluded": [] }}]'
     - name: edgeElement
       value: "Fe"
     - name: edgeTransition
@@ -70,7 +70,7 @@ spec:
           - name: last
             value: "{{`{{=jsonpath(item.multiScan,'$.end')}}`}}"
           - name: exclude
-            value: "{{`{{=jsonpath(item.multiScan,'$.exclude')}}`}}"
+            value: "{{`{{=jsonpath(item.multiScan,'$.excluded')}}`}}"
           - name: edgeElement
             value: "{{`{{ workflow.parameters.edgeElement }}`}}-{{`{{ workflow.parameters.edgeTransition }}`}}"
           - name: normalise
