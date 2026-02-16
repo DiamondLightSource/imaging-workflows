@@ -109,8 +109,8 @@ spec:
           -p num_final_iteration 2000 \
           -p normalised "{{`{{ inputs.parameters.normalise }}`}}" \
           -p auto_processing False
-        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output xanes-sparse-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
-        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-sparse-notebook.ipynb" --to html --output xanes-sparse-output --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output xanes-sparse-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}"
+        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}/xanes-sparse-notebook.ipynb" --to html --output xanes-sparse-output --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}"
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -119,7 +119,7 @@ spec:
     outputs:
       artifacts:
       - name: xanes-sparse
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-sparse-output.html"
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}/xanes-sparse-output.html"
         archive:
           none: {}
     podSpecPatch: |
