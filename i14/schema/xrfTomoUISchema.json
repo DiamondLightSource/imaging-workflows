@@ -1,0 +1,78 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Control",
+      "scope": "#/properties/multiScan",
+      "options": {
+        "elementLabelProp": "scanRange",
+        "detail": {
+          "type": "VerticalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/multiScan/items",
+              "options": {
+                "useScanRangeControl": true
+              }
+            }
+           ]
+        }
+      }
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/multiEdge",
+      "options": {
+        "elementLabelProp": "scanRange",
+          "detail": {
+            "type": "HorizontalLayout",
+            "elements": [
+              {
+                "type": "Control",
+                "scope": "#/properties/multiEdge/items/edgeElement"
+              },
+              {
+                "type": "Control",
+                "scope": "#/properties/multiEdge/items/edgeTransition"
+              }
+            ]
+        }
+      }
+    },
+    {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/elementToAlign"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/transitionToAlign"
+        }
+      ]
+    },
+    {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/alignmentSection"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/alignmentBand"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/normalise"
+        }
+      ]
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/outputFolder"
+    }
+  ]
+}
