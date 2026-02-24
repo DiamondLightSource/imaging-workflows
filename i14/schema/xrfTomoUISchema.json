@@ -41,6 +41,36 @@
       }
     },
     {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/elementToAlign"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/transitionToAlign"
+        }
+      ]
+    },
+    {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/alignmentSection"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/alignmentBand"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/normalise"
+        }
+      ]
+    },
+    {
       "type": "Control",
       "scope": "#/properties/outputFolder"
     }

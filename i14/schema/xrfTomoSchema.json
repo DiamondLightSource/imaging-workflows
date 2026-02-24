@@ -28,6 +28,30 @@
             }
         }
     },
+    "elementToAlign": {
+      "$ref": "#/$defs/elements"
+    },
+    "transitionToAlign": {
+      "type": "string",
+      "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
+    },
+    "alignmentSection": {
+      "type": "string",
+        "enum": ["all", "top", "middle", "bottom"],
+      "title": "Section for alignment",
+      "description": "The section of the projections to be used for the initial alignment."
+    },
+    "alignmentBand": {
+      "type": "integer",
+      "title": "Band width for alignment",
+      "description": "The width of a vertical band of lines in each projections to be used for the initial alignment."
+    },
+    "normalise": {
+      "type": "boolean",
+      "title": "Normalise",
+      "description": "Whether to normalise the stack using the total mass of each projection."
+    }
+  },
   "required": ["outputFolder", "multiScan", "multiEdge"],
   "$defs": {
     "elements": {
