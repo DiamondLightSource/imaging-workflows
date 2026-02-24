@@ -19,12 +19,15 @@
         "type": "array",
         "items":
         {
-            "edgeElement": {
-                "$ref": "#/$defs/elements"
-            },
-            "edgeTransition": {
-                "type": "string",
-                "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
+            "type": "object",
+            "properties": {
+                "edgeElement": {
+                    "$ref": "#/$defs/elements"
+                },
+                "edgeTransition": {
+                    "type": "string",
+                    "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
+                }
             }
         }
     },
