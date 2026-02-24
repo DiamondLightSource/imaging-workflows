@@ -71,11 +71,13 @@ spec:
     inputs:
       parameters:
         - name: edge
+        - name: transition
     script:
       image: busybox
       command: ["/bin/sh", "-c"]
       args:
         - "{{`{{ inputs.parameters.edge }}`}}"
+        - "{{`{{ inputs.parameters.transition }}`}}"
         - "{{`{{ workflows.parameters.multiScan }}`}}"
         - "{{`{{ workflows.parameters.outputFolder }}`}}"
 
@@ -153,7 +155,9 @@ spec:
         arguments:
           parameters:
             - name: edge
-              value: "{{`{{ item }}`}}"
+              value: "{{`{{=jsonpath(item.edgeElement)}}`}}"
+            - name: transition
+              value: "{{`{{=jsonpath(item.edgeTransition)}}`}}"
         withParam: "{{`{{ workflows.parameters.multiEdge }}`}}"
 
       - name: generate-shifts
