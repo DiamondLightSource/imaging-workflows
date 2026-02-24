@@ -7,11 +7,7 @@ metadata:
   annotations:
     workflows.diamond.ac.uk/repository: https://github.com/DiamondLightSource/imaging-workflows
     workflows.argoproj.io/title: XRF (X-ray Fluorescence) Tomography
-    workflows.argoproj.io/description: empty
-    workflows.diamond.ac.uk/parameter-schema: |
-      {{- .Files.Get "schema/xrfTomoSchema.json" | nindent 6 }}
-    workflows.diamond.ac.uk/ui-schema: |
-      {{- .Files.Get "schema/xrfTomoUISchema.json" | nindent 6 }}
+    workflows.argoproj.io/description: Test
 spec:
   entrypoint: xrf-tomo-pipeline
   arguments:
