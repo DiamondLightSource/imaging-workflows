@@ -30,17 +30,11 @@
             "elements": [
               {
                 "type": "Control",
-                  "scope": "#/properties/multiEdge/items/edgeElement",
-                  "options": {
-                      "useScanRangeControl": true
-                  }
+                "scope": "#/properties/multiEdge/items/properties/edgeElement"
               },
               {
                 "type": "Control",
-                  "scope": "#/properties/multiEdge/items/edgeTransition",
-                  "options": {
-                      "useScanRangeControl": true
-                  }
+                "scope": "#/properties/multiEdge/items/properties/edgeTransition"
               }
             ]
         }
