@@ -60,12 +60,12 @@ spec:
         echo '{{ .Files.Get "notebooks/xrf_tomo_align_initial.ipynb" | b64enc }}' | base64 -d > /tmp/align_initial.ipynb
         echo '{{ .Files.Get "notebooks/xrf_tomo_align_and_normalise.ipynb" | b64enc }}' | base64 -d > /tmp/align_and_normalise.ipynb
         echo '{{ .Files.Get "notebooks/xrf_tomo_plotting.ipynb" | b64enc }}' | base64 -d > /tmp/plotting.ipynb
-        echo "{{`{{ workflow.parameters.multiScan }}`}}
-        echo "{{`{{ workflow.parameters.multiEdge }}`}}
-        echo "{{`{{ workflow.parameters.elementToAlign }}`}}-"{{`{{ workflow.parameters.transitionToAlign }}`}}
-        echo "{{`{{ workflow.parameters.alignmentSection }}`}}
-        echo "{{`{{ workflow.parameters.alignmentBand }}`}}
-        echo "{{`{{ workflow.parameters.normalise }}`}}
+        echo "{{`{{ workflow.parameters.multiScan }}`}}"
+        echo "{{`{{ workflow.parameters.multiEdge }}`}}"
+        echo "{{`{{ workflow.parameters.elementToAlign }}`}}"-"{{`{{ workflow.parameters.transitionToAlign }}`}}"
+        echo "{{`{{ workflow.parameters.alignmentSection }}`}}"
+        echo "{{`{{ workflow.parameters.alignmentBand }}`}}"
+        echo "{{`{{ workflow.parameters.normalise }}`}}"
       
   - name: xrf-tomo-stack-projections
     inputs:
