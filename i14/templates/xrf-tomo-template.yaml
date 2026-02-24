@@ -7,8 +7,7 @@ metadata:
   annotations:
     workflows.diamond.ac.uk/repository: https://github.com/DiamondLightSource/imaging-workflows
     workflows.argoproj.io/title: XRF (X-ray Fluorescence) Tomography
-    workflows.argoproj.io/description: |
-      "This end-to-end pipeline will stack, align and normalise a list of projections acquired for multiple edge transitions before reconstructing 3D volumetric maps for each element/edge."
+    workflows.argoproj.io/description: empty
     workflows.diamond.ac.uk/parameter-schema: |
       {{- .Files.Get "schema/xrfTomoSchema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
