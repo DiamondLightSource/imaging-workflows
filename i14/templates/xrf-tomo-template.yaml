@@ -1,0 +1,176 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: xrf-tomography
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
+  annotations:
+    workflows.diamond.ac.uk/repository: https://github.com/DiamondLightSource/imaging-workflows
+    workflows.argoproj.io/title: XRF (X-ray Fluorescence) Tomography
+    workflows.argoproj.io/description: |
+      This end-to-end pipeline will stack, align and normalise a list of projections acquired for multiple edge transitions before reconstructing 3D volumetric maps for each element/edge. 
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/xrfTomoSchema.json" | nindent 6 }}
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/xrfTomoUISchema.json" | nindent 6 }}
+spec:
+  entrypoint: xrf-tomo-pipeline
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+    - name: outputFolder
+      value: ""
+    - name: multiScan
+      value: '[{"multiScan":{ "start": "", "end": "", "excluded": [] }}]'
+    - name: multiEdge
+      value: '[{"multiEdge":{ "edgeElement": "Pb", "edgeTransition": "La" }}]'
+    - name: elementToAlign
+      value: None
+    - name: transitionToAlign
+      value: None
+    - name: alignmentSection
+      value: all
+    - name: alignmentBand
+      value: 15
+    - name: normalise
+      value: "True"
+  volumeClaimTemplates:
+  - metadata:
+      name: tmp
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 20Gi
+      storageClassName: netapp
+  templates:
+  - name: xrf-tomo-setup
+    script:
+      image: debian:stable-slim
+      volumeMounts:
+      - name: tmp
+        mountPath: /tmp
+      command: [bash]
+      source: |
+        echo '{{ .Files.Get "notebooks/xrf_tomo_align_initial.ipynb" | b64enc }}' | base64 -d > /tmp/align_initial.ipynb
+        echo '{{ .Files.Get "notebooks/xrf_tomo_align_and_normalise.ipynb" | b64enc }}' | base64 -d > /tmp/align_and_normalise.ipynb
+        echo '{{ .Files.Get "notebooks/xrf_tomo_plotting.ipynb" | b64enc }}' | base64 -d > /tmp/plotting.ipynb
+        echo "{{`{{ workflow.parameters.multiScan }}`}}
+        echo "{{`{{ workflow.parameters.multiEdge }}`}}
+        echo "{{`{{ workflow.parameters.elementToAlign }}`}}-"{{`{{ workflow.parameters.transitionToAlign }}`}}
+        echo "{{`{{ workflow.parameters.alignmentSection }}`}}
+        echo "{{`{{ workflow.parameters.alignmentBand }}`}}
+        echo "{{`{{ workflow.parameters.normalise }}`}}
+      
+  - name: xrf-tomo-stack-projections
+    inputs:
+      parameters:
+        - name: edge
+    script:
+      image: busybox
+      command: ["/bin/sh", "-c"]
+      args:
+        - "{{`{{ inputs.parameters.edge }}`}}"
+        - "{{`{{ workflows.parameters.multiScan }}`}}"
+        - "{{`{{ workflows.parameters.outputFolder }}`}}"
+
+  - name: xrf-tomo-generate-shifts
+    script:
+      image: busybox
+      command: ["/bin/sh", "-c"]
+      args:
+        - "{{`{{ workflows.parameters.edgeToAlign }}`}}"
+        - "{{`{{ workflows.parameters.transitionToAlign }}`}}"
+        - "{{`{{ workflows.parameters.outputFolder }}`}}"
+
+  - name: xrf-tomo-align-and-normalise
+    inputs:
+      parameters:
+        - name: edge
+    script:
+      image: busybox
+      command: ["/bin/sh", "-c"]
+      args:
+        - "{{`{{ inputs.parameters.edge }}`}}"
+        - "{{`{{ workflows.parameters.outputFolder }}`}}"
+
+  - name: xrf-tomo-reconstruct
+    inputs:
+      parameters:
+        - name: edge
+    script:
+      image: busybox
+      command: ["/bin/sh", "-c"]
+      args:
+        - "{{`{{ inputs.parameters.edge }}`}}"
+        - "{{`{{ workflows.parameters.outputFolder }}`}}"
+    
+
+  - name: xrf-tomo-plotting
+    script:
+      image: busybox
+      command: ["/bin/sh", "-c"]
+      args:
+        - "{{`{{ workflows.parameters.outputFolder }}`}}"
+        - "{{`{{ workflows.parameters.multiEdge }}`}}"
+
+
+  - name: xrf-tomo-alignment-pipeline
+    inputs:
+      parameters:
+        - name: edge
+    dag:
+      tasks:
+      - name: alignment
+        template: xrf-tomo-align-and-normalise
+        arguments:
+          parameters:
+            - name: edge
+              value: "{{`{{ inputs.parameters.edge }}`}}"
+      - name: httomo
+        template: xrf-tomo-reconstruct
+        arguments:
+          parameters:
+            - name: edge
+              value: "{{`{{ inputs.parameters.edge }}`}}"
+        dependencies: [alignment]
+        
+  - name: xrf-tomo-pipeline
+    dag:
+      tasks:
+      
+      - name: setup
+        template: xrf-tomo-setup
+        
+      - name: nxstacker
+        template: xrf-tomo-stack-projections
+        dependencies: [setup]
+        arguments:
+          parameters:
+            - name: edge
+              value: "{{`{{ item }}`}}"
+        withParam: "{{`{{ workflows.parameters.multiEdge }}`}}"
+
+      - name: generate-shifts
+        template: xrf-tomo-generate-shifts
+        dependencies: [nxstacker]
+
+      - name: align-and-reconstruct
+        template: xrf-tomo-alignment-pipeline
+        dependencies: [generate-shifts]
+        arguments:
+          parameters:
+            - name: edge
+              value: "{{`{{ item }}`}}"
+        withParam: "{{`{{ workflow.parameters.multiEdge }}`}}"
+
+      - name: show-results
+        template: xrf-tomo-plotting
+        dependencies: [align-and-reconstruct]
+
+

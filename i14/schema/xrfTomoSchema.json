@@ -1,0 +1,182 @@
+{
+  "type": "object",
+  "properties": {
+    "outputFolder": {
+      "type": "string",
+      "title": "Output Folder",
+      "description": "The full path to the output directory where all of the data procesing is saved."
+    },
+    "multiScan": {
+      "title": "Scans",
+      "type": "array",
+      "items":
+        {
+          "type": "object"
+        }
+    },
+    "multiEdge": {
+        "title": "Edges",
+        "type": "array",
+        "items":
+        {
+            "edgeElement": {
+                "$ref": "#/$defs/elements"
+            },
+            "edgeTransition": {
+                "type": "string",
+                "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
+            }
+        }
+    },
+    "elementToAlign": {
+      "$ref": "#/$defs/elements"
+    },
+    "transitionToAlign": {
+      "type": "string",
+      "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
+    },
+    "alignmentSection": {
+      "type": "string",
+        "enum": ["all", "top", "middle", "bottom"],
+      "title": "Section for alignment",
+      "description": "The section of the projections to be used for the initial alignment."
+    },
+    "alignmentBand": {
+      "type": "integer",
+      "title": "Band width for alignment",
+      "description": "The width of a vertical band of lines in each projections to be used for the initial alignment."
+    },
+    "normalise": {
+      "type": "boolean",
+      "title": "Normalise",
+      "description": "Whether to normalise the stack using the total mass of each projection."
+    }
+  },
+  "required": ["outputFolder", "multiScan", "multiEdge"],
+  "$defs": {
+    "elements": {
+      "type": "string",
+      "enum": [
+        "",
+        "H",
+        "He",
+        "Li",
+        "Be",
+        "B",
+        "C",
+        "N",
+        "O",
+        "F",
+        "Ne",
+        "Na",
+        "Mg",
+        "Al",
+        "Si",
+        "P",
+        "S",
+        "Cl",
+        "Ar",
+        "K",
+        "Ca",
+        "Sc",
+        "Ti",
+        "V",
+        "Cr",
+        "Mn",
+        "Fe",
+        "Co",
+        "Ni",
+        "Cu",
+        "Zn",
+        "Ga",
+        "Ge",
+        "As",
+        "Se",
+        "Br",
+        "Kr",
+        "Rb",
+        "Sr",
+        "Y",
+        "Zr",
+        "Nb",
+        "Mo",
+        "Tc",
+        "Ru",
+        "Rh",
+        "Pd",
+        "Ag",
+        "Cd",
+        "In",
+        "Sn",
+        "Sb",
+        "Te",
+        "I",
+        "Xe",
+        "Cs",
+        "Ba",
+        "La",
+        "Ce",
+        "Pr",
+        "Nd",
+        "Pm",
+        "Sm",
+        "Eu",
+        "Gd",
+        "Tb",
+        "Dy",
+        "Ho",
+        "Er",
+        "Tm",
+        "Yb",
+        "Lu",
+        "Hf",
+        "Ta",
+        "W",
+        "Re",
+        "Os",
+        "Ir",
+        "Pt",
+        "Au",
+        "Hg",
+        "Tl",
+        "Pb",
+        "Bi",
+        "Po",
+        "At",
+        "Rn",
+        "Fr",
+        "Ra",
+        "Ac",
+        "Th",
+        "Pa",
+        "U",
+        "Np",
+        "Pu",
+        "Am",
+        "Cm",
+        "Bk",
+        "Cf",
+        "Es",
+        "Fm",
+        "Md",
+        "No",
+        "Lr",
+        "Rf",
+        "Db",
+        "Sg",
+        "Bh",
+        "Hs",
+        "Mt",
+        "Ds",
+        "Rg",
+        "Cn",
+        "Nh",
+        "Fl",
+        "Mc",
+        "Lv",
+        "Ts",
+        "Og"
+      ]
+    }
+  }
+}
