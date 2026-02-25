@@ -86,7 +86,7 @@ spec:
       image: busybox
       command: ["/bin/sh", "-c"]
       args:
-        - "{{`{{ workflow.parameters.edgeToAlign }}`}}"
+        - "{{`{{ workflow.parameters.elementToAlign }}`}}"
         - "{{`{{ workflow.parameters.transitionToAlign }}`}}"
         - "{{`{{ workflow.parameters.outputFolder }}`}}"
 
@@ -141,7 +141,7 @@ spec:
             - name: edge
               value: "{{`{{ inputs.parameters.edge }}`}}"
         dependencies: [alignment]
-        
+
   - name: xrf-tomo-pipeline
     dag:
       tasks:
