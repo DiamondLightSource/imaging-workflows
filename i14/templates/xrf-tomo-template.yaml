@@ -78,17 +78,17 @@ spec:
       args:
         - "{{`{{ inputs.parameters.edge }}`}}"
         - "{{`{{ inputs.parameters.transition }}`}}"
-        - "{{`{{ workflows.parameters.multiScan }}`}}"
-        - "{{`{{ workflows.parameters.outputFolder }}`}}"
+        - "{{`{{ workflow.parameters.multiScan }}`}}"
+        - "{{`{{ workflow.parameters.outputFolder }}`}}"
 
   - name: xrf-tomo-generate-shifts
     script:
       image: busybox
       command: ["/bin/sh", "-c"]
       args:
-        - "{{`{{ workflows.parameters.edgeToAlign }}`}}"
-        - "{{`{{ workflows.parameters.transitionToAlign }}`}}"
-        - "{{`{{ workflows.parameters.outputFolder }}`}}"
+        - "{{`{{ workflow.parameters.edgeToAlign }}`}}"
+        - "{{`{{ workflow.parameters.transitionToAlign }}`}}"
+        - "{{`{{ workflow.parameters.outputFolder }}`}}"
 
   - name: xrf-tomo-align-and-normalise
     inputs:
@@ -99,7 +99,7 @@ spec:
       command: ["/bin/sh", "-c"]
       args:
         - "{{`{{ inputs.parameters.edge }}`}}"
-        - "{{`{{ workflows.parameters.outputFolder }}`}}"
+        - "{{`{{ workflow.parameters.outputFolder }}`}}"
 
   - name: xrf-tomo-reconstruct
     inputs:
@@ -110,16 +110,16 @@ spec:
       command: ["/bin/sh", "-c"]
       args:
         - "{{`{{ inputs.parameters.edge }}`}}"
-        - "{{`{{ workflows.parameters.outputFolder }}`}}"
-    
+        - "{{`{{ workflow.parameters.outputFolder }}`}}"
+
 
   - name: xrf-tomo-plotting
     script:
       image: busybox
       command: ["/bin/sh", "-c"]
       args:
-        - "{{`{{ workflows.parameters.outputFolder }}`}}"
-        - "{{`{{ workflows.parameters.multiEdge }}`}}"
+        - "{{`{{ workflow.parameters.outputFolder }}`}}"
+        - "{{`{{ workflow.parameters.multiEdge }}`}}"
 
 
   - name: xrf-tomo-alignment-pipeline
@@ -158,7 +158,7 @@ spec:
               value: "{{`{{ item.edgeElement }}`}}"
             - name: transition
               value: "{{`{{ item.edgeTransition }}`}}"
-        withParam: "{{`{{ workflows.parameters.multiEdge }}`}}"
+        withParam: "{{`{{ workflow.parameters.multiEdge }}`}}"
 
       - name: generate-shifts
         template: xrf-tomo-generate-shifts
