@@ -25,13 +25,13 @@ spec:
     - name: outputFolder
       value: ""
     - name: multiScan
-      value: '[{"multiScan":{ "start": "", "end": "", "excluded": [] }}]'
+      value: '[{"multiScan":{ "start": "1", "end": "10", "excluded": [] }}]'
     - name: multiEdge
-      value: '[{"multiEdge":{ "edgeElement": "Pb", "edgeTransition": "La" }}]'
+      value: '[{"edgeElement": "Pb", "edgeTransition": "La" }, {"edgeElement": "Br", "edgeTransition": "Ka" }]'
     - name: elementToAlign
-      value: None
+      value: "Pb"
     - name: transitionToAlign
-      value: None
+      value: "La"
     - name: alignmentSection
       value: all
     - name: alignmentBand
