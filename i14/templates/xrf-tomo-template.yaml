@@ -155,9 +155,9 @@ spec:
         arguments:
           parameters:
             - name: edge
-              value: "{{`{{=jsonpath(item.edgeElement)}}`}}"
+              value: "{{`{{ item.edgeElement }}`}}"
             - name: transition
-              value: "{{`{{=jsonpath(item.edgeTransition)}}`}}"
+              value: "{{`{{ item.edgeTransition }}`}}"
         withParam: "{{`{{ workflows.parameters.multiEdge }}`}}"
 
       - name: generate-shifts
