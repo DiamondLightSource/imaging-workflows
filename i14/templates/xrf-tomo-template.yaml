@@ -88,6 +88,9 @@ spec:
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
+      env:
+      - name: HOME
+        value: /tmp
       command: ["bash"]
       source: |
         pip install jq
@@ -98,10 +101,17 @@ spec:
               jq -r 'map(\(.multiScan.excluded[])") | join(",")')
         EDGE="{{`{{ inputs.parameters.edge }}`}}"
         TRANSITION="{{`{{ inputs.parameters.transition }}`}}" 
-        tomojoin xrf --raw-dir scan --proj-dir processed \
-              --from-scan $SCANS --exclude-scan $EXCLUDE \
-              --transition $EDGE-$TRANSITION
-              --nxtomo-dir ./processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
+
+        set -euo pipefail
+        CMD=("tomojoin xrf --raw-dir scan --proj-dir processed")
+        [[ -n $SCANS ]] && CMD+=("--from-scan $SCANS")
+        [[ -n $EXCLUDE ]] && cmd+=("--exclude-scan $EXCLUDE")
+        CMD+=("--transition $EDGE-$TRANSITION)
+        CMD+=("--nxtomo-dir ./processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}")
+        
+        echo "Executing: ${cmd[*]}"
+        exec "${cmd[@]}"
+
     volumes:
     - name: session
       hostPath:
