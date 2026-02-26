@@ -23,11 +23,11 @@ spec:
           name: sessionspaces
           key: data_directory
     - name: outputFolder
-      value: ""
+      value: "testing"
     - name: multiScan
-      value: '[{"multiScan":{ "start": "1", "end": "10", "excluded": [] }}]'
+      value: '[{"multiScan":{ start":"423844","end":"423947","excluded":[]}}]'
     - name: multiEdge
-      value: '[{"edgeElement": "Pb", "edgeTransition": "La" }, {"edgeElement": "Br", "edgeTransition": "Ka" }]'
+      value: '[{"edgeElement":"Pb","edgeTransition":"La"},{"edgeElement":"Br","edgeTransition":"Ka"}]'
     - name: elementToAlign
       value: "Pb"
     - name: transitionToAlign
@@ -35,9 +35,9 @@ spec:
     - name: alignmentSection
       value: all
     - name: alignmentBand
-      value: 15
+      value: "15"
     - name: normalise
-      value: "True"
+      value: "true"
   volumeClaimTemplates:
   - metadata:
       name: tmp
@@ -95,7 +95,11 @@ spec:
       source: |
         pip install jq
         cd "{{`{{ workflow.parameters.visitdir }}`}}"
+        ls
+        echo $HOME
+        ls $HOME/.local/bin
         alias jq=$HOME/.local/bin/jq
+        which jq
         SCANS=$(echo "{{`{{ workflow.parameters.multiScan }}`}}" | \
               jq -r 'map("\(.multiScan.start)-\(.multiScan.end)") | join(",")')
         EXCLUDE=$(echo "{{`{{ workflow.parameters.multiScan }}`}}" | \
