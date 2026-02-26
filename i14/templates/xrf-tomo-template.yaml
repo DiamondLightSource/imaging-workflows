@@ -83,13 +83,18 @@ spec:
         - name: transition
     script:
       image: ghcr.io/diamondlightsource/nxstacker:latest
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
       command: ["bash"]
       source: |
         pip install jq
         cd "{{`{{ workflow.parameters.visitdir }}`}}"
-        SCANS=$("{{`{{ workflow.parameters.multiScan }}`}}" | \
+        SCANS=$(echo "{{`{{ workflow.parameters.multiScan }}`}}" | \
               jq -r 'map("\(.multiScan.start)-\(.multiScan.end)") | join(",")')
-        EXCLUDE=$("{{`{{ workflow.parameters.multiScan }}`}}" | \
+        EXCLUDE=$(echo "{{`{{ workflow.parameters.multiScan }}`}}" | \
               jq -r 'map(\(.multiScan.excluded[])") | join(",")')
         EDGE="{{`{{ inputs.parameters.edge }}`}}"
         TRANSITION="{{`{{ inputs.parameters.transition }}`}}" 
@@ -97,6 +102,11 @@ spec:
               --from-scan $SCANS --exclude-scan $EXCLUDE \
               --transition $EDGE-$TRANSITION
               --nxtomo-dir ./processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
 
   - name: xrf-tomo-generate-shifts
     script:
