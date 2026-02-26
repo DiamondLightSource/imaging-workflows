@@ -53,13 +53,17 @@ spec:
     script:
       image: debian:stable-slim
       volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
       command: [bash]
       source: |
-        echo '{{ .Files.Get "notebooks/xrf_tomo_align_initial.ipynb" | b64enc }}' | base64 -d > /tmp/align_initial.ipynb
-        echo '{{ .Files.Get "notebooks/xrf_tomo_align_and_normalise.ipynb" | b64enc }}' | base64 -d > /tmp/align_and_normalise.ipynb
-        echo '{{ .Files.Get "notebooks/xrf_tomo_plotting.ipynb" | b64enc }}' | base64 -d > /tmp/plotting.ipynb
+        OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
+        mkdir -p $OUTPUT
+        echo '{{ .Files.Get "notebooks/xrf_tomo_align_initial.ipynb" | b64enc }}' | base64 -d > $OUTPUT/align_initial.ipynb
+        echo '{{ .Files.Get "notebooks/xrf_tomo_align_and_normalise.ipynb" | b64enc }}' | base64 -d > $OUTPUT/align_and_normalise.ipynb
+        echo '{{ .Files.Get "notebooks/xrf_tomo_plotting.ipynb" | b64enc }}' | base64 -d > $OUTPUT/plotting.ipynb
         echo "{{`{{ workflow.parameters.multiScan }}`}}"
         echo "{{`{{ workflow.parameters.multiEdge }}`}}"
         echo "{{`{{ workflow.parameters.elementToAlign }}`}}"-"{{`{{ workflow.parameters.transitionToAlign }}`}}"
@@ -73,13 +77,21 @@ spec:
         - name: edge
         - name: transition
     script:
-      image: busybox
-      command: ["/bin/sh", "-c"]
-      args:
-        - echo "{{`{{ inputs.parameters.edge }}`}}";
-        - echo "{{`{{ inputs.parameters.transition }}`}}";
-        - echo "{{`{{ workflow.parameters.multiScan }}`}}";
-        - echo "{{`{{ workflow.parameters.outputFolder }}`}}"
+      image: ghcr.io/diamondlightsource/nxstacker:latest
+      command: ["bash"]
+      source: |
+        pip install jq
+        cd "{{`{{ workflow.parameters.visitdir }}`}}"
+        SCANS=$("{{`{{ workflow.parameters.multiScan }}`}}" | \
+              jq -r 'map("\(.multiScan.start)-\(.multiScan.end)") | join(",")')
+        EXCLUDE=$("{{`{{ workflow.parameters.multiScan }}`}}" | \
+              jq -r 'map(\(.multiScan.excluded[])") | join(",")')
+        EDGE="{{`{{ inputs.parameters.edge }}`}}"
+        TRANSITION="{{`{{ inputs.parameters.transition }}`}}" 
+        tomojoin xrf --raw-dir scan --proj-dir processed \
+              --from-scan $SCANS --exclude-scan $EXCLUDE \
+              --transition $EDGE-$TRANSITION
+              --nxtomo-dir ./processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
 
   - name: xrf-tomo-generate-shifts
     script:
