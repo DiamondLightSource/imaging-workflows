@@ -76,9 +76,9 @@ spec:
       image: busybox
       command: ["/bin/sh", "-c"]
       args:
-        - echo "{{`{{ inputs.parameters.edge }}`}}"
-        - echo "{{`{{ inputs.parameters.transition }}`}}"
-        - echo "{{`{{ workflow.parameters.multiScan }}`}}"
+        - echo "{{`{{ inputs.parameters.edge }}`}}";
+        - echo "{{`{{ inputs.parameters.transition }}`}}";
+        - echo "{{`{{ workflow.parameters.multiScan }}`}}";
         - echo "{{`{{ workflow.parameters.outputFolder }}`}}"
 
   - name: xrf-tomo-generate-shifts
@@ -86,8 +86,8 @@ spec:
       image: busybox
       command: ["/bin/sh", "-c"]
       args:
-        - echo "{{`{{ workflow.parameters.elementToAlign }}`}}"
-        - echo "{{`{{ workflow.parameters.transitionToAlign }}`}}"
+        - echo "{{`{{ workflow.parameters.elementToAlign }}`}}";
+        - echo "{{`{{ workflow.parameters.transitionToAlign }}`}}";
         - echo "{{`{{ workflow.parameters.outputFolder }}`}}"
 
   - name: xrf-tomo-align-and-normalise
@@ -98,7 +98,7 @@ spec:
       image: busybox
       command: ["/bin/sh", "-c"]
       args:
-        - echo "{{`{{ inputs.parameters.edge }}`}}"
+        - echo "{{`{{ inputs.parameters.edge }}`}}";
         - echo "{{`{{ workflow.parameters.outputFolder }}`}}"
 
   - name: xrf-tomo-reconstruct
@@ -109,7 +109,7 @@ spec:
       image: busybox
       command: ["/bin/sh", "-c"]
       args:
-        - echo "{{`{{ inputs.parameters.edge }}`}}"
+        - echo "{{`{{ inputs.parameters.edge }}`}}";
         - echo "{{`{{ workflow.parameters.outputFolder }}`}}"
 
 
@@ -118,7 +118,7 @@ spec:
       image: busybox
       command: ["/bin/sh", "-c"]
       args:
-        - echo "{{`{{ workflow.parameters.outputFolder }}`}}"
+        - echo "{{`{{ workflow.parameters.outputFolder }}`}}";
         - echo "{{`{{ workflow.parameters.multiEdge }}`}}"
 
 
