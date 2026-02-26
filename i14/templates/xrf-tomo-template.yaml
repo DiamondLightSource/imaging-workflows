@@ -95,12 +95,14 @@ spec:
       source: |
         pip install jq
         cd "{{`{{ workflow.parameters.visitdir }}`}}"
+        alias jq=$HOME/.local/bin/jq
         SCANS=$(echo "{{`{{ workflow.parameters.multiScan }}`}}" | \
               jq -r 'map("\(.multiScan.start)-\(.multiScan.end)") | join(",")')
         EXCLUDE=$(echo "{{`{{ workflow.parameters.multiScan }}`}}" | \
               jq -r 'map(\(.multiScan.excluded[])") | join(",")')
         EDGE="{{`{{ inputs.parameters.edge }}`}}"
         TRANSITION="{{`{{ inputs.parameters.transition }}`}}" 
+        echo $SCANS $EXCLUDE $EDGE $TRANSITION
 
         set -euo pipefail
         CMD=("tomojoin xrf --raw-dir scan --proj-dir processed")
@@ -109,8 +111,8 @@ spec:
         CMD+=("--transition $EDGE-$TRANSITION)
         CMD+=("--nxtomo-dir ./processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}")
         
-        echo "Executing: ${cmd[*]}"
-        exec "${cmd[@]}"
+        echo "Executing: ${CMD[*]}"
+        exec "${CMD[@]}"
 
     volumes:
     - name: session
