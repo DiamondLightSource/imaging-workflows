@@ -70,7 +70,12 @@ spec:
         echo "{{`{{ workflow.parameters.alignmentSection }}`}}"
         echo "{{`{{ workflow.parameters.alignmentBand }}`}}"
         echo "{{`{{ workflow.parameters.normalise }}`}}"
-      
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+        
   - name: xrf-tomo-stack-projections
     inputs:
       parameters:
