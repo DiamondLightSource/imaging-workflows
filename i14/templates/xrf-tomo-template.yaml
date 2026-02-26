@@ -76,19 +76,19 @@ spec:
       image: busybox
       command: ["/bin/sh", "-c"]
       args:
-        - "{{`{{ inputs.parameters.edge }}`}}"
-        - "{{`{{ inputs.parameters.transition }}`}}"
-        - "{{`{{ workflow.parameters.multiScan }}`}}"
-        - "{{`{{ workflow.parameters.outputFolder }}`}}"
+        - echo "{{`{{ inputs.parameters.edge }}`}}"
+        - echo "{{`{{ inputs.parameters.transition }}`}}"
+        - echo "{{`{{ workflow.parameters.multiScan }}`}}"
+        - echo "{{`{{ workflow.parameters.outputFolder }}`}}"
 
   - name: xrf-tomo-generate-shifts
     script:
       image: busybox
       command: ["/bin/sh", "-c"]
       args:
-        - "{{`{{ workflow.parameters.elementToAlign }}`}}"
-        - "{{`{{ workflow.parameters.transitionToAlign }}`}}"
-        - "{{`{{ workflow.parameters.outputFolder }}`}}"
+        - echo "{{`{{ workflow.parameters.elementToAlign }}`}}"
+        - echo "{{`{{ workflow.parameters.transitionToAlign }}`}}"
+        - echo "{{`{{ workflow.parameters.outputFolder }}`}}"
 
   - name: xrf-tomo-align-and-normalise
     inputs:
@@ -98,8 +98,8 @@ spec:
       image: busybox
       command: ["/bin/sh", "-c"]
       args:
-        - "{{`{{ inputs.parameters.edge }}`}}"
-        - "{{`{{ workflow.parameters.outputFolder }}`}}"
+        - echo "{{`{{ inputs.parameters.edge }}`}}"
+        - echo "{{`{{ workflow.parameters.outputFolder }}`}}"
 
   - name: xrf-tomo-reconstruct
     inputs:
@@ -109,8 +109,8 @@ spec:
       image: busybox
       command: ["/bin/sh", "-c"]
       args:
-        - "{{`{{ inputs.parameters.edge }}`}}"
-        - "{{`{{ workflow.parameters.outputFolder }}`}}"
+        - echo "{{`{{ inputs.parameters.edge }}`}}"
+        - echo "{{`{{ workflow.parameters.outputFolder }}`}}"
 
 
   - name: xrf-tomo-plotting
@@ -118,8 +118,8 @@ spec:
       image: busybox
       command: ["/bin/sh", "-c"]
       args:
-        - "{{`{{ workflow.parameters.outputFolder }}`}}"
-        - "{{`{{ workflow.parameters.multiEdge }}`}}"
+        - echo "{{`{{ workflow.parameters.outputFolder }}`}}"
+        - echo "{{`{{ workflow.parameters.multiEdge }}`}}"
 
 
   - name: xrf-tomo-alignment-pipeline
