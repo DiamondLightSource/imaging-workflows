@@ -25,7 +25,7 @@ spec:
     - name: outputFolder
       value: "testing"
     - name: multiScan
-      value: '[{"multiScan":{ start":"423844","end":"423947","excluded":[]}}]'
+      value: '[{"multiScan":{"start":423844,"end":423947,"excluded":[]}}]'
     - name: multiEdge
       value: '[{"edgeElement":"Pb","edgeTransition":"La"},{"edgeElement":"Br","edgeTransition":"Ka"}]'
     - name: elementToAlign
@@ -33,7 +33,7 @@ spec:
     - name: transitionToAlign
       value: "La"
     - name: alignmentSection
-      value: all
+      value: "all"
     - name: alignmentBand
       value: "15"
     - name: normalise
@@ -93,30 +93,25 @@ spec:
         value: /tmp
       command: ["bash"]
       source: |
-        pip install jq
-        cd "{{`{{ workflow.parameters.visitdir }}`}}"
-        ls
-        echo $HOME
-        ls $HOME/.local/bin
-        alias jq=$HOME/.local/bin/jq
-        which jq
-        SCANS=$(echo "{{`{{ workflow.parameters.multiScan }}`}}" | \
-              jq -r 'map("\(.multiScan.start)-\(.multiScan.end)") | join(",")')
-        EXCLUDE=$(echo "{{`{{ workflow.parameters.multiScan }}`}}" | \
-              jq -r 'map(\(.multiScan.excluded[])") | join(",")')
-        EDGE="{{`{{ inputs.parameters.edge }}`}}"
-        TRANSITION="{{`{{ inputs.parameters.transition }}`}}" 
-        echo $SCANS $EXCLUDE $EDGE $TRANSITION
-
         set -euo pipefail
-        CMD=("tomojoin xrf --raw-dir scan --proj-dir processed")
-        [[ -n $SCANS ]] && CMD+=("--from-scan $SCANS")
-        [[ -n $EXCLUDE ]] && cmd+=("--exclude-scan $EXCLUDE")
-        CMD+=("--transition $EDGE-$TRANSITION)
-        CMD+=("--nxtomo-dir ./processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}")
+
+        SCANS="{{`{{= sprig.join(',', map(sprig.mustFromJson(workflow.parameters.multiScan), { string(#.multiScan.start) + '-' + string(#.multiScan.end) } )) }}`}}"
+        EXCLUDE="{{`{{= sprig.join(',', filter(map(sprig.mustFromJson(workflow.parameters.multiScan), { #.multiScan.excluded } ), { len(#) > 0 })) }}`}}"
+        EDGE="{{`{{ inputs.parameters.edge }}`}}"
+        TRANSITION="{{`{{ inputs.parameters.transition }}`}}"
+        VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
+        OUTPUT="{{`{{ workflow.parameters.outputFolder }}`}}"
         
-        echo "Executing: ${CMD[*]}"
-        exec "${CMD[@]}"
+        cmd=(tomojoin xrf)
+        cmd+=("--raw-dir=$VISIT/scan")
+        cmd+=("--proj-dir=$VISIT/processed")
+        [[ -n $SCANS ]] && cmd+=("--from-scan=$SCANS")
+        [[ -n $EXCLUDE ]] && cmd+=("--exclude-scan=$EXCLUDE")
+        cmd+=("--transition=$EDGE-$TRANSITION")
+        cmd+=("--nxtomo-dir=$VISIT/processing/workflows/$OUTPUT")
+
+        echo "Executing: ${cmd[*]}"
+        exec "${cmd[@]}"
 
     volumes:
     - name: session
