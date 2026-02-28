@@ -64,12 +64,6 @@ spec:
         echo '{{ .Files.Get "notebooks/xrf_tomo_align_initial.ipynb" | b64enc }}' | base64 -d > $OUTPUT/align_initial.ipynb
         echo '{{ .Files.Get "notebooks/xrf_tomo_align_and_normalise.ipynb" | b64enc }}' | base64 -d > $OUTPUT/align_and_normalise.ipynb
         echo '{{ .Files.Get "notebooks/xrf_tomo_plotting.ipynb" | b64enc }}' | base64 -d > $OUTPUT/plotting.ipynb
-        echo "{{`{{ workflow.parameters.multiScan }}`}}"
-        echo "{{`{{ workflow.parameters.multiEdge }}`}}"
-        echo "{{`{{ workflow.parameters.elementToAlign }}`}}"-"{{`{{ workflow.parameters.transitionToAlign }}`}}"
-        echo "{{`{{ workflow.parameters.alignmentSection }}`}}"
-        echo "{{`{{ workflow.parameters.alignmentBand }}`}}"
-        echo "{{`{{ workflow.parameters.normalise }}`}}"
     volumes:
     - name: session
       hostPath:
@@ -79,7 +73,7 @@ spec:
   - name: xrf-tomo-stack-projections
     inputs:
       parameters:
-        - name: edge
+        - name: element
         - name: transition
     script:
       image: ghcr.io/diamondlightsource/nxstacker:latest
@@ -97,7 +91,7 @@ spec:
 
         SCANS="{{`{{= sprig.join(',', map(sprig.mustFromJson(workflow.parameters.multiScan), { string(#.multiScan.start) + '-' + string(#.multiScan.end) } )) }}`}}"
         EXCLUDE="{{`{{= sprig.join(',', filter(map(sprig.mustFromJson(workflow.parameters.multiScan), { #.multiScan.excluded } ), { len(#) > 0 })) }}`}}"
-        EDGE="{{`{{ inputs.parameters.edge }}`}}"
+        ELEMENT="{{`{{ inputs.parameters.element }}`}}"
         TRANSITION="{{`{{ inputs.parameters.transition }}`}}"
         VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
         OUTPUT="{{`{{ workflow.parameters.outputFolder }}`}}"
@@ -107,7 +101,7 @@ spec:
         cmd+=("--proj-dir=$VISIT/processed")
         [[ -n $SCANS ]] && cmd+=("--from-scan=$SCANS")
         [[ -n $EXCLUDE ]] && cmd+=("--exclude-scan=$EXCLUDE")
-        cmd+=("--transition=$EDGE-$TRANSITION")
+        cmd+=("--transition=$ELEMENT-$TRANSITION")
         cmd+=("--nxtomo-dir=$VISIT/processing/workflows/$OUTPUT")
 
         echo "Executing: ${cmd[*]}"
@@ -121,12 +115,66 @@ spec:
 
   - name: xrf-tomo-generate-shifts
     script:
-      image: busybox
-      command: ["/bin/sh", "-c"]
-      args:
-        - echo "{{`{{ workflow.parameters.elementToAlign }}`}}";
-        - echo "{{`{{ workflow.parameters.transitionToAlign }}`}}";
-        - echo "{{`{{ workflow.parameters.outputFolder }}`}}"
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      command: [bash]
+      source: |
+        VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
+        OUTPUT=$VISIT/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
+        EDGE="{{`{{ workflow.parameters.elementToAlign }}`}}"-"{{`{{ workflow.parameters.transitionToAlign }}`}}"
+        START="{{`{{= string(first(sprig.mustFromJson(workflow.parameters.multiScan)).multiScan['start']) }}`}}"
+        END="{{`{{= string(first(sprig.mustFromJson(workflow.parameters.multiScan)).multiScan['end']) }}`}}"
+        
+        cd $OUTPUT
+        python -m papermill \
+           $OUTPUT/align_initial.ipynb $OUTPUT/align_initial_with_params.ipynb \
+          -p inpath "tomo_xrf_${START}_${END}_${EDGE}.nxs" \
+          -p outpath_nexus "${EDGE}_aligned_initial.nxs" \
+          -p outpath_shifts "${EDGE}_shifts.txt" \
+          -p alignment_section "{{`{{ workflow.parameters.alignmentSection }}`}}" \
+          -p alignment_band "{{`{{ workflow.parameters.alignmentBand }}`}}"
+
+        python -m jupyter nbconvert --to html --execute --output align_initial --output-dir $OUTPUT/_assets --embed-images $OUTPUT/align_initial_with_params.ipynb
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: align_initial
+        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/align_initial.html"
+        archive:
+          none: {}
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: 1
+            memory: 10Gi
+          limits:
+            cpu: 1
+            memory: 10Gi
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: nodegroup
+              operator: In
+              values:
+              - workflows
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
 
   - name: xrf-tomo-align-and-normalise
     inputs:
@@ -192,7 +240,7 @@ spec:
         dependencies: [setup]
         arguments:
           parameters:
-            - name: edge
+            - name: element
               value: "{{`{{ item.edgeElement }}`}}"
             - name: transition
               value: "{{`{{ item.edgeTransition }}`}}"
