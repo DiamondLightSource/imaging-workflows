@@ -25,7 +25,7 @@ spec:
     - name: outputFolder
       value: "testing"
     - name: multiScan
-      value: '[{"multiScan":{"start":423844,"end":423947,"excluded":[]}}]'
+      value: '[{"multiScan":{"start":423844,"end":423947,"excluded":"423908-423909,423911,423916-423917"}}]'
     - name: multiEdge
       value: '[{"edgeElement":"Pb","edgeTransition":"La"},{"edgeElement":"Br","edgeTransition":"Ka"}]'
     - name: elementToAlign
@@ -103,6 +103,7 @@ spec:
         [[ -n $EXCLUDE ]] && cmd+=("--exclude-scan=$EXCLUDE")
         cmd+=("--transition=$ELEMENT-$TRANSITION")
         cmd+=("--nxtomo-dir=$VISIT/processing/workflows/$OUTPUT")
+        cmd+=("--sort-by-angle")
 
         echo "Executing: ${cmd[*]}"
         exec "${cmd[@]}"
@@ -116,6 +117,9 @@ spec:
   - name: xrf-tomo-generate-shifts
     script:
       image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      env:
+      - name: MPLCONFIGDIR
+        value: /tmp
       command: [bash]
       source: |
         VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
@@ -143,6 +147,10 @@ spec:
       artifacts:
       - name: align_initial
         path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/align_initial.html"
+        archive:
+          none: {}
+      - name: aligned_stack
+        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/align_stack.gif"
         archive:
           none: {}
     podSpecPatch: |
@@ -181,11 +189,71 @@ spec:
       parameters:
         - name: edge
     script:
-      image: busybox
-      command: ["/bin/sh", "-c"]
-      args:
-        - echo "{{`{{ inputs.parameters.edge }}`}}";
-        - echo "{{`{{ workflow.parameters.outputFolder }}`}}"
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      env:
+      - name: MPLCONFIGDIR
+        value: /tmp
+      command: [bash]
+      source: |
+        VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
+        OUTPUT=$VISIT/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
+        ELEMENT="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}"
+        TRANSITION="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeTransition }}`}}"
+        EDGE2ALIGN="{{`{{ workflow.parameters.elementToAlign }}`}}"-"{{`{{ workflow.parameters.transitionToAlign }}`}}"
+        START="{{`{{= string(first(sprig.mustFromJson(workflow.parameters.multiScan)).multiScan['start']) }}`}}"
+        END="{{`{{= string(first(sprig.mustFromJson(workflow.parameters.multiScan)).multiScan['end']) }}`}}"
+        
+        cd $OUTPUT
+        python -m papermill \
+           $OUTPUT/align_and_normalise.ipynb $OUTPUT/align_and_normalise_with_params.ipynb \
+          -p inpath "tomo_xrf_${START}_${END}_${ELEMENT}-${TRANSITION}.nxs" \
+          -p inpath_shifts "${EDGE2ALIGN}_shifts.txt"
+          -p outpath_nexus "${ELEMENT}-${TRANSITION}_aligned.nxs" \
+          -p normalise "{{`{{ workflow.parameters.normalise }}`}}" \
+
+        python -m jupyter nbconvert --to html --execute --output align_and_normalise --output-dir $OUTPUT/_assets --embed-images $OUTPUT/align_and_normalise_with_params.ipynb
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: align_initial
+        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/align_and_normalise.html"
+        archive:
+          none: {}
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: 1
+            memory: 10Gi
+          limits:
+            cpu: 1
+            memory: 10Gi
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: nodegroup
+              operator: In
+              values:
+              - workflows
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+
 
   - name: xrf-tomo-reconstruct
     inputs:
