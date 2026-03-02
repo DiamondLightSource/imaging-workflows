@@ -25,7 +25,7 @@ spec:
     - name: outputFolder
       value: "testing"
     - name: multiScan
-      value: '[{"multiScan":{"start":423844,"end":423947,"excluded":"[423908-423909,423911,423916-423917]"}}]'
+      value: '[{"multiScan":{"start":423844,"end":423934,"excluded":[423908,423909,423911,423916,423917]}},{"multiScan":{"start":423938,"end":423941,"excluded":[423940]}},{"multiScan":{"start":423946,"end":423947,"excluded":[]}}]'
     - name: multiEdge
       value: '[{"edgeElement":"Pb","edgeTransition":"La"},{"edgeElement":"Br","edgeTransition":"Ka"}]'
     - name: elementToAlign
@@ -89,8 +89,9 @@ spec:
       source: |
         set -euo pipefail
 
-        SCANS="{{`{{= sprig.join(',', map(sprig.mustFromJson(workflow.parameters.multiScan), { string(#.multiScan.start) + '-' + string(#.multiScan.end) } )) }}`}}"
-        EXCLUDE="{{`{{= sprig.join(',', filter(map(sprig.mustFromJson(workflow.parameters.multiScan), { sprig.trimAll('[]', #.multiScan.excluded) } ), { len(#) > 0 })) }}`}}"
+        SCANS="{{`{{= sprig.join(',', map(sprig.mustFromJson(workflow.parameters.multiScan), { string(#.multiScan.start) + '-' + string(#.multiScan.end) })) }}`}}"
+        EXCLUDE="{{`{{= sprig.join(',', jsonpath(workflow.parameters.multiScan, '$..excluded[*]'))  }}`}}"
+        
         ELEMENT="{{`{{ inputs.parameters.element }}`}}"
         TRANSITION="{{`{{ inputs.parameters.transition }}`}}"
         VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
