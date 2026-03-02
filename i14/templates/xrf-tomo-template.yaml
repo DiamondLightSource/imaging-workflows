@@ -25,7 +25,7 @@ spec:
     - name: outputFolder
       value: "testing"
     - name: multiScan
-      value: '[{"multiScan":{"start":423844,"end":423947,"excluded":"423908-423909,423911,423916-423917"}}]'
+      value: '[{"multiScan":{"start":423844,"end":423947,"excluded":"[423908-423909,423911,423916-423917]"}}]'
     - name: multiEdge
       value: '[{"edgeElement":"Pb","edgeTransition":"La"},{"edgeElement":"Br","edgeTransition":"Ka"}]'
     - name: elementToAlign
@@ -90,12 +90,12 @@ spec:
         set -euo pipefail
 
         SCANS="{{`{{= sprig.join(',', map(sprig.mustFromJson(workflow.parameters.multiScan), { string(#.multiScan.start) + '-' + string(#.multiScan.end) } )) }}`}}"
-        EXCLUDE="{{`{{= sprig.join(',', filter(map(sprig.mustFromJson(workflow.parameters.multiScan), { #.multiScan.excluded } ), { len(#) > 0 })) }}`}}"
+        EXCLUDE="{{`{{= sprig.join(',', filter(map(sprig.mustFromJson(workflow.parameters.multiScan), { sprig.trimAll('[]', #.multiScan.excluded) } ), { len(#) > 0 })) }}`}}"
         ELEMENT="{{`{{ inputs.parameters.element }}`}}"
         TRANSITION="{{`{{ inputs.parameters.transition }}`}}"
         VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
         OUTPUT="{{`{{ workflow.parameters.outputFolder }}`}}"
-        
+
         cmd=(tomojoin xrf)
         cmd+=("--raw-dir=$VISIT/scan")
         cmd+=("--proj-dir=$VISIT/processed")
