@@ -25,7 +25,7 @@ spec:
     - name: outputFolder
       value: "testing"
     - name: multiScan
-      value: '[{"multiScan":{"start":423844,"end":423934,"excluded":[423908,423909,423911,423916,423917]}},{"multiScan":{"start":423938,"end":423941,"excluded":[423940]}},{"multiScan":{"start":423946,"end":423947,"excluded":[]}}]'
+      value: '[{"multiScan":{"start":423844,"end":423947,"excluded":[423908,423909,423911,423916,423917,423935,423936,423937,423940,423942,423943,423944,423945]}}]'
     - name: multiEdge
       value: '[{"edgeElement":"Pb","edgeTransition":"La"},{"edgeElement":"Br","edgeTransition":"Ka"}]'
     - name: elementToAlign
@@ -131,14 +131,15 @@ spec:
         
         cd $OUTPUT
         python -m papermill \
-           $OUTPUT/align_initial.ipynb $OUTPUT/align_initial_with_params.ipynb \
+           $OUTPUT/align_initial.ipynb $OUTPUT/align_initial.ipynb \
           -p inpath "tomo_xrf_${START}_${END}_${EDGE}.nxs" \
           -p outpath_nexus "${EDGE}_aligned_initial.nxs" \
           -p outpath_shifts "${EDGE}_shifts.txt" \
           -p alignment_section "{{`{{ workflow.parameters.alignmentSection }}`}}" \
           -p alignment_band "{{`{{ workflow.parameters.alignmentBand }}`}}"
+          --prepare-only
 
-        python -m jupyter nbconvert --to html --execute --output align_initial --output-dir $OUTPUT/_assets --embed-images $OUTPUT/align_initial_with_params.ipynb
+        python -m jupyter nbconvert --to html --execute --output align_initial --output-dir $OUTPUT/_assets --embed-images $OUTPUT/align_initial.ipynb
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -206,13 +207,14 @@ spec:
         
         cd $OUTPUT
         python -m papermill \
-           $OUTPUT/align_and_normalise.ipynb $OUTPUT/align_and_normalise_with_params.ipynb \
+           $OUTPUT/align_and_normalise.ipynb $OUTPUT/align_and_normalise.ipynb \
           -p inpath "tomo_xrf_${START}_${END}_${ELEMENT}-${TRANSITION}.nxs" \
-          -p inpath_shifts "${EDGE2ALIGN}_shifts.txt"
+          -p inpath_shifts "${EDGE2ALIGN}_shifts.txt" \
           -p outpath_nexus "${ELEMENT}-${TRANSITION}_aligned.nxs" \
           -p normalise "{{`{{ workflow.parameters.normalise }}`}}" \
+          --prepare-only \
 
-        python -m jupyter nbconvert --to html --execute --output align_and_normalise --output-dir $OUTPUT/_assets --embed-images $OUTPUT/align_and_normalise_with_params.ipynb
+        python -m jupyter nbconvert --to html --execute --output align_and_normalise --output-dir $OUTPUT/_assets --embed-images $OUTPUT/align_and_normalise.ipynb
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
