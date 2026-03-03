@@ -365,6 +365,18 @@ spec:
         path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/plotting.html"
         archive:
           none: {}
+      - name: overview_transverse
+        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/recons_transverse.png"
+        archive:
+          none: {}
+      - name: overview_sagittal
+        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/recons_sagittal.png"
+        archive:
+          none: {}
+      - name: overview_coronal
+        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/recons_coronal.png"
+        archive:
+          none: {}
     podSpecPatch: |
       containers:
       - name: main
