@@ -49,3 +49,26 @@
     recon_size: null
     recon_mask_radius: 0.95 # Zero pixels outside the mask-circle radius.
     neglog: false # Perform negative log here if it was previously switched off.
+# --- Calculate global statistics on the reconstructed volume, required for data rescaling. ---
+- method: calculate_stats
+  module_path: httomo.methods
+  parameters: {}
+  id: statistics
+  side_outputs:
+    glob_stats: glob_stats
+# --- Rescaling the data using min/max obtained from `calculate_stats`. ---
+- method: rescale_to_int
+  module_path: httomolibgpu.misc.rescale
+  parameters:
+    perc_range_min: 0.0
+    perc_range_max: 100.0
+    bits: 8
+    glob_stats: ${{statistics.side_outputs.glob_stats}}
+# --- Saving data into images. ---
+- method: save_to_images
+  module_path: httomolib.misc.images
+  parameters:
+    subfolder_name: images
+    axis: auto
+    file_format: tif  # `tif` or `jpeg` can be used.
+    asynchronous: true
