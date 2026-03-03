@@ -223,7 +223,7 @@ spec:
         mountPath: /tmp
     outputs:
       artifacts:
-      - name: align_initial
+      - name: alignment
         path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/alignment_{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}.html"
         archive:
           none: {}
@@ -297,6 +297,11 @@ spec:
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: images8bit_tif
+        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/httomo_output/{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}-{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeTransition }}`}}/images8bit_tif"
+
     podSpecPatch: |
       containers:
       - name: main
@@ -330,11 +335,66 @@ spec:
 
   - name: xrf-tomo-plotting
     script:
-      image: busybox
-      command: ["/bin/sh", "-c"]
-      args:
-        - echo "{{`{{ workflow.parameters.outputFolder }}`}}";
-        - echo "{{`{{ workflow.parameters.multiEdge }}`}}"
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      env:
+      - name: MPLCONFIGDIR
+        value: /tmp
+      command: [bash]
+      source: |
+        VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
+        OUTPUT=$VISIT/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
+        EDGES="{{`{{= sprig.join(',', map(sprig.mustFromJson(workflow.parameters.multiEdge), { string(#.edgeElement) + '-' + string(#.edgeTransition) })) }}`}}"
+        echo $EDGES
+        
+        cd $OUTPUT
+        python -m papermill \
+           $OUTPUT/plotting.ipynb $OUTPUT/plotting.ipynb \
+          -p httomo_folder "$OUTPUT/httomo_output" \
+          -p edges $EDGES \
+          --prepare-only \
+
+        python -m jupyter nbconvert --to html --execute --output plotting --output-dir $OUTPUT/_assets --embed-images "$OUTPUT/plotting.ipynb"
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: plotting
+        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/plotting.html"
+        archive:
+          none: {}
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: 1
+            memory: 10Gi
+          limits:
+            cpu: 1
+            memory: 10Gi
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: nodegroup
+              operator: In
+              values:
+              - workflows
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
 
 
   - name: xrf-tomo-alignment-pipeline
