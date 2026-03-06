@@ -75,6 +75,8 @@ spec:
             value: "{{`{{ inputs.parameters.output }}`}}"
           - name: nprocs
             value: "{{`{{ inputs.parameters.nprocs }}`}}"
+          - name: memory
+            value: "{{`{{ inputs.parameters.memory }}`}}"
           - name: httomo-outdir-name
             value: "{{`{{ inputs.parameters.httomo-outdir-name }}`}}"
     - - name: generate-sweep-artifact
@@ -83,18 +85,6 @@ spec:
           parameters:
           - name: image-dir-path
             value: "{{`{{ inputs.parameters.output }}`}}/{{`{{ inputs.parameters.httomo-outdir-name }}`}}/images_sweep_recon8bit_tif"
-    podSpecPatch: |
-      containers:
-      - name: main
-        resources:
-          requests:
-            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
-            memory: "{{`{{ inputs.parameters.memory }}`}}"
-            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
-          limits:
-            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
-            memory: "{{`{{ inputs.parameters.memory }}`}}"
-            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
     tolerations:
     - key: nvidia.com/gpu
       operator: Exists
@@ -115,6 +105,7 @@ spec:
       - name: output
       - name: httomo-outdir-name
       - name: nprocs
+      - name: memory
       - name: tmpdir-path
         value: /tmp
     container:
@@ -154,6 +145,18 @@ spec:
       hostPath:
         path:  "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+          limits:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
   - name: sweep-artifact-script
     inputs:
       parameters:
