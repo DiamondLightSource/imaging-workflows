@@ -55,7 +55,7 @@
       "description": "Whether to normalise the stack using the total mass of each projection."
     },
     "cor": {
-      "type": "float",
+      "type": "number",
       "title": "Centre of rotation",
       "description": "Optional value for centre of rotation for the tomographic reconstruction, using Vo centering method if not provided."
     }
