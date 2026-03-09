@@ -72,6 +72,10 @@
     },
     {
       "type": "Control",
+      "scope": "#/properties/cor"
+    },      
+    {
+      "type": "Control",
       "scope": "#/properties/outputFolder"
     }
   ]
