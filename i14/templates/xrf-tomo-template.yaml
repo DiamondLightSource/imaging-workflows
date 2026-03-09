@@ -285,7 +285,7 @@ spec:
         mkdir -p $OUTPUT/httomo_output
 
         COR="{{`{{ workflow.parameters.cor }}`}}"
-        [[ -n $COR ]] && sed -i 's/${{`{{centering.side_outputs.centre_of_rotation}}`}}/${COR}/' $OUTPUT/httomo.yaml 
+        [[ -n $COR ]] && sed -i 's/${{`{{centering.side_outputs.centre_of_rotation}}`}}/'"${COR}"'/' $OUTPUT/httomo.yaml 
 
         cmd=(/opt/conda/bin/mpirun -n 1 /opt/conda/bin/python -m httomo run)
         cmd+=("--output-folder-name=${ELEMENT}-${TRANSITION}")
