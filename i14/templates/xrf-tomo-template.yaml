@@ -39,7 +39,7 @@ spec:
     - name: normalise
       value: "true"
     - name: cor
-      value: null
+      value: "null"
   volumeClaimTemplates:
   - metadata:
       name: tmp
