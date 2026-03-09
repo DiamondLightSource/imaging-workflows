@@ -284,7 +284,7 @@ spec:
         TRANSITION="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeTransition }}`}}"
         mkdir -p $OUTPUT/httomo_output
 
-        $COR="{{`{{ workflow.parameters.cor }}`}}"
+        COR="{{`{{ workflow.parameters.cor }}`}}"
         echo $COR
         [[ -n $COR ]] && sed -i 's/${{`{{centering.side_outputs.centre_of_rotation}}`}}/53.5/' $OUTPUT/httomo.yaml 
 
