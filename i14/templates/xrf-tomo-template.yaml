@@ -38,6 +38,8 @@ spec:
       value: "15"
     - name: normalise
       value: "true"
+    - name: cor
+      value: null
   volumeClaimTemplates:
   - metadata:
       name: tmp
@@ -281,6 +283,10 @@ spec:
         ELEMENT="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}"
         TRANSITION="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeTransition }}`}}"
         mkdir -p $OUTPUT/httomo_output
+
+        $COR="{{`{{ workflow.parameters.cor }}`}}"
+        echo $COR
+        [[ -n $COR ]] && sed -i 's/${{`{{centering.side_outputs.centre_of_rotation}}`}}/53.5/' $OUTPUT/httomo.yaml 
 
         cmd=(/opt/conda/bin/mpirun -n 1 /opt/conda/bin/python -m httomo run)
         cmd+=("--output-folder-name=${ELEMENT}-${TRANSITION}")
