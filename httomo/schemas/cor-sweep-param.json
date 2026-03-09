@@ -223,16 +223,16 @@
       "properties": {
         "start": {
           "title": "Start",
-          "type": "integer"
+          "type": "number"
         },
         "stop": {
           "title": "Stop",
-          "type": "integer"
+          "type": "number"
         },
         "step": {
           "default": 1,
           "title": "Step",
-          "type": "integer"
+          "type": "number"
         }
       },
       "required": [
