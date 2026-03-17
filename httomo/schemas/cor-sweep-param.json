@@ -242,6 +242,96 @@
       "title": "SweepConfig",
       "type": "object"
     },
+    "TomopyMinusLogConfig": {
+      "description": "tomopy.prep.normalize.minus_log method config",
+      "properties": {
+        "method": {
+          "default": "minus_log",
+          "title": "Method",
+          "type": "string"
+        },
+        "module_path": {
+          "default": "tomopy.prep.normalize",
+          "title": "Module Path",
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/$defs/EmptyDict",
+          "default": {}
+        },
+        "save_result": {
+          "default": false,
+          "title": "Save Result",
+          "type": "boolean"
+        }
+      },
+      "title": "TomopyMinusLogConfig",
+      "type": "object"
+    },
+    "TomopyNormalizeConfig": {
+      "description": "tomopy.prep.normalize.normalize method config",
+      "properties": {
+        "method": {
+          "default": "normalize",
+          "title": "Method",
+          "type": "string"
+        },
+        "module_path": {
+          "default": "tomopy.prep.normalize",
+          "title": "Module Path",
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/$defs/TomopyNormalizeParams",
+          "default": {}
+        },
+        "save_result": {
+          "default": false,
+          "title": "Save Result",
+          "type": "boolean"
+        }
+      },
+      "title": "TomopyNormalizeConfig",
+      "type": "object"
+    },
+    "TomopyNormalizeParams": {
+      "description": "tomopy.prep.normalize.normalize parameters config",
+      "properties": {
+        "cutoff": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cutoff"
+        },
+        "averaging": {
+          "anyOf": [
+            {
+              "const": "mean",
+              "type": "string"
+            },
+            {
+              "const": "median",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Averaging"
+        }
+      },
+      "required": [
+        "cutoff",
+        "averaging"
+      ],
+      "title": "TomopyNormalizeParams",
+      "type": "object"
+    },
     "TomopyReconConfig": {
       "description": "tomopy.recon.algorithm.recon method config",
       "properties": {
@@ -324,11 +414,17 @@
     }
   },
   "description": "An HTTomo center-of-rotation parameter sweep pipeline",
-  "maxItems": 2,
-  "minItems": 2,
+  "maxItems": 4,
+  "minItems": 4,
   "prefixItems": [
     {
       "$ref": "#/$defs/StandardTomoLoaderConfig"
+    },
+    {
+      "$ref": "#/$defs/TomopyNormalizeConfig"
+    },
+    {
+      "$ref": "#/$defs/TomopyMinusLogConfig"
     },
     {
       "$ref": "#/$defs/TomopyReconConfig"
