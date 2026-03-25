@@ -79,7 +79,7 @@ spec:
         - name: element
         - name: transition
     script:
-      image: ghcr.io/diamondlightsource/nxstacker:latest
+      image: ghcr.io/diamondlightsource/nxstacker:2.5
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
