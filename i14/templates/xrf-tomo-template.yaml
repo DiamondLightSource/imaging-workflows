@@ -304,7 +304,7 @@ spec:
         mountPath: /tmp
     outputs:
       artifacts:
-      - name: "{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}_{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeTransition }}`}}_images32bit_tif"
+      - name: images32bit_tif
         path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/httomo_output/{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}-{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeTransition }}`}}/images32bit_tif"
 
     podSpecPatch: |
