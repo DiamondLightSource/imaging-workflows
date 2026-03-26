@@ -79,7 +79,7 @@ spec:
         - name: element
         - name: transition
     script:
-      image: ghcr.io/diamondlightsource/nxstacker:2.5
+      image: ghcr.io/diamondlightsource/nxstacker:latest
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -266,7 +266,7 @@ spec:
       parameters:
         - name: edge
     script:
-      image: ghcr.io/diamondlightsource/httomo:latest
+      image: ghcr.io/diamondlightsource/httomo:2.5
       env:
       - name: CUPY_CACHE_DIR
         value: /tmp/.cupy/kernel_cache
