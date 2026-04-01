@@ -75,26 +75,16 @@ spec:
             value: "{{`{{ inputs.parameters.output }}`}}"
           - name: nprocs
             value: "{{`{{ inputs.parameters.nprocs }}`}}"
+          - name: memory
+            value: "{{`{{ inputs.parameters.memory }}`}}"
           - name: httomo-outdir-name
             value: "{{`{{ inputs.parameters.httomo-outdir-name }}`}}"
     - - name: generate-sweep-artifact
         template: sweep-artifact-script
         arguments:
           parameters:
-          - name: image-dir-path
-            value: "{{`{{ inputs.parameters.output }}`}}/{{`{{ inputs.parameters.httomo-outdir-name }}`}}/images_sweep_recon8bit_tif"
-    podSpecPatch: |
-      containers:
-      - name: main
-        resources:
-          requests:
-            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
-            memory: "{{`{{ inputs.parameters.memory }}`}}"
-            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
-          limits:
-            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
-            memory: "{{`{{ inputs.parameters.memory }}`}}"
-            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+          - name: output-dir-path
+            value: "{{`{{ inputs.parameters.output }}`}}/{{`{{ inputs.parameters.httomo-outdir-name }}`}}"
     tolerations:
     - key: nvidia.com/gpu
       operator: Exists
@@ -115,6 +105,7 @@ spec:
       - name: output
       - name: httomo-outdir-name
       - name: nprocs
+      - name: memory
       - name: tmpdir-path
         value: /tmp
     container:
@@ -154,10 +145,22 @@ spec:
       hostPath:
         path:  "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+          limits:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
   - name: sweep-artifact-script
     inputs:
       parameters:
-      - name: image-dir-path
+      - name: output-dir-path
       - name: tmpdir-path
         value: /tmp
       - name: output-filename
@@ -170,9 +173,11 @@ spec:
         import numpy as np
         import tifffile
 
-        IMAGE_DIR = Path("{{`{{ inputs.parameters.image-dir-path }}`}}")
+        IMAGE_DIR_PATTERN = "images_sweep_recon*"
+        OUTPUT_DIR = Path("{{`{{ inputs.parameters.output-dir-path }}`}}")
+        image_dir = list(OUTPUT_DIR.glob(IMAGE_DIR_PATTERN))[0]
         OUT_PATH = "{{`{{ inputs.parameters.tmpdir-path }}`}}/{{`{{ inputs.parameters.output-filename }}`}}"
-        filenames = list(IMAGE_DIR.glob("*.tif"))
+        filenames = list(image_dir.glob("*.tif"))
         filenames.sort()
         single_image = tifffile.tifffile.imread(filenames[0])
         dtype = single_image.dtype

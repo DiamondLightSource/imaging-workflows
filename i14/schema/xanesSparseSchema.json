@@ -4,7 +4,7 @@
     "outputFolder": {
       "type": "string",
       "title": "Output Folder",
-      "description": "The full path to the output directory to save the XANES stack to, which is compatible to Mantis"
+      "description": "The full path of the output file"
     },
     "multiScan": {
       "title": "Scans",
@@ -14,35 +14,11 @@
           "type": "object"
         }
     },
-    "edgeElement": {
-      "$ref": "#/$defs/elements"
-    },
-    "edgeTransition": {
-      "type": "string",
-      "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
-    },
-    "elementToAlign": {
-      "$ref": "#/$defs/elements"
-    },
-    "transitionToAlign": {
-      "type": "string",
-      "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
-    },
-    "method": {
-      "type": "string",
-      "enum": ["mutual", "fourier"],
-      "title": "Method",
-      "description": "The method to use for alignment. `mutual` (mutual information) or `fourier` (Fourier correlation)."
-    },
     "normalise": {
       "type": "boolean",
-      "title": "Normalise",
-      "description": "Whether to normalise the stack by I0"
-    }
-  },
-  "required": ["outputFolder", "multiScan", "edgeElement", "edgeTransition"],
-  "$defs": {
-    "elements": {
+      "title": "Normalise"
+    },
+    "edgeElement": {
       "type": "string",
       "enum": [
         "",
@@ -164,7 +140,12 @@
         "Lv",
         "Ts",
         "Og"
-      ]
+        ]
+    },
+    "edgeTransition": {
+      "type": "string",
+      "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
     }
-  }
+  },
+  "required": ["outputFolder", "multiScan", "edgeElement", "edgeTransition"]
 }

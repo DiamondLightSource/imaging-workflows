@@ -1,0 +1,472 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: xrf-tomography
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
+  annotations:
+    workflows.diamond.ac.uk/repository: https://github.com/DiamondLightSource/imaging-workflows
+    workflows.argoproj.io/title: XRF (X-ray Fluorescence) Tomography
+    workflows.argoproj.io/description: |
+      This end-to-end pipeline will stack, align and normalise a list of projections acquired for multiple edge transitions before reconstructing 3D volumetric maps for each element/edge. 
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/xrfTomoSchema.json" | nindent 6 }}
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/xrfTomoUISchema.json" | nindent 6 }}
+spec:
+  entrypoint: xrf-tomo-pipeline
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+    - name: outputFolder
+      value: "testing"
+    - name: multiScan
+      value: '[{"multiScan":{"start":423844,"end":423947,"excluded":[423908,423909,423911,423916,423917,423935,423936,423937,423940,423942,423943,423944,423945]}}]'
+    - name: multiEdge
+      value: '[{"edgeElement":"Pb","edgeTransition":"La"},{"edgeElement":"Br","edgeTransition":"Ka"}]'
+    - name: elementToAlign
+      value: "Pb"
+    - name: transitionToAlign
+      value: "La"
+    - name: alignmentSection
+      value: "all"
+    - name: alignmentBand
+      value: "15"
+    - name: normalise
+      value: "true"
+    - name: cor
+      value: "null"
+  volumeClaimTemplates:
+  - metadata:
+      name: tmp
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 20Gi
+      storageClassName: netapp
+  templates:
+  - name: xrf-tomo-setup
+    script:
+      image: debian:stable-slim
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+      command: [bash]
+      source: |
+        OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
+        mkdir -p $OUTPUT
+        echo '{{ .Files.Get "notebooks/xrf_tomo_align_initial.ipynb" | b64enc }}' | base64 -d > $OUTPUT/align_initial.ipynb
+        echo '{{ .Files.Get "notebooks/xrf_tomo_align_and_normalise.ipynb" | b64enc }}' | base64 -d > $OUTPUT/align_and_normalise.ipynb
+        echo '{{ .Files.Get "notebooks/xrf_tomo_plotting.ipynb" | b64enc }}' | base64 -d > $OUTPUT/plotting.ipynb
+        echo '{{ .Files.Get "configs/httomo_config_fbp.yaml" | b64enc }}' | base64 -d > $OUTPUT/httomo.yaml
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+        
+  - name: xrf-tomo-stack-projections
+    inputs:
+      parameters:
+        - name: element
+        - name: transition
+    script:
+      image: ghcr.io/diamondlightsource/nxstacker:latest
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+      env:
+      - name: HOME
+        value: /tmp
+      command: ["bash"]
+      source: |
+        set -euo pipefail
+
+        SCANS="{{`{{= sprig.join(',', map(sprig.mustFromJson(workflow.parameters.multiScan), { string(#.multiScan.start) + '-' + string(#.multiScan.end) })) }}`}}"
+        EXCLUDE="{{`{{= sprig.join(',', jsonpath(workflow.parameters.multiScan, '$..excluded[*]'))  }}`}}"
+        
+        ELEMENT="{{`{{ inputs.parameters.element }}`}}"
+        TRANSITION="{{`{{ inputs.parameters.transition }}`}}"
+        VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
+        OUTPUT="{{`{{ workflow.parameters.outputFolder }}`}}"
+
+        cmd=(tomojoin xrf)
+        cmd+=("--raw-dir=$VISIT/scan")
+        cmd+=("--proj-dir=$VISIT/processed")
+        [[ -n $SCANS ]] && cmd+=("--from-scan=$SCANS")
+        [[ -n $EXCLUDE ]] && cmd+=("--exclude-scan=$EXCLUDE")
+        cmd+=("--transition=$ELEMENT-$TRANSITION")
+        cmd+=("--nxtomo-dir=$VISIT/processing/workflows/$OUTPUT")
+        cmd+=("--sort-by-angle")
+
+        echo "Executing: ${cmd[*]}"
+        exec "${cmd[@]}"
+
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+
+  - name: xrf-tomo-generate-shifts
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      env:
+      - name: MPLCONFIGDIR
+        value: /tmp
+      command: [bash]
+      source: |
+        VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
+        OUTPUT=$VISIT/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
+        EDGE="{{`{{ workflow.parameters.elementToAlign }}`}}"-"{{`{{ workflow.parameters.transitionToAlign }}`}}"
+        START="{{`{{= string(first(sprig.mustFromJson(workflow.parameters.multiScan)).multiScan['start']) }}`}}"
+        END="{{`{{= string(first(sprig.mustFromJson(workflow.parameters.multiScan)).multiScan['end']) }}`}}"
+        
+        cd $OUTPUT
+        python -m papermill \
+           $OUTPUT/align_initial.ipynb $OUTPUT/align_initial.ipynb \
+          -p inpath "tomo_xrf_${START}_${END}_${EDGE}.nxs" \
+          -p outpath_nexus "${EDGE}_aligned_initial.nxs" \
+          -p outpath_shifts "${EDGE}_shifts.txt" \
+          -p alignment_section "{{`{{ workflow.parameters.alignmentSection }}`}}" \
+          -p alignment_band "{{`{{ workflow.parameters.alignmentBand }}`}}"
+          --prepare-only
+
+        python -m jupyter nbconvert --to html --execute --output align_initial --output-dir $OUTPUT/_assets --embed-images $OUTPUT/align_initial.ipynb
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: align_initial
+        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/align_initial.html"
+        archive:
+          none: {}
+      - name: aligned_stack
+        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/align_stack.gif"
+        archive:
+          none: {}
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: 1
+            memory: 10Gi
+          limits:
+            cpu: 1
+            memory: 10Gi
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: nodegroup
+              operator: In
+              values:
+              - workflows
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+
+  - name: xrf-tomo-align-and-normalise
+    inputs:
+      parameters:
+        - name: edge
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      env:
+      - name: MPLCONFIGDIR
+        value: /tmp
+      command: [bash]
+      source: |
+        VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
+        OUTPUT=$VISIT/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
+        ELEMENT="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}"
+        TRANSITION="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeTransition }}`}}"
+        EDGE2ALIGN="{{`{{ workflow.parameters.elementToAlign }}`}}"-"{{`{{ workflow.parameters.transitionToAlign }}`}}"
+        START="{{`{{= string(first(sprig.mustFromJson(workflow.parameters.multiScan)).multiScan['start']) }}`}}"
+        END="{{`{{= string(first(sprig.mustFromJson(workflow.parameters.multiScan)).multiScan['end']) }}`}}"
+        
+        cd $OUTPUT
+        python -m papermill \
+           $OUTPUT/align_and_normalise.ipynb "$OUTPUT/alignment_${ELEMENT}-${TRANSITION}.ipynb" \
+          -p inpath "tomo_xrf_${START}_${END}_${ELEMENT}-${TRANSITION}.nxs" \
+          -p inpath_shifts "${EDGE2ALIGN}_shifts.txt" \
+          -p outpath_nexus "${ELEMENT}-${TRANSITION}_aligned.nxs" \
+          -p normalise "{{`{{ workflow.parameters.normalise }}`}}" \
+          --prepare-only \
+
+        python -m jupyter nbconvert --to html --execute --output "alignment_${ELEMENT}" --output-dir $OUTPUT/_assets --embed-images "$OUTPUT/alignment_${ELEMENT}-${TRANSITION}.ipynb"
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: alignment
+        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/alignment_{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}.html"
+        archive:
+          none: {}
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: 1
+            memory: 10Gi
+          limits:
+            cpu: 1
+            memory: 10Gi
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: nodegroup
+              operator: In
+              values:
+              - workflows
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+
+
+  - name: xrf-tomo-reconstruct
+    inputs:
+      parameters:
+        - name: edge
+    script:
+      image: ghcr.io/diamondlightsource/httomo:2.5
+      env:
+      - name: CUPY_CACHE_DIR
+        value: /tmp/.cupy/kernel_cache
+      - name: MKL_NUM_THREADS
+        value: "1"
+      - name: NUMEXPR_NUM_THREADS
+        value: "1"
+      - name: OMP_NUM_THREADS
+        value: "1"
+      command: [bash]
+      source: |
+        VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
+        OUTPUT=$VISIT/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
+        ELEMENT="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}"
+        TRANSITION="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeTransition }}`}}"
+        mkdir -p $OUTPUT/httomo_output
+
+        COR="{{`{{ workflow.parameters.cor }}`}}"
+        [[ $COR != "null" ]] && sed -i 's/${{`{{centering.side_outputs.centre_of_rotation}}`}}/'"${COR}"'/' $OUTPUT/httomo.yaml 
+
+        cmd=(/opt/conda/bin/mpirun -n 1 /opt/conda/bin/python -m httomo run)
+        cmd+=("--output-folder-name=${ELEMENT}-${TRANSITION}")
+        cmd+=("--recon-filename-stem=${ELEMENT}-${TRANSITION}")
+        cmd+=("$OUTPUT/${ELEMENT}-${TRANSITION}_aligned.nxs")
+        cmd+=("$OUTPUT/httomo.yaml")
+        cmd+=("$OUTPUT/httomo_output")
+
+        echo "Executing: ${cmd[*]}"
+        exec "${cmd[@]}"
+        
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: images32bit_tif
+        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/httomo_output/{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}-{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeTransition }}`}}/images32bit_tif"
+
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: 1
+            memory: 50Gi
+            nvidia.com/gpu: 1
+          limits:
+            cpu: 1
+            memory: 50Gi
+            nvidia.com/gpu: 1
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule
+    - key: nodetype
+      operator: Equal
+      value: gpu
+      effect: NoSchedule
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+
+
+  - name: xrf-tomo-plotting
+    script:
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      env:
+      - name: MPLCONFIGDIR
+        value: /tmp
+      command: [bash]
+      source: |
+        VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
+        OUTPUT=$VISIT/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
+        EDGES="{{`{{= sprig.join(',', map(sprig.mustFromJson(workflow.parameters.multiEdge), { string(#.edgeElement) + '-' + string(#.edgeTransition) })) }}`}}"
+        echo $EDGES
+        
+        cd $OUTPUT
+        python -m papermill \
+           $OUTPUT/plotting.ipynb $OUTPUT/plotting.ipynb \
+          -p httomo_folder "$OUTPUT/httomo_output" \
+          -p edges $EDGES \
+          --prepare-only \
+
+        python -m jupyter nbconvert --to html --execute --output plotting --output-dir $OUTPUT/_assets --embed-images "$OUTPUT/plotting.ipynb"
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: plotting
+        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/plotting.html"
+        archive:
+          none: {}
+      - name: overview_transverse
+        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/recons_transverse.png"
+        archive:
+          none: {}
+      - name: overview_sagittal
+        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/recons_sagittal.png"
+        archive:
+          none: {}
+      - name: overview_coronal
+        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/recons_coronal.png"
+        archive:
+          none: {}
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: 1
+            memory: 10Gi
+          limits:
+            cpu: 1
+            memory: 10Gi
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: nodegroup
+              operator: In
+              values:
+              - workflows
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+
+
+  - name: xrf-tomo-alignment-pipeline
+    inputs:
+      parameters:
+        - name: edge
+    dag:
+      tasks:
+      - name: alignment
+        template: xrf-tomo-align-and-normalise
+        arguments:
+          parameters:
+            - name: edge
+              value: "{{`{{ inputs.parameters.edge }}`}}"
+      - name: httomo
+        template: xrf-tomo-reconstruct
+        arguments:
+          parameters:
+            - name: edge
+              value: "{{`{{ inputs.parameters.edge }}`}}"
+        dependencies: [alignment]
+
+  - name: xrf-tomo-pipeline
+    dag:
+      tasks:
+      
+      - name: setup
+        template: xrf-tomo-setup
+        
+      - name: nxstacker
+        template: xrf-tomo-stack-projections
+        dependencies: [setup]
+        arguments:
+          parameters:
+            - name: element
+              value: "{{`{{ item.edgeElement }}`}}"
+            - name: transition
+              value: "{{`{{ item.edgeTransition }}`}}"
+        withParam: "{{`{{ workflow.parameters.multiEdge }}`}}"
+
+      - name: generate-shifts
+        template: xrf-tomo-generate-shifts
+        dependencies: [nxstacker]
+
+      - name: align-and-reconstruct
+        template: xrf-tomo-alignment-pipeline
+        dependencies: [generate-shifts]
+        arguments:
+          parameters:
+            - name: edge
+              value: "{{`{{ item }}`}}"
+        withParam: "{{`{{ workflow.parameters.multiEdge }}`}}"
+
+      - name: show-results
+        template: xrf-tomo-plotting
+        dependencies: [align-and-reconstruct]
+
+

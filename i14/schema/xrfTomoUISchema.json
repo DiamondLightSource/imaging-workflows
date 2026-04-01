@@ -21,30 +21,24 @@
       }
     },
     {
-      "type": "HorizontalLayout",
-      "elements": [
-        {
-          "type": "Control",
-          "scope": "#/properties/method"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/normalise"
+      "type": "Control",
+      "scope": "#/properties/multiEdge",
+      "options": {
+        "elementLabelProp": "scanRange",
+          "detail": {
+            "type": "HorizontalLayout",
+            "elements": [
+              {
+                "type": "Control",
+                "scope": "#/properties/edgeElement"
+              },
+              {
+                "type": "Control",
+                "scope": "#/properties/edgeTransition"
+              }
+            ]
         }
-      ]
-    },
-    {
-      "type": "HorizontalLayout",
-      "elements": [
-        {
-          "type": "Control",
-          "scope": "#/properties/edgeElement"
-        },
-        {
-          "type": "Control",
-          "scope": "#/properties/edgeTransition"
-        }
-      ]
+      }
     },
     {
       "type": "HorizontalLayout",
@@ -59,6 +53,27 @@
         }
       ]
     },
+    {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/alignmentSection"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/alignmentBand"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/normalise"
+        }
+      ]
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/cor"
+    },      
     {
       "type": "Control",
       "scope": "#/properties/outputFolder"

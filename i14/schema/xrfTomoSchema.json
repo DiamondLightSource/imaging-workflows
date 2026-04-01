@@ -4,17 +4,65 @@
     "outputFolder": {
       "type": "string",
       "title": "Output Folder",
-      "description": "The full path of the output file"
+      "description": "The full path to the output directory where all of the data procesing is saved."
     },
-    "scanRange": {
-      "type": "object",
-      "title": "Scan Range"
+    "multiScan": {
+      "title": "Scans",
+      "type": "array",
+      "items":
+        {
+          "type": "object"
+        }
+    },
+    "multiEdge": {
+        "title": "Edges",
+        "type": "array",
+        "items":
+        {
+            "type": "object",
+            "properties": {
+                "edgeElement": {
+                    "$ref": "#/$defs/elements"
+                },
+                "edgeTransition": {
+                    "type": "string",
+                    "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
+                }
+            }
+        }
+    },
+    "elementToAlign": {
+      "$ref": "#/$defs/elements"
+    },
+    "transitionToAlign": {
+      "type": "string",
+      "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
+    },
+    "alignmentSection": {
+      "type": "string",
+        "enum": ["all", "top", "middle", "bottom"],
+      "title": "Section for alignment",
+      "description": "The section of the projections to be used for the initial alignment."
+    },
+    "alignmentBand": {
+      "type": "integer",
+      "title": "Band width for alignment",
+      "description": "The width of a vertical band of lines in each projections to be used for the initial alignment."
     },
     "normalise": {
       "type": "boolean",
-      "title": "Normalise"
+      "title": "Normalise",
+      "description": "Whether to normalise the stack using the total mass of each projection."
     },
-    "edgeElement": {
+    "cor": {
+      "type": "number",
+      "title": "Centre of rotation",
+      "description": "Optional value for centre of rotation for the tomographic reconstruction, using Vo centering method if not provided."
+    }
+  },
+  "required": ["outputFolder", "multiScan", "multiEdge"],
+  "$defs": {
+    "elements": {
       "type": "string",
       "enum": [
         "",
@@ -136,12 +184,7 @@
         "Lv",
         "Ts",
         "Og"
-        ]
-    },
-    "edgeTransition": {
-      "type": "string",
-      "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
+      ]
     }
-  },
-  "required": ["outputFolder", "scanRange", "edgeElement", "edgeTransition"]
+  }
 }
