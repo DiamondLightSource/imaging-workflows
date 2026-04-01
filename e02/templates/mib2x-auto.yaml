@@ -2,6 +2,8 @@ apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
   name: e02mib2x-auto
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
     workflows.argoproj.io/title: ePSIC mib automatic conversion
     workflows.argoproj.io/description: |
@@ -49,8 +51,8 @@ spec:
             #parameters:
               #- name: base_path
               
-      - - name: print-mib
-          template: print-found-mib-files
+      - - name: convert-mib
+          template: convert-found-mib-files
           arguments:
             parameters:
               - name: mibfiles
@@ -158,7 +160,7 @@ spec:
           #This is used to produce the input for the next step .i.e inputs.parameters.mibfiles
           json.dump(data_to_convert, sys.stdout)
 
-    - name: print-found-mib-files
+    - name: convert-found-mib-files
       inputs:
         parameters:
         - name: mibfiles

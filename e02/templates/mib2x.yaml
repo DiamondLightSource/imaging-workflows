@@ -2,6 +2,8 @@ apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
   name: e02-mib2x
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
     workflows.argoproj.io/title: ePSIC mib conversion
     workflows.argoproj.io/description: |
