@@ -367,23 +367,23 @@
           "$ref": "#/$defs/SweepConfig"
         },
         "sinogram_order": {
-          "default": false,
           "title": "Sinogram Order",
           "type": "boolean"
         },
         "algorithm": {
-          "default": "gridrec",
           "title": "Algorithm",
           "type": "string"
         },
         "init_recon": {
-          "default": null,
           "title": "Init Recon",
           "type": "null"
         }
       },
       "required": [
-        "center"
+        "center",
+        "sinogram_order",
+        "algorithm",
+        "init_recon"
       ],
       "title": "TomopyReconConfigParams",
       "type": "object"
