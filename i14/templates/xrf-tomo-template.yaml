@@ -37,7 +37,7 @@ spec:
     - name: alignmentBand
       value: "15"
     - name: normalise
-      value: "true"
+      value: true
     - name: cor
       value: "null"
   volumeClaimTemplates:
@@ -214,7 +214,7 @@ spec:
           -p inpath "tomo_xrf_${START}_${END}_${ELEMENT}-${TRANSITION}.nxs" \
           -p inpath_shifts "${EDGE2ALIGN}_shifts.txt" \
           -p outpath_nexus "${ELEMENT}-${TRANSITION}_aligned.nxs" \
-          -p normalise "{{`{{ workflow.parameters.normalise }}`}}" \
+          -p normalise {{`{{ workflow.parameters.normalise }}`}} \
           --prepare-only \
 
         python -m jupyter nbconvert --to html --execute --output "alignment_${ELEMENT}" --output-dir $OUTPUT/_assets --embed-images "$OUTPUT/alignment_${ELEMENT}-${TRANSITION}.ipynb"
