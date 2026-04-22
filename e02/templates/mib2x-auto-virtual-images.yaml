@@ -1,0 +1,237 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: e02mib2x-auto
+  annotations:
+    workflows.argoproj.io/title: ePSIC mib automatic conversion
+    workflows.argoproj.io/description: |
+      Convert MIB file to hdf5/hspy files
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/mib2x_auto_virtual_images_Schema.json" | nindent 6 }}
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/mib2x_auto_virtual_images_ui" | nindent 6 }}
+spec:
+  entrypoint: mib2x-auto
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+  ###
+  volumes:
+  - name: session
+    hostPath:
+      path:  "{{ workflow.parameters.visitdir }}"
+      type: Directory
+  volumeClaimTemplates:  
+  - metadata:
+      name: tmpdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]  
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: netapp
+  ###
+  templates:
+    - name: mib2x-auto
+      #inputs: 
+      #  parameters: 
+
+          #- name: #name parameters here
+      steps: #steps is on the name level as inputs
+      - - name: find
+          template: find-hdf5-files
+          #arguments:
+            #parameters:
+              #- name: base_path
+              
+      - - name: virtual-images
+          template: create-virtual-images
+          arguments:
+            parameters:
+              - name: hdf5_files
+                value: "{{item}}"
+          withParam: "{{steps.find.outputs.result}}"
+  ###
+    - name: find-hdf5-files
+      inputs:
+        parameters:
+        - name: sample_name
+          value: workflows_testing 
+      outputs:
+        artifacts:
+        - name: find_files_logging
+          path: /tmp/find_files_logging.txt
+          archive:
+            none: {}
+      script:
+        image: python:3.10
+        volumeMounts:
+          - name: session
+            mountPath: "{{ workflow.parameters.visitdir }}"
+          - name: tmpdir
+            mountPath: /tmp
+        command: [python]
+        source: |
+          #The aim of this code is to produce a "json list" such that withParams can the start parrelle
+          #jobs based around this list, where each element of this list the uses on index of that list as 
+          #input
+          
+          #imports
+          import json
+          import sys
+          import os
+          import glob 
+          import traceback
+
+          #functions
+          def check_dataset(hdf5_files: list, hdf5_timestamps: list, nested_timestamps: list):
+            '''
+            This function takes a list of hdf5 files, a list of associated timestamps and time stamps of unprocessed data.
+            with these inputs the objective is to obtain the indexs of hdf5 files which have not yet been proccessed (indexs).
+            there are multiple ways to process the data, such as produce virtual Annual Dark field (ADF)/Bright Field (BF), 
+            Differential Phase Constrast (DPC) and parallax images and then to create a list of idenfitying which dataset 
+            need to undergo prevoiusly listed methods (nested actions). 
+            
+            :param hdf5_files: list of all hdf5 files within a visit
+            :type hdf5_files: list
+            :param hdf5_timestamps: list of all the timestamps assoicated with data within a visit
+            :type hdf5_timestamps: list
+            :param nested_timestamps: list of lists of different unconverted data types .i.e ADF, dpc, parallax 
+            :type nested_timestamps: list
+            '''
+            #create an nested empty list of actions
+            todo_vir,todo_dpc,todo_par = [],[],[]
+            #make it same size as the number of timestamps
+            for x in range(len(hdf5_timestamps)):
+                todo_vir.append('False'),todo_dpc.append('False'),todo_par.append('False')
+            nested_actions = [todo_vir,todo_dpc,todo_par]
+            #create something to to store the indexs
+            indexs = []
+
+            #go through all uncovered timestamps and find the associated index of the hdf5 files and make 
+            #note of type of processing to perfrom
+            for num,l in enumerate(nested_timestamps):
+                for num2, ts in enumerate(nested_timestamps[num]):
+                    hdf5_index = hdf5_timestamps.index(ts)
+                    nested_actions[num][hdf5_index] = 'True'
+                    if not hdf5_index in indexs:
+                        indexs.append(hdf5_index)
+            return indexs, nested_actions
+
+
+          #directory info
+          hdf5_files = []
+          converted_files = []
+          hdf5_timestamps = []
+          data_to_convert = []
+          logging = []
+          jpeg_list = ['*/**STEM_image.jpeg*','*/**CoM_image.jpeg*','*/**parallax_rough.jpeg*']
+          vir_ts = []
+          dpc_ts = []
+          par_ts = []
+          cmd_list = []
+          verbose = True
+
+          #start search for MIB files
+          os.chdir('%s/processing/Merlin/%s' % ("{{workflow.parameters.visitdir}}", 'workflows_testing'))
+                                                                                    
+
+          source_path = os.getcwd() + '/'
+          logging.append('Current path: %s' % source_path)
+
+          #some simple example code to find the instances of hdf5 files in a particular location
+          logging.append('***\nSearching the following path: %s\n***' % source_path)
+          for num, file in enumerate(sorted(list(glob.glob('*/**_data.hdf5*')))):
+              if verbose:
+                logging.append('%i: %s/%s' % (num, source_path, file))
+              whole_file = os.path.join(source_path,file)
+              hdf5_timestamps.append(whole_file.split('/')[-2])
+              hdf5_files.append(whole_file)
+          logging.append('total .hdf5 files found: %i' % len(hdf5_files))
+          hdf5_timestamps_set = set(hdf5_timestamps)
+
+          logging.append('***\nsearching destination path for already converted files: %s\n***' % source_path)
+          
+          for item in jpeg_list:
+              logging.append('searching for: %s...' % item[4:-1])
+              for num, file in enumerate(sorted(list(glob.glob(item)))):
+                  #print('%s: %i: %s' %(item,num,file))
+                  if item == jpeg_list[0]:
+                      vir_ts.append(file.split('/')[0])
+                  if item == jpeg_list[1]:
+                      dpc_ts.append(file.split('/')[0])
+                  if item == jpeg_list[2]:
+                      par_ts.append(file.split('/')[0])
+              logging.append('found %i, %s' % (num+1, item[4:-1]))
+
+          no_vir = list(hdf5_timestamps_set.difference(vir_ts))
+          no_dpc = list(hdf5_timestamps_set.difference(dpc_ts))
+          no_par = list(hdf5_timestamps_set.difference(par_ts))
+          logging.append('finding the difference between processed and unprocess file lists')
+          no_vir.sort()
+          no_dpc.sort()
+          no_par.sort()
+
+          todo, checks = check_dataset(hdf5_files,hdf5_timestamps,[no_vir,no_dpc,no_par])
+          for item,x in enumerate(todo):
+            cmd_list.append('python py4DSTEM_Virtual_Image_clean.py %s --virtual-images %s --dpc-images %s --plax %s' %(hdf5_files[todo[item]],checks[0][todo[item]],checks[1][todo[item]],checks[2][todo[item]]))
+            logging.append('python py4DSTEM_Virtual_Image_clean.py %s --virtual-images %s --dpc-images %s --plax %s' %(hdf5_files[todo[item]],checks[0][todo[item]],checks[1][todo[item]],checks[2][todo[item]]))
+
+          #ToDo think about this printing in the context of an Error
+          #this should be try statement 
+          with open("/tmp/find_files_logging.txt",'w') as ofile:
+            for item in logging:
+              print(item,file=ofile)
+
+          #This is used to produce the input for the next step .i.e inputs.parameters.mibfiles
+          json.dump(cmd_list, sys.stdout)
+
+    - name: create-virtual-images
+      inputs:
+        parameters:
+        - name: hdf5_files
+        - name: nprocs
+          value: "{{ workflow.parameters.nprocs }}"
+        - name: memory
+          value: "{{ workflow.parameters.memory }}" 
+        - name: DEBUG
+          value: "{{ workflow.parameters.DEBUG }}" 
+      script:
+        image: gitlab.diamond.ac.uk:5050/scisoft/ptychography/dimtools/mib2x
+        imagePullPolicy: Always
+        env:
+        - name: BLOSC_NTHREADS
+          value: "{{ inputs.parameters.nprocs }}"
+        - name: OMP_NUM_THREADS
+          value: "{{ inputs.parameters.nprocs }}"
+        - name: M2X_DEBUG
+          value: "{{ inputs.parameters.DEBUG }}"
+        volumeMounts:
+          - name: tmpdir    #session
+            mountPath: /tmp
+          - name: session
+            mountPath: "{{ workflow.parameters.visitdir }}"
+        command: [sh]
+        source: |
+          #!/bin/sh
+          echo "{{inputs.parameters.hdf5_files}}"
+          #set -e
+      podSpecPatch: |
+        containers:
+        - name: main
+          resources:
+            requests:
+              cpu: "{{ inputs.parameters.nprocs }}"
+              memory: "{{ inputs.parameters.memory }}"
+            limits:
+              cpu: "{{ inputs.parameters.nprocs }}"
+              memory: "{{ inputs.parameters.memory }}"
+    
+
+
+
+
