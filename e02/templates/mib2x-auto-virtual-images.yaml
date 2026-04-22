@@ -25,7 +25,7 @@ spec:
   volumes:
   - name: session
     hostPath:
-      path:  "{{ workflow.parameters.visitdir }}"
+      path:  "{{`{{workflow.parameters.visitdir}}`}}"
       type: Directory
   volumeClaimTemplates:  
   - metadata:
@@ -55,8 +55,8 @@ spec:
           arguments:
             parameters:
               - name: hdf5_files
-                value: "{{item}}"
-          withParam: "{{steps.find.outputs.result}}"
+                value: "{{`{{item}}`}}"
+          withParam: "{{`{{steps.find.outputs.result}}`}}"
   ###
     - name: find-hdf5-files
       inputs:
@@ -73,7 +73,7 @@ spec:
         image: python:3.10
         volumeMounts:
           - name: session
-            mountPath: "{{ workflow.parameters.visitdir }}"
+            mountPath: "{{ `{{workflow.parameters.visitdir}}` }}"
           - name: tmpdir
             mountPath: /tmp
         command: [python]
@@ -139,7 +139,7 @@ spec:
           verbose = True
 
           #start search for MIB files
-          os.chdir('%s/processing/Merlin/%s' % ("{{workflow.parameters.visitdir}}", 'workflows_testing'))
+          os.chdir('%s/processing/Merlin/%s' % ("{{`{{workflow.parameters.visitdir}}`}}", 'workflows_testing'))
                                                                                     
 
           source_path = os.getcwd() + '/'
@@ -197,41 +197,41 @@ spec:
         parameters:
         - name: hdf5_files
         - name: nprocs
-          value: "{{ workflow.parameters.nprocs }}"
+          value: "{{ `{{workflow.parameters.nprocs}}` }}"
         - name: memory
-          value: "{{ workflow.parameters.memory }}" 
+          value: "{{ `{{workflow.parameters.memory}}` }}" 
         - name: DEBUG
-          value: "{{ workflow.parameters.DEBUG }}" 
+          value: "{{ `{{workflow.parameters.DEBUG}}` }}" 
       script:
         image: gitlab.diamond.ac.uk:5050/scisoft/ptychography/dimtools/mib2x
         imagePullPolicy: Always
         env:
         - name: BLOSC_NTHREADS
-          value: "{{ inputs.parameters.nprocs }}"
+          value: "{{ `{{inputs.parameters.nprocs}}` }}"
         - name: OMP_NUM_THREADS
-          value: "{{ inputs.parameters.nprocs }}"
+          value: "{{ `{{inputs.parameters.nprocs}}` }}"
         - name: M2X_DEBUG
-          value: "{{ inputs.parameters.DEBUG }}"
+          value: "{{ `{{inputs.parameters.DEBUG}}` }}"
         volumeMounts:
           - name: tmpdir    #session
             mountPath: /tmp
           - name: session
-            mountPath: "{{ workflow.parameters.visitdir }}"
+            mountPath: "{{ `{{workflow.parameters.visitdir}}` }}"
         command: [sh]
         source: |
           #!/bin/sh
-          echo "{{inputs.parameters.hdf5_files}}"
+          echo "{{`{{inputs.parameters.hdf5_files}}`}}"
           #set -e
       podSpecPatch: |
         containers:
         - name: main
           resources:
             requests:
-              cpu: "{{ inputs.parameters.nprocs }}"
-              memory: "{{ inputs.parameters.memory }}"
+              cpu: "{{ `{{inputs.parameters.nprocs}}` }}"
+              memory: "{{ `{{inputs.parameters.memory}}` }}"
             limits:
-              cpu: "{{ inputs.parameters.nprocs }}"
-              memory: "{{ inputs.parameters.memory }}"
+              cpu: "{{ `{{inputs.parameters.nprocs}}` }}"
+              memory: "{{ `{{inputs.parameters.memory}}` }}"
     
 
 
