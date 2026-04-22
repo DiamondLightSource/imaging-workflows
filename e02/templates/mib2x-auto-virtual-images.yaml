@@ -1,9 +1,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: e02mib2x-auto
+  name: e02virtual-image-auto
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
-    workflows.argoproj.io/title: ePSIC mib automatic conversion
+    workflows.argoproj.io/title: ePSIC Parallel virtual image generation
     workflows.argoproj.io/description: |
       Convert MIB file to hdf5/hspy files
     workflows.diamond.ac.uk/parameter-schema: |
@@ -11,7 +13,7 @@ metadata:
     workflows.diamond.ac.uk/ui-schema: |
       {{- .Files.Get "schema/mib2x_auto_virtual_images_ui" | nindent 6 }}
 spec:
-  entrypoint: mib2x-auto
+  entrypoint: virtual-image-auto
   arguments:
     parameters:
     - name: visitdir
@@ -36,7 +38,7 @@ spec:
       storageClassName: netapp
   ###
   templates:
-    - name: mib2x-auto
+    - name: virtual-image-auto
       #inputs: 
       #  parameters: 
 
