@@ -1,36 +1,22 @@
 {
   "type": "VerticalLayout",
-  "options": {
-    "formWidth": "80%"
-  },
   "elements": [
     {
-      "type": "Group",
-      "label": "Input Files",
-      "elements": [
-        {
-          "type": "VerticalLayout",
-          "elements": [
-            {
-              "type": "Control",
-              "label": "Name of the sample",
-              "scope": "#/properties/sample_name"
-            },
-            {
-              "type": "Control",
-              "scope": "#/properties/nprocs"
-            },
-            {
-              "type": "Control",
-              "scope": "#/properties/memory"
-            },
-            {
-              "type": "Control",
-              "scope": "#/properties/DEBUG"
-            }
-          ]
-        }
-      ]
+      "type": "Control",
+      "label": "Name of the sample",
+      "scope": "#/properties/sample_name"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/nprocs"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/memory"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/DEBUG"
     }
   ]
 }
