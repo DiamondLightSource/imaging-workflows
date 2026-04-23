@@ -11,7 +11,7 @@ metadata:
     workflows.diamond.ac.uk/parameter-schema: |
       {{- .Files.Get "schema/mib2x_auto_virtual_images_Schema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
-      {{- .Files.Get "schema/mib2x_auto_virtual_images_ui" | nindent 6 }}
+      {{- .Files.Get "schema/mib2x_auto_virtual_images_ui.json" | nindent 6 }}
 spec:
   entrypoint: virtual-image-auto
   arguments:
