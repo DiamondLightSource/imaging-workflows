@@ -1,0 +1,27 @@
+{
+  "type": "object",
+    "properties": {
+      "sample_name": {
+      "type": "string",
+      "minLength": 1
+      },
+      "nprocs": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 8
+      },
+      "memory": 
+      {
+        "type": "string",
+        "pattern": "^[0-9]+[GMK]i$",
+        "default": "16Gi"
+      },
+      "DEBUG": 
+      {
+        "type": "integer",
+        "default": 1
+      }
+  }
+}
+    
+    
