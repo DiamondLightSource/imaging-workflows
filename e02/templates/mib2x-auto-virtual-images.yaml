@@ -7,7 +7,7 @@ metadata:
   annotations:
     workflows.argoproj.io/title: ePSIC Parallel virtual image generation
     workflows.argoproj.io/description: |
-      Convert MIB file to hdf5/hspy files
+      This workflow takes a 4DSTEM hdf5 file and perfroms post-processing in order to make varoius vitual images. Such as virtual bright/dark field images, differential phase constrast images and parrallax images
     workflows.diamond.ac.uk/parameter-schema: |
       {{- .Files.Get "schema/mib2x_auto_virtual_images_Schema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |

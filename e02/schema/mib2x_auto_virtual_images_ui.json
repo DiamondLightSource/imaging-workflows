@@ -9,26 +9,13 @@
       "label": "Input Files",
       "elements": [
         {
-          "type": "HorizontalLayout",
+          "type": "VerticalLayout",
           "elements": [
             {
               "type": "Control",
               "label": "Name of the sample",
               "scope": "#/properties/sample_name"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "HorizontalLayout",
-      "elements":
-      [
-        {
-          "type": "Group",
-          "label": "Resource and Debug Settings",
-          "elements": 
-          [
+            },
             {
               "type": "Control",
               "scope": "#/properties/nprocs"
