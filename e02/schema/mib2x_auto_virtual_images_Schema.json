@@ -2,26 +2,27 @@
   "type": "object",
     "properties": {
       "sample_name": {
-      "type": "string",
-      "minLength": 1
+        "title": "Sample name",
+        "type": "string",
+        "minLength": 1
       },
       "nprocs": {
+        "title": "Number of processors",
         "type": "integer",
         "minimum": 0,
         "default": 8
       },
-      "memory": 
-      {
+      "memory": {
+        "title": "Amount of memory required",
         "type": "string",
         "pattern": "^[0-9]+[GMK]i$",
         "default": "16Gi"
       },
-      "DEBUG": 
-      {
+      "DEBUG": {
         "type": "integer",
         "default": 1
       }
-  }
+    }
 }
     
     
