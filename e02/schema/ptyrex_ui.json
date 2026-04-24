@@ -6,19 +6,19 @@
   "elements": [
     {
       "type": "Group",
-      "label": "Input Files",
+      "label": "Ptyrex job submission",
       "elements": [
         {
           "type": "VerticalLayout",
           "elements": [
             {
               "type": "Control",
-              "label": "Basic ptyrex inputs",
+              "label": "Ptyrex config file path",
               "scope": "#/properties/config_path"
             },
             {
               "type": "Control",
-              "label": "Scan Number",
+              "label": "Scan number",
               "scope": "#/properties/scan_number"
             },
             {
@@ -28,7 +28,7 @@
             },
             {
               "type": "Control",
-              "label": "Projection start number",
+              "label": "Projection end number",
               "scope": "#/properties/proj_end"
             },
             {

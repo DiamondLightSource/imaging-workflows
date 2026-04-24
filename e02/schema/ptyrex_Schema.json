@@ -13,7 +13,7 @@
             "default": null,
             "maximum": 10000000000,
             "minimum": 0,
-            "title": "Scan Number",
+            "title": "Scan number",
             "type": "integer"
         },
         "proj_start": {

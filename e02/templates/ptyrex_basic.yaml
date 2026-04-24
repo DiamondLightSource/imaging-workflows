@@ -54,15 +54,15 @@ spec:
       - name: scan_number
         value: "{{`{{workflows.parameters.scan_number}}`}}"
       - name: projection_start
-        value: "{{`{{workflows.parameters.projection_start}}`}}"
+        value: "{{`{{workflows.parameters.proj_start}}`}}"
       - name: projection_end
-        value: "{{`{{workflows.parameters.projection_end}}`}}"
+        value: "{{`{{workflows.parameters.proj_end}}`}}"
       - name: nprocs
         value: "{{`{{workflows.parameters.nprocs}}`}}"
       - name: memory
         value: "{{`{{ workflow.parameters.memory }}`}}" 
     script:
-      image: ghcr.io/ptyrex
+      image: gitlab.diamond.ac.uk:5050/scisoft/ptychography/dimtools/mib2x #I am using this image to test the workflow generates its inputs correctly not to run anything at the moment
       imagePullPolicy: Always
       env:
         - name: BLOSC_NTHREADS
@@ -81,7 +81,7 @@ spec:
 
         cmd=("python mpiexec -np nprocs ptyrex_recon -c {{`{{workflows.parameters.config_json}}`}} -s {{`{{workflows.parameters.scan_number}}`}} -p {{`{{workflows.parameters.projection_start}}`}}-{{`{{workflows.parameters.projection_end}}`}}")
         echo "Executing: ${cmd[@]}"
-        exec "${cmd[@]}"
+        #exec "${cmd[@]}"
 
 
 
