@@ -1,0 +1,49 @@
+{
+  "type": "VerticalLayout",
+  "options": {
+    "formWidth": "80%"
+  },
+  "elements": [
+    {
+      "type": "Group",
+      "label": "Input Files",
+      "elements": [
+        {
+          "type": "VerticalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "label": "Basic ptyrex inputs",
+              "scope": "#/properties/config_path"
+            },
+            {
+              "type": "Control",
+              "label": "Scan Number",
+              "scope": "#/properties/scan_number"
+            },
+            {
+              "type": "Control",
+              "label": "Projection start number",
+              "scope": "#/properties/proj_start"
+            },
+            {
+              "type": "Control",
+              "label": "Projection start number",
+              "scope": "#/properties/proj_end"
+            },
+            {
+              "type": "Control",
+              "label": "Number of Processors",
+              "scope": "#/properties/nprocs"
+            },
+            {
+              "type": "Control",
+              "label": "Amount of memory",
+              "scope": "#/properties/memory"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
