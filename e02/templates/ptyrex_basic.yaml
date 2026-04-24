@@ -1,0 +1,88 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: ptyrex_submission
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
+  annotations:
+  workflows.argoproj.io/title: Simple Ptyrex job submission
+  workflows.argoproj.io/description: |
+    Submit a Ptyrex job fro a particular scan and projection within a given visit
+  workflows.diamond.ac.uk/parameter-schema: |
+    {{- .Files.Get "schema/ptyrex_Schema.json" | nindent 6}} 
+  workflows.diamond.ac.uk/ui-schema: |
+    {{- .Files.Get "schema/ptyrex_ui.json" | nindent 6}} 
+spec:
+  enterypoint: ptyrex_container
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+         name: sessionspaces
+         key: data_directory
+  ##
+  volumes:
+  - name: session
+    hostPath:
+      path: "{{`{{ workflows.parameters.visitdir}}`}}"
+      type: Directory
+  ##
+  #should claim and use a volume called workflows within the visit directory called workflows
+  ##
+  volumeClaimTemplates:
+  - metadata:
+      name: tmpdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources: 
+        requests:
+          storage: 1Gi
+      storageClassName: netapp
+  ##
+  templates:
+  - name: ptyrex_container
+    steps:
+    - - name: ptyrex
+        template: ptyrex
+  ##
+  - name: ptyrex
+    inputs:
+      parameters:
+      - name: config_json
+        value: "{{`{{workflows.parameters.config_json}}`}}"
+      - name: scan_number
+        value: "{{`{{workflows.parameters.scan_number}}`}}"
+      - name: projection_start
+        value: "{{`{{workflows.parameters.proj_start}}`}}"
+      - name: projection_end
+        value: "{{`{{workflows.parameters.proj_end}}`}}"
+      - name: nprocs
+        value: "{{`{{workflows.parameters.nprocs}}`}}"
+      - name: memory
+        value: "{{`{{ workflow.parameters.memory }}`}}" 
+    script:
+      image: gitlab.diamond.ac.uk:5050/scisoft/ptychography/dimtools/mib2x #I am using this image to test the workflow generates its inputs correctly not to run anything at the moment
+      imagePullPolicy: Always
+      env:
+        - name: BLOSC_NTHREADS
+          value: "{{`{{ inputs.parameters.nprocs }}`}}"
+        - name: OMP_NUM_THREADS
+          value: "{{`{{ inputs.parameters.nprocs }}`}}"
+      volumeMounts:
+      - name: tmpdir
+        mountPath: /tmp
+      - name: session
+        mountPath: "{{`{{workflows.parameters.visitdir}}`}}"
+      command: [sh]
+      source: |
+        #!/bin/sh
+        set -e
+
+        cmd=("python mpiexec -np nprocs ptyrex_recon -c {{`{{workflows.parameters.config_json}}`}} -s {{`{{workflows.parameters.scan_number}}`}} -p {{`{{workflows.parameters.projection_start}}`}}-{{`{{workflows.parameters.projection_end}}`}}")
+        echo "Executing: ${cmd[@]}"
+        #exec "${cmd[@]}"
+
+
+
+

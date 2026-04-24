@@ -1,0 +1,49 @@
+{
+  "type": "VerticalLayout",
+  "options": {
+    "formWidth": "80%"
+  },
+  "elements": [
+    {
+      "type": "Group",
+      "label": "Ptyrex job submission",
+      "elements": [
+        {
+          "type": "VerticalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "label": "Ptyrex config file path",
+              "scope": "#/properties/config_path"
+            },
+            {
+              "type": "Control",
+              "label": "Scan number",
+              "scope": "#/properties/scan_number"
+            },
+            {
+              "type": "Control",
+              "label": "Projection start number",
+              "scope": "#/properties/proj_start"
+            },
+            {
+              "type": "Control",
+              "label": "Projection end number",
+              "scope": "#/properties/proj_end"
+            },
+            {
+              "type": "Control",
+              "label": "Number of Processors",
+              "scope": "#/properties/nprocs"
+            },
+            {
+              "type": "Control",
+              "label": "Amount of memory",
+              "scope": "#/properties/memory"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

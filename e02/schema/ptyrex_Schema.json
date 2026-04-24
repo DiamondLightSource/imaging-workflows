@@ -1,0 +1,48 @@
+{
+  "type": "object",
+    "description": "basic inputs for ptyrex submission",
+    "properties": {
+        "config_path": {
+            "default": null,
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Config Path",
+            "type": "string"
+        },
+        "scan_number": {
+            "default": null,
+            "maximum": 10000000000,
+            "minimum": 0,
+            "title": "Scan number",
+            "type": "integer"
+        },
+        "proj_start": {
+            "default": null,
+            "maximum": 10000000,
+            "minimum": 0,
+            "title": "Proj Start",
+            "type": "integer"
+        },
+        "proj_end": {
+            "default": null,
+            "maximum": 10000000,
+            "minimum": 0,
+            "title": "Proj End",
+            "type": "integer"
+        },
+        "nprocs": {
+            "default": 8,
+            "maximum": 40,
+            "minimum": 0,
+            "title": "Nprocs",
+            "type": "integer"
+        },
+        "memory": {
+            "type": "string",
+            "pattern": "^[0-9]+[GMK]i$",
+            "default": "16Gi"
+        }
+    },
+    "title": "RexSubmission"
+}
+    
