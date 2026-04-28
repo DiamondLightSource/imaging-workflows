@@ -4,11 +4,11 @@ metadata:
   name: visr-tomo-recon
   labels:
     workflows.diamond.ac.uk/science-group-imaging: "true"
+  annotations:
     workflows.argoproj.io/title: ViSR Tomography Reconstruction
     workflows.argoproj.io/description: |
       Run a simple tomography reconstruction pipeline for data collected on
       ViSR, and convert the output recon hdf5 data to raw binary data.
-  annotations:
     workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
 spec:
   entrypoint: run
