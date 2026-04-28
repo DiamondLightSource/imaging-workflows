@@ -1,0 +1,172 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: visr-tomo-recon
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
+    workflows.argoproj.io/title: ViSR Tomography Reconstruction
+    workflows.argoproj.io/description: |
+      Run a simple tomography reconstruction pipeline for data collected on
+      ViSR, and convert the output recon hdf5 data to raw binary data.
+  annotations:
+    workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
+spec:
+  entrypoint: run
+  volumeClaimTemplates:
+  - metadata:
+      name: tmpdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: netapp
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+  templates:
+  - name: run
+    inputs:
+      parameters:
+      - name: input
+      - name: output
+      - name: recon-outdir-name
+        value: recon-dir
+      - name: nprocs
+        value: 1
+      - name: memory
+        value: 1Gi
+    steps:
+    - - name: tomo-recon
+        template: httomo
+        arguments:
+          parameters:
+          - name: config
+            value: |
+              {{- .Files.Get "pipelines/visr.json" | nindent 14 }}
+          - name: input
+            value: "{{`{{ inputs.parameters.input }}`}}"
+          - name: output
+            value: "{{`{{ inputs.parameters.output }}`}}"
+          - name: nprocs
+            value: "{{`{{ inputs.parameters.nprocs }}`}}"
+          - name: memory
+            value: "{{`{{ inputs.parameters.memory }}`}}"
+          - name: recon-outdir-name
+            value: "{{`{{ inputs.parameters.recon-outdir-name }}`}}"
+    - - name: generate-recon-artifact
+        template: convert-recon-data-format
+        arguments:
+          parameters:
+          - name: recon-dir-path
+            value: "{{`{{ inputs.parameters.output }}`}}/{{`{{ inputs.parameters.recon-outdir-name }}`}}"
+  - name: httomo
+    inputs:
+      parameters:
+      - name: config
+      - name: input
+      - name: output
+      - name: nprocs
+        value: 1
+      - name: memory
+        value: 1Gi
+    container:
+      image: ghcr.io/diamondlightsource/httomo:latest
+      env:
+      - name: CUPY_CACHE_DIR
+        value: /tmp/.cupy/kernel_cache
+      - name: MKL_NUM_THREADS
+        value: "1"
+      - name: NUMEXPR_NUM_THREADS
+        value: "1"
+      - name: OMP_NUM_THREADS
+        value: "1"
+      command:
+      - /opt/conda/bin/mpirun
+      args:
+      - "-n"
+      - "{{`{{ inputs.parameters.nprocs }}`}}"
+      - /opt/conda/bin/python
+      - "-m"
+      - "httomo"
+      - "run"
+      - "--pipeline-format"
+      - "json"
+      - "{{`{{ inputs.parameters.input }}`}}"
+      - "{{`{{ inputs.parameters.config }}`}}"
+      - "{{`{{ inputs.parameters.output }}`}}"
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmpdir
+        mountPath: /tmp
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+          limits:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+    tolerations:
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule
+    - key: nodetype
+      operator: Equal
+      value: gpu
+      effect: NoSchedule
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    volumes:
+    - name: session
+      hostPath:
+        path:  "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+  - name: convert-recon-data-format
+    inputs:
+      parameters:
+      - name: recon-dir-path
+      - name: tmpdir-path
+        value: /tmp
+      - name: output-filename
+        value: recon.raw
+    script:
+      image: ghcr.io/diamondlightsource/httomo:latest
+      command: [/opt/conda/bin/python]
+      source: |
+        from pathlib import Path
+
+        OUT_PATH = "{{`{{ inputs.parameters.tmpdir-path }}`}}/{{`{{ inputs.parameters.output-filename }}`}}"
+        RECON_DIR = Path("{{`{{ inputs.parameters.recon-dir-path }}`}}")
+        RECON_FILENAME_PATTERN = "*-httomolib-rescale_to_int.h5"
+        recon_data_path = list(RECON_DIR.glob(RECON_FILENAME_PATTERN))[0]
+
+        with h5py.File(recon_data_path, "r") as f:
+            f["/data"][:].tofile(OUT_PATH)
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmpdir
+        mountPath: "{{`{{ inputs.parameters.tmpdir-path }}`}}"
+    volumes:
+    - name: session
+      hostPath:
+        path:  "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+    outputs:
+      artifacts:
+      - name: recon
+        path: "{{`{{ inputs.parameters.tmpdir-path }}`}}/{{`{{ inputs.parameters.output-filename }}`}}"
+        archive:
+          none: { }
