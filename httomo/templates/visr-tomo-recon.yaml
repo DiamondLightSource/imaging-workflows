@@ -36,10 +36,6 @@ spec:
       - name: output
       - name: recon-outdir-name
         value: recon-dir
-      - name: nprocs
-        value: 1
-      - name: memory
-        value: 1Gi
     steps:
     - - name: tomo-recon
         template: httomo
@@ -52,10 +48,6 @@ spec:
             value: "{{`{{ inputs.parameters.input }}`}}"
           - name: output
             value: "{{`{{ inputs.parameters.output }}`}}"
-          - name: nprocs
-            value: "{{`{{ inputs.parameters.nprocs }}`}}"
-          - name: memory
-            value: "{{`{{ inputs.parameters.memory }}`}}"
           - name: recon-outdir-name
             value: "{{`{{ inputs.parameters.recon-outdir-name }}`}}"
     - - name: generate-recon-artifact
