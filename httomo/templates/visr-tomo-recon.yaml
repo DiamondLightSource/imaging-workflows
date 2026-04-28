@@ -70,6 +70,7 @@ spec:
       - name: config
       - name: input
       - name: output
+      - name: recon-outdir-name
       - name: nprocs
         value: 1
       - name: memory
@@ -96,6 +97,8 @@ spec:
       - "run"
       - "--pipeline-format"
       - "json"
+      - "--output-folder-name"
+      - "{{`{{ inputs.parameters.recon-outdir-name }}`}}"
       - "{{`{{ inputs.parameters.input }}`}}"
       - "{{`{{ inputs.parameters.config }}`}}"
       - "{{`{{ inputs.parameters.output }}`}}"
