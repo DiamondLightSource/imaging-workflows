@@ -134,22 +134,33 @@ spec:
       - name: recon-dir-path
       - name: tmpdir-path
         value: /tmp
-      - name: output-filename
+      - name: raw-recon-filename
         value: recon.raw
+      - name: metadata-filename
+        value: metadata.json
     script:
       image: ghcr.io/diamondlightsource/httomo:latest
       command: [/opt/conda/bin/python]
       source: |
         from pathlib import Path
         import h5py
+        import json
 
-        OUT_PATH = "{{`{{ inputs.parameters.tmpdir-path }}`}}/{{`{{ inputs.parameters.output-filename }}`}}"
-        RECON_DIR = Path("{{`{{ inputs.parameters.recon-dir-path }}`}}")
-        RECON_FILENAME_PATTERN = "*-httomolib-rescale_to_int.h5"
-        recon_data_path = list(RECON_DIR.glob(RECON_FILENAME_PATTERN))[0]
+        RAW_RECON_PATH = "{{`{{ inputs.parameters.tmpdir-path }}`}}/{{`{{ inputs.parameters.raw-recon-filename }}`}}"
+        HDF5_RECON_DIR = Path("{{`{{ inputs.parameters.recon-dir-path }}`}}")
+        HDF5_RECON_FILENAME_PATTERN = "*-httomolib-rescale_to_int.h5"
+        hdf5_recon_data_path = list(HDF5_RECON_DIR.glob(HDF5_RECON_FILENAME_PATTERN))[0]
 
-        with h5py.File(recon_data_path, "r") as f:
-            f["/data"][:].tofile(OUT_PATH)
+        with h5py.File(hdf5_recon_data_path, "r") as f:
+            data = f["/data"][:]
+            data.tofile(RAW_RECON_PATH)
+
+        METADATA_PATH = "{{`{{ inputs.parameters.tmpdir-path }}`}}/{{`{{ inputs.parameters.metadata-filename }}`}}"
+
+        order = "C" if data.flags.c_contiguous else "F"
+        metadata = {"shape": list(data.shape), "dtype": str(data.dtype), "order": order}
+        with open(METADATA_PATH, "w") as f:
+            f.write(json.dumps(metadata, indent=2))
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -163,6 +174,10 @@ spec:
     outputs:
       artifacts:
       - name: recon
-        path: "{{`{{ inputs.parameters.tmpdir-path }}`}}/{{`{{ inputs.parameters.output-filename }}`}}"
+        path: "{{`{{ inputs.parameters.tmpdir-path }}`}}/{{`{{ inputs.parameters.raw-recon-filename }}`}}"
+        archive:
+          none: { }
+      - name: metadata
+        path: "{{`{{ inputs.parameters.tmpdir-path }}`}}/{{`{{ inputs.parameters.metadata-filename }}`}}"
         archive:
           none: { }
