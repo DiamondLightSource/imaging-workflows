@@ -141,6 +141,7 @@ spec:
       command: [/opt/conda/bin/python]
       source: |
         from pathlib import Path
+        import h5py
 
         OUT_PATH = "{{`{{ inputs.parameters.tmpdir-path }}`}}/{{`{{ inputs.parameters.output-filename }}`}}"
         RECON_DIR = Path("{{`{{ inputs.parameters.recon-dir-path }}`}}")
