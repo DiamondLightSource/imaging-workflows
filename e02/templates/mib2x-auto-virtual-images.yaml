@@ -5,6 +5,7 @@ metadata:
   labels:
     workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
+    workflows.diamond.ac.uk/repository: https://github.com/DiamondLightSource/imaging-workflows
     workflows.argoproj.io/title: ePSIC Parallel virtual image generation
     workflows.argoproj.io/description: |
       This workflow takes a 4DSTEM hdf5 file and perfroms post-processing in order to make varoius vitual images. Such as virtual bright/dark field images, differential phase constrast images and parrallax images
@@ -62,7 +63,7 @@ spec:
       inputs:
         parameters:
         - name: sample_name
-          value: workflows_testing 
+          value: "{{`{{workflow.parameters.sample_name}}`}}"
       outputs:
         artifacts:
         - name: find_files_logging
@@ -139,7 +140,7 @@ spec:
           verbose = True
 
           #start search for MIB files
-          os.chdir('%s/processing/Merlin/%s' % ("{{`{{workflow.parameters.visitdir}}`}}", 'workflows_testing'))
+          os.chdir('%s/processing/Merlin/%s' % ("{{`{{workflow.parameters.visitdir}}`}}", "{{`{{ workflow.parameters.sample_name }}`}}"))
                                                                                     
 
           source_path = os.getcwd() + '/'
@@ -220,7 +221,9 @@ spec:
         command: [sh]
         source: |
           #!/bin/sh
-          echo "{{`{{inputs.parameters.hdf5_files}}`}}"
+          cmd=("{{`{{inputs.parameters.hdf5_files}}`}}")
+          echo "Executing: ${cmd}"
+          exec "${cmd}"
           #set -e
       podSpecPatch: |
         containers:
