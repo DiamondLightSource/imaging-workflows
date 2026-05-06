@@ -222,6 +222,7 @@ spec:
         source: |
           #!/bin/sh
           #set -e
+          pwd
           cmd=("{{`{{inputs.parameters.hdf5_files}}`}}")
           echo "Executing: ${cmd}"
           exec "${cmd}"
