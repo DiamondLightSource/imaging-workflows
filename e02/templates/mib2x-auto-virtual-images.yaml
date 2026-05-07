@@ -181,8 +181,8 @@ spec:
 
           todo, checks = check_dataset(hdf5_files,hdf5_timestamps,[no_vir,no_dpc,no_par])
           for item,x in enumerate(todo):
-            cmd_list.append('/usr/bin/python /home/ruska/py4DSTEM_Virtual_Image.py --hdf5-path %s --disk-thrs-low %f --disk-thrs-up %f --virtual-images %s --dpc-images %s --plax %s --mask-path %s' %(hdf5_files[todo[item]],0.05,0.2,checks[0][todo[item]],checks[1][todo[item]],checks[2][todo[item]],"/home/ruska/29042024_12bitmask2.h5"))
-            logging.append('/usr/bin/python /home/ruska/py4DSTEM_Virtual_Image.py --hdf5-path %s --disk-thrs-low %f --disk-thrs-up %f --virtual-images %s --dpc-images %s --plax %s --mask-path %s' %(hdf5_files[todo[item]],0.05,0.2,checks[0][todo[item]],checks[1][todo[item]],checks[2][todo[item]],"/home/ruska/29042024_12bitmask2.h5"))
+            cmd_list.append('python py4DSTEM_Virtual_Image.py --hdf5-path=%s --disk-thrs-low=%f --disk-thrs-up=%f --virtual-images=%s --dpc-images=%s --plax=%s --mask-path=%s' %(hdf5_files[todo[item]],0.05,0.2,checks[0][todo[item]],checks[1][todo[item]],checks[2][todo[item]],"/home/ruska/29042024_12bitmask2.h5"))
+            logging.append('python py4DSTEM_Virtual_Image.py --hdf5-path=%s --disk-thrs-low=%f --disk-thrs-up=%f --virtual-images=%s --dpc-images=%s --plax=%s --mask-path=%s' %(hdf5_files[todo[item]],0.05,0.2,checks[0][todo[item]],checks[1][todo[item]],checks[2][todo[item]],"/home/ruska/29042024_12bitmask2.h5"))
 
           #ToDo think about this printing in the context of an Error
           #this should be try statement 
@@ -222,10 +222,9 @@ spec:
         source: |
           #!/bin/sh
           #set -e
-          pwd
-          cmd=("{{`{{inputs.parameters.hdf5_files}}`}}")
+          cmd="{{`{{inputs.parameters.hdf5_files}}`}}"
           echo "Executing: ${cmd}"
-          exec "${cmd}"
+          eval "${cmd}"
           
       podSpecPatch: |
         containers:
