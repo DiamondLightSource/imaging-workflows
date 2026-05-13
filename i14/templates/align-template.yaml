@@ -2,10 +2,14 @@ apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
   name: align
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
+  
   annotations:
     workflows.argoproj.io/title: Align data
     workflows.argoproj.io/description: |
       A utility which takes in a file path, a mask, aligns data according to vertical mass or phase correlation between images, and saves the results.
+    workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
     workflows.diamond.ac.uk/parameter-schema: |
       {{- .Files.Get "schema/alignSchema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
