@@ -76,15 +76,17 @@ spec:
         value: /tmp
       command: [bash]
       source: |
-        python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+        python -m papermill /tmp/notebook.ipynb "{{`{{ inputs.parameters.outpath }}`}}/mask-notebook.ipynb" \
           -p inpath "{{`{{ inputs.parameters.inpath }}`}}" \
           -p outpath "{{`{{ inputs.parameters.outpath }}`}}" \
           -p padding "{{`{{ inputs.parameters.padding }}`}}" \
           -p min_size "{{`{{ inputs.parameters.minSize }}`}}" \
           -p erosion_radius "{{`{{ inputs.parameters.erosionRadius }}`}}" \
-          -p dilation_radius "{{`{{ inputs.parameters.dilationRadius }}`}}"
-        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output mask-notebook --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
-        python -m jupyter nbconvert "{{`{{ inputs.parameters.outpath }}`}}/mask-notebook.ipynb" --to html --output mask-output --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
+          -p dilation_radius "{{`{{ inputs.parameters.dilationRadius }}`}}" \
+          --prepare-only
+        python -m jupyter nbconvert "{{`{{ inputs.parameters.outpath }}`}}/mask-notebook.ipynb" \
+          --to html  --execute --allow-errors --output mask-output \
+          --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
