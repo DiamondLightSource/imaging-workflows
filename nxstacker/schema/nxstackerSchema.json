@@ -14,11 +14,13 @@
     "quiet": {
       "type": "boolean",
       "title": "Quiet",
+      "default": false,
       "description": "Suppress log messages"
     },
     "dryRun": {
       "type": "boolean",
-      "title": "Perform a dry run"
+      "title": "Perform a dry run",
+      "default": false
     },
     "projDir": {
       "type": "string",
@@ -93,21 +95,25 @@
     "sortByAngle": {
       "type": "boolean",
       "title": "Sort by angle",
+      "default": false,
       "description": "Sort the projections by their rotation angles"
     },
     "padToMax": {
       "type": "boolean",
       "title": "Pad to max",
+      "default": false,
       "description": "Pad projection to the maximum size of the stack"
     },
     "compress": {
       "type": "boolean",
       "title": "Compress",
+      "default": false,
       "description": "Compress the NXtomo file"
     },
     "skipCheck": {
       "type": "boolean",
       "title": "Skip check",
+      "default": false,
       "description": "Skip the validation of the projection file"
     },
     "retrievalMethod": {
@@ -251,36 +257,44 @@
     },
     "saveComplex": {
       "type": "boolean",
-      "title": "Save complex"
+      "title": "Save complex",
+      "default": false
     },
     "saveModulus": {
       "type": "boolean",
-      "title": "Save modulus"
+      "title": "Save modulus",
+      "default": false
     },
     "savePhase": {
       "type": "boolean",
-      "title": "Save phase"
+      "title": "Save phase",
+      "default": false
     },
     "removeRamp": {
       "type": "boolean",
-      "title": "Remove ramp"
+      "title": "Remove ramp",
+      "default": false
     },
     "medianNorm": {
       "type": "boolean",
       "title": "Median norm",
-      "description": "Normalise the phase by shifting its median"
+      "description": "Normalise the phase by shifting its median",
+      "default": false
     },
     "unwrapPhase": {
       "type": "boolean",
-      "title": "Unwrap phase"
+      "title": "Unwrap phase",
+      "default": false
     },
     "rescale": {
       "type": "boolean",
-      "title": "Rescale"
+      "title": "Rescale",
+      "default": false
     },
     "ignoreRaw": {
       "type": "boolean",
-      "title": "Ignore Raw"
+      "title": "Ignore Raw",
+      "default": false
     }
   },
   "required": ["experimentType"]
