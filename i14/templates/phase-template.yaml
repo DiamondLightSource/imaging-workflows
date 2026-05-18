@@ -27,7 +27,7 @@ spec:
     - name: maskpath
       value: ""
     - name: normalise
-      value: False
+      value: false
     - name: outpath
       value: ""
   volumeClaimTemplates:
