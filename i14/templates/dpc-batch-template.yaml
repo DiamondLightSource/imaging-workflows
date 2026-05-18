@@ -80,7 +80,7 @@ spec:
           -p auto_processing False \
           --prepare-only
         python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" \
-          --to html  --execute --allow-errors --no-input \
+          --to html  --execute --no-input \
           --output dpc-output-{{`{{ inputs.parameters.scanNumber }}`}} \
           --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
       volumeMounts:

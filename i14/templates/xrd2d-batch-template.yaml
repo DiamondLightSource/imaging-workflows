@@ -99,7 +99,7 @@ spec:
           -p flat_path "{{`{{ inputs.parameters.flatPath }}`}}" \
           --prepare-only
         python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xrd2d-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" \
-          --to html --execute --allow-errors --no-input \
+          --to html --execute --no-input \
           --output xrd2d-output-{{`{{ inputs.parameters.scanNumber }}`}} \
           --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
       volumeMounts:

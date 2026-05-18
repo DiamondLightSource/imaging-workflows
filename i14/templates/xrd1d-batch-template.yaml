@@ -112,7 +112,7 @@ spec:
           -p polynomial_order "{{`{{ inputs.parameters.polynomialOrder }}`}}" \
           --prepare-only
         python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xrd1d-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" \
-          --to html --execute --allow-errors --no-input --output xrd1d-output-{{`{{ inputs.parameters.scanNumber }}`}} \
+          --to html --execute --no-input --output xrd1d-output-{{`{{ inputs.parameters.scanNumber }}`}} \
           --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
       volumeMounts:
       - name: session

@@ -85,7 +85,7 @@ spec:
           -p dilation_radius "{{`{{ inputs.parameters.dilationRadius }}`}}" \
           --prepare-only
         python -m jupyter nbconvert "{{`{{ inputs.parameters.outpath }}`}}/mask-notebook.ipynb" \
-          --to html  --execute --allow-errors --output mask-output \
+          --to html  --execute --output mask-output \
           --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
       volumeMounts:
       - name: session

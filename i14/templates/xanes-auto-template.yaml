@@ -146,7 +146,7 @@ spec:
           -p auto_processing False \
           --prepare-only
         python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}/xanes-notebook.ipynb" \
-          --to html --execute --allow-errors --output xanes-output \
+          --to html --execute --output xanes-output \
           --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}"
       volumeMounts:
       - name: session

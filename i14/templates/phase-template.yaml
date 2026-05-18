@@ -75,7 +75,7 @@ spec:
           -p outpath "{{`{{ inputs.parameters.outpath }}`}}" \
           --prepare-only
         python -m jupyter nbconvert "{{`{{ inputs.parameters.outpath }}`}}/phase-notebook.ipynb" \
-          --to html --execute --allow-errors \
+          --to html --execute \
           --output phase-output \
           --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
       volumeMounts:
