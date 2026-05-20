@@ -128,8 +128,11 @@ spec:
         value: /opt/venv/lib64/python3.12/site-packages/hdf5plugin/plugins/
       command: [bash]
       source: |
+        OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}"
+        mkdir -p $OUTPUT
+
         python -m papermill /tmp/notebook.ipynb \
-          "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}/xanes-notebook.ipynb" \
+          $OUTPUT/xanes-notebook.ipynb \
           -p first "{{`{{ inputs.parameters.first }}`}}" \
           -p last "{{`{{ inputs.parameters.last }}`}}" \
           -p exclude "{{`{{ inputs.parameters.exclude }}`}}" \
@@ -145,9 +148,9 @@ spec:
           -p max_fractional_shift 0.2 \
           -p auto_processing False \
           --prepare-only
-        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}/xanes-notebook.ipynb" \
+        python -m jupyter nbconvert $OUTPUT/xanes-notebook.ipynb \
           --to html --execute --output xanes-output \
-          --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}"
+          --output-dir $OUTPUT
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
