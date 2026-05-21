@@ -141,6 +141,7 @@
     "normalise": {
       "type": "boolean",
       "title": "Normalise",
+      "default": true,
       "description": "Whether to normalise the windowed intensity by 'adc_ionCh1a'"
     }
   },

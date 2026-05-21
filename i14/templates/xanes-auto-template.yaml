@@ -40,7 +40,7 @@ spec:
     - name: transitionToAlign
       value: None
     - name: normalise
-      value: "True"
+      value: true
   volumeClaimTemplates:
   - metadata:
       name: tmp

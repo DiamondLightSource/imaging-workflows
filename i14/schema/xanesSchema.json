@@ -37,6 +37,7 @@
     "normalise": {
       "type": "boolean",
       "title": "Normalise",
+      "default": true,
       "description": "Whether to normalise the stack by I0"
     }
   },

@@ -52,6 +52,7 @@
     "normalise": {
       "type": "boolean",
       "title": "Normalise",
+      "default": true,
       "description": "Whether to normalise the stack using the total mass of each projection."
     },
     "cor": {
