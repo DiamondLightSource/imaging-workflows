@@ -68,13 +68,16 @@ spec:
         value: /tmp
       command: [bash]
       source: |
-        python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+        python -m papermill /tmp/notebook.ipynb "{{`{{ inputs.parameters.outpath }}`}}/phase-notebook.ipynb" \
           -p inpath "{{`{{ inputs.parameters.inpath }}`}}" \
           -p maskpath "{{`{{ inputs.parameters.maskpath }}`}}" \
           -p normalise "{{`{{ inputs.parameters.normalise }}`}}" \
-          -p outpath "{{`{{ inputs.parameters.outpath }}`}}"
-        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output phase-notebook --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
-        python -m jupyter nbconvert "{{`{{ inputs.parameters.outpath }}`}}/phase-notebook.ipynb" --to html --output phase-output --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
+          -p outpath "{{`{{ inputs.parameters.outpath }}`}}" \
+          --prepare-only
+        python -m jupyter nbconvert "{{`{{ inputs.parameters.outpath }}`}}/phase-notebook.ipynb" \
+          --to html --execute \
+          --output phase-output \
+          --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"

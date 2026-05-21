@@ -95,7 +95,11 @@ spec:
         value: /opt/venv/lib64/python3.12/site-packages/hdf5plugin/plugins/
       command: [bash]
       source: |
-        python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+        OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}"
+        mkdir -p $OUTPUT
+
+        python -m papermill /tmp/notebook.ipynb \
+          $OUTPUT/xanes-sparse-notebook.ipynb \
           -p first "{{`{{ inputs.parameters.first }}`}}" \
           -p last "{{`{{ inputs.parameters.last }}`}}" \
           -p exclude "{{`{{ inputs.parameters.exclude }}`}}" \
@@ -108,9 +112,11 @@ spec:
           -p num_short_iteration 75 \
           -p num_final_iteration 2000 \
           -p normalised "{{`{{ inputs.parameters.normalise }}`}}" \
-          -p auto_processing False
-        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output xanes-sparse-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}"
-        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}/xanes-sparse-notebook.ipynb" --to html --output xanes-sparse-output --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}"
+          -p auto_processing False \
+          --prepare-only
+        python -m jupyter nbconvert $OUTPUT/xanes-sparse-notebook.ipynb \
+          --to html --execute --output xanes-sparse-output \
+          --output-dir $OUTPUT
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
