@@ -68,16 +68,26 @@ spec:
         value: /tmp
       command: [bash]
       source: |
-        python -m papermill /tmp/notebook.ipynb "{{`{{ inputs.parameters.outpath }}`}}/phase-notebook.ipynb" \
+        ERROR_TXT="raise error"
+        ERROR_STR="An error arose within the executed notebook. Please open the output file to check."
+        OUTPUT="{{`{{ inputs.parameters.outpath }}`}}"
+        mkdir -p $OUTPUT
+
+        python -m papermill /tmp/notebook.ipynb $OUTPUT/phase-notebook.ipynb \
           -p inpath "{{`{{ inputs.parameters.inpath }}`}}" \
           -p maskpath "{{`{{ inputs.parameters.maskpath }}`}}" \
           -p normalise "{{`{{ inputs.parameters.normalise }}`}}" \
           -p outpath "{{`{{ inputs.parameters.outpath }}`}}" \
-          --prepare-only
-        python -m jupyter nbconvert "{{`{{ inputs.parameters.outpath }}`}}/phase-notebook.ipynb" \
-          --to html --execute \
+          > $OUTPUT/papermill.log 2>&1
+
+        python -m jupyter nbconvert $OUTPUT/phase-notebook.ipynb \
+          --to html \
           --output phase-output \
           --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
+
+        grep -q "$ERROR_TXT" "$OUTPUT/papermill.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
+        # Raise an exit code to display failure of task if error text found in log
+
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -87,6 +97,10 @@ spec:
       artifacts:
       - name: phase-output
         path: "{{`{{ inputs.parameters.outpath }}`}}/phase-output.html"
+        archive:
+          none: {}
+      - name: notebook-log
+        path: "{{`{{ inputs.parameters.outpath }}`}}/papermill.log"
         archive:
           none: {}
     podSpecPatch: |

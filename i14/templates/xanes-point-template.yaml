@@ -72,16 +72,26 @@ spec:
         value: /tmp
       command: [bash]
       source: |
-        python -m papermill /tmp/notebook.ipynb "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-point-notebook.ipynb" \
+        ERROR_TXT="raise error"
+        ERROR_STR="An error arose within the executed notebook. Please open the output file to check."
+        OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}"
+        mkdir -p $OUTPUT
+
+        python -m papermill /tmp/notebook.ipynb $OUTPUT/xanes-point-notebook.ipynb \
           -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.scanNumber }}`}}.nxs" \
-          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.scanNumber }}`}}xanes_point.txt" \
+          -p outpath "$OUTPUT/i14-{{`{{ inputs.parameters.scanNumber }}`}}xanes_point.txt" \
           -p edge_element "{{`{{ inputs.parameters.edgeElement }}`}}" \
           -p normalise "{{`{{ inputs.parameters.normalise }}`}}" \
           -p auto_processing False \
-          --prepare-only
-        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-point-notebook.ipynb" \
-          --to html --execute --output xanes-point-output \
-          --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+          > $OUTPUT/papermill.log 2>&1
+
+        python -m jupyter nbconvert $OUTPUT/xanes-point-notebook.ipynb \
+          --to html --output xanes-point-output \
+          --output-dir $OUTPUT
+
+        grep -q "$ERROR_TXT" "$OUTPUT/papermill.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
+        # Raise an exit code to display failure of task if error text found in log
+
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -91,6 +101,10 @@ spec:
       artifacts:
       - name: xanes-point-output
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-point-output.html"
+        archive:
+          none: {}
+      - name: notebook-log
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/papermill.log"
         archive:
           none: {}
     podSpecPatch: |

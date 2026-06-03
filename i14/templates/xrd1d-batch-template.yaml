@@ -100,20 +100,33 @@ spec:
         value: /tmp
       command: [bash]
       source: |
+        ERROR_TXT="raise error"
+        ERROR_STR="An error arose within the executed notebook. Please open the output file to check."
+        OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}"
+        mkdir -p $OUTPUT
+
         python -m papermill /tmp/notebook.ipynb \
-          "{{`{{ inputs.parameters.outputFolder }}`}}/xrd1d-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" \
+          "$OUTPUT/xrd1d-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" \
           -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.scanNumber }}`}}.nxs" \
           -p process_configfile "{{`{{ inputs.parameters.xrdProcessConfigUpload }}`}}" \
-          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.scanNumber }}`}}-xrd1d.nxs" \
+          -p outpath "$OUTPUT/i14-{{`{{ inputs.parameters.scanNumber }}`}}-xrd1d.nxs" \
           -p calibration_path "{{`{{ inputs.parameters.calibrationPath }}`}}" \
           -p mask_path "{{`{{ inputs.parameters.maskPath }}`}}" \
           -p flat_path "{{`{{ inputs.parameters.flatPath }}`}}" \
           -p background_type "{{`{{ inputs.parameters.backgroundType }}`}}" \
           -p polynomial_order "{{`{{ inputs.parameters.polynomialOrder }}`}}" \
-          --prepare-only
-        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xrd1d-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" \
-          --to html --execute --no-input --output xrd1d-output-{{`{{ inputs.parameters.scanNumber }}`}} \
+          > $OUTPUT/papermill.log 2>&1
+
+        python -m jupyter nbconvert "$OUTPUT/xrd1d-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" \
+          --to html --output xanes-sparse-output
+
+        python -m jupyter nbconvert "$OUTPUT/xrd1d-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" \
+          --to html --no-input --output xrd1d-output-{{`{{ inputs.parameters.scanNumber }}`}} \
           --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+
+        grep -q "$ERROR_TXT" "$OUTPUT/papermill.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
+        # Raise an exit code to display failure of task if error text found in log
+
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -123,6 +136,10 @@ spec:
       artifacts:
       - name: xrd1d-output
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/xrd1d-output-{{`{{ inputs.parameters.scanNumber }}`}}.html"
+        archive:
+          none: {}
+      - name: notebook-log
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/papermill.log"
         archive:
           none: {}
     podSpecPatch: |

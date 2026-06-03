@@ -95,6 +95,7 @@ spec:
         value: /opt/venv/lib64/python3.12/site-packages/hdf5plugin/plugins/
       command: [bash]
       source: |
+        ERROR_TXT="raise error"
         ERROR_STR="An error arose within the executed notebook. Please open the output file to check."
         OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}"
         mkdir -p $OUTPUT
@@ -114,11 +115,14 @@ spec:
           -p num_final_iteration 2000 \
           -p normalised "{{`{{ inputs.parameters.normalise }}`}}" \
           -p auto_processing False \
-          --prepare-only
+          > $OUTPUT/papermill.log 2>&1
+
         python -m jupyter nbconvert $OUTPUT/xanes-sparse-notebook.ipynb \
-          --to html --execute --output xanes-sparse-output --allow-errors --log-level=DEBUG \
-          --output-dir $OUTPUT 2>&1 | grep -Fq 'msg_type: error' \
-          && { echo $ERROR_STR >&2; exit 1; } || exit 0
+          --to html --output xanes-sparse-output
+
+        grep -q "$ERROR_TXT" "$OUTPUT/papermill.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
+        # Raise an exit code to display failure of task if error text found in log
+
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -128,6 +132,10 @@ spec:
       artifacts:
       - name: xanes-sparse
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}/xanes-sparse-output.html"
+        archive:
+          none: {}
+      - name: notebook-log
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}/papermill.log"
         archive:
           none: {}
     podSpecPatch: |
