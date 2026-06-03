@@ -95,6 +95,7 @@ spec:
         value: /opt/venv/lib64/python3.12/site-packages/hdf5plugin/plugins/
       command: [bash]
       source: |
+        ERROR_STR="An error arose within the executed notebook. Please open the output file to check."
         OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}"
         mkdir -p $OUTPUT
 
@@ -115,8 +116,9 @@ spec:
           -p auto_processing False \
           --prepare-only
         python -m jupyter nbconvert $OUTPUT/xanes-sparse-notebook.ipynb \
-          --to html --execute --output xanes-sparse-output \
-          --output-dir $OUTPUT
+          --to html --execute --output xanes-sparse-output --allow-errors --log-level=DEBUG \
+          --output-dir $OUTPUT 2>&1 | grep -Fq 'msg_type: error' \
+          && { echo $ERROR_STR >&2; exit 1; } || exit 0
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
