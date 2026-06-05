@@ -1,0 +1,166 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: ptypy-generic
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
+  annotations:
+    workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
+spec:
+  entrypoint: ptypy-gpu-run
+  volumeClaimTemplates:
+  - metadata:
+      name: tmpdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: netapp
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+  templates:
+  - name: ptypy-gpu-run
+    inputs:
+      parameters:
+      - name: config
+      - name: id
+      - name: output
+      - name: nprocs
+        value: 1
+      - name: memory
+        value: 20Gi
+    container:
+      image: ghcr.io/ptycho/ptypy_cupy_openmpi:v0.9.0
+      env:
+      - name: CUPY_CACHE_DIR
+        value: /tmp/.cupy/kernel_cache
+      - name: MKL_NUM_THREADS
+        value: "1"
+      - name: NUMEXPR_NUM_THREADS
+        value: "1"
+      - name: OMP_NUM_THREADS
+        value: "1"
+      command:
+      - mpirun
+      args:
+      - "-n"
+      - "{{`{{ inputs.parameters.nprocs }}`}}"
+      - "ptypy.cli"
+      - "-f"
+      - "{{`{{ inputs.parameters.config }}`}}"
+      - "-i"
+      - "{{`{{ inputs.parameters.id }}`}}"
+      - "-o"
+      - "{{`{{ inputs.parameters.output }}`}}"
+      - "-s"
+      - "hdf5_loader"
+      - "-b"
+      - "cupy"
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmpdir
+        mountPath: /tmp
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+          limits:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+    tolerations:
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule
+    - key: nodetype
+      operator: Equal
+      value: gpu
+      effect: NoSchedule
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    volumes:
+    - name: session
+      hostPath:
+        path:  "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+  - name: ptypy-cpu-run
+    inputs:
+      parameters:
+      - name: config
+      - name: id
+      - name: output
+      - name: nprocs
+        value: 1
+      - name: memory
+        value: 20Gi
+    container:
+      image: ghcr.io/ptycho/ptypy_full_openmpi:v0.9.0
+      env:
+      - name: MKL_NUM_THREADS
+        value: "1"
+      - name: NUMEXPR_NUM_THREADS
+        value: "1"
+      - name: OMP_NUM_THREADS
+        value: "1"
+      command:
+      - mpirun
+      args:
+      - "-n"
+      - "{{`{{ inputs.parameters.nprocs }}`}}"
+      - "ptypy.cli"
+      - "-f"
+      - "{{`{{ inputs.parameters.config }}`}}"
+      - "-i"
+      - "{{`{{ inputs.parameters.id }}`}}"
+      - "-o"
+      - "{{`{{ inputs.parameters.output }}`}}"
+      - "-s"
+      - "hdf5_loader"
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmpdir
+        mountPath: /tmp
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+          limits:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    affinity:
+      nodeAffinity:
+       preferredDuringSchedulingIgnoredDuringExecution:
+       - weight: 100
+         preference:
+           matchExpressions:
+           - key: nodegroup
+             operator: In
+             values:
+             - workflows
+    volumes:
+    - name: session
+      hostPath:
+        path:  "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
