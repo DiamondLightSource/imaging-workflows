@@ -128,6 +128,8 @@ spec:
         value: /opt/venv/lib64/python3.12/site-packages/hdf5plugin/plugins/
       command: [bash]
       source: |
+        ERROR_TXT="raise error"
+        ERROR_STR="An error arose within the executed notebook. Please open the output file to check."
         OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}"
         mkdir -p $OUTPUT
 
@@ -147,10 +149,15 @@ spec:
           -p ref_index None \
           -p max_fractional_shift 0.2 \
           -p auto_processing False \
-          --prepare-only
+          > $OUTPUT/papermill.log 2>&1
+
         python -m jupyter nbconvert $OUTPUT/xanes-notebook.ipynb \
-          --to html --execute --output xanes-output \
+          --to html --output xanes-output \
           --output-dir $OUTPUT
+
+        grep -q "$ERROR_TXT" "$OUTPUT/papermill.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
+        # Raise an exit code to display failure of task if error text found in log
+
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -160,6 +167,10 @@ spec:
       artifacts:
       - name: xanes-output
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}/xanes-output.html"
+        archive:
+          none: {}
+      - name: notebook-log
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}/papermill.log"
         archive:
           none: {}
     podSpecPatch: |
