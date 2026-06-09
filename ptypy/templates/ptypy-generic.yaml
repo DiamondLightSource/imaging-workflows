@@ -30,7 +30,7 @@ spec:
       parameters:
       - name: config
       - name: id
-      - name: output
+      - name: outpath
       - name: nprocs
         value: 1
       - name: memory
@@ -57,7 +57,7 @@ spec:
       - "-i"
       - "{{`{{ inputs.parameters.id }}`}}"
       - "-o"
-      - "{{`{{ inputs.parameters.output }}`}}"
+      - "{{`{{ inputs.parameters.outpath }}`}}"
       - "-s"
       - "hdf5_loader"
       - "-b"
@@ -101,7 +101,7 @@ spec:
       parameters:
       - name: config
       - name: id
-      - name: output
+      - name: outpath
       - name: nprocs
         value: 1
       - name: memory
@@ -126,7 +126,7 @@ spec:
       - "-i"
       - "{{`{{ inputs.parameters.id }}`}}"
       - "-o"
-      - "{{`{{ inputs.parameters.output }}`}}"
+      - "{{`{{ inputs.parameters.outpath }}`}}"
       - "-s"
       - "hdf5_loader"
       volumeMounts:

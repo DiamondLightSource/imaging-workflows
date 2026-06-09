@@ -1,5 +1,5 @@
 apiVersion: argoproj.io/v1alpha1
-kind: ClusterWorkflowTemplate
+kind: WorkflowTemplate
 metadata:
   name: ptypy-p99-from-config
   labels:
@@ -86,12 +86,12 @@ spec:
       - name: tmp
         mountPath: /tmp
       command: [bash]
-      source: |
-        OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/"{{`{{ workflow.parameters.outpath }}`}}"
-        mkdir -p $OUTPUT
-        INPUT="{{`{{ workflow.parameters.visitdir }}`}}"/"{{`{{ workflow.parameters.inpath }}`}}"
-        echo '{{ .Files.Get "config/p99_dm.yaml" | b64enc }}' | base64 -d > $OUTPUT/ptypy_config.yaml
-        sed -i 's;<INPATH>;$INPUT;' $OUTPUT/ptypy_config.yaml
+      source: | 
+          OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/"{{`{{ workflow.parameters.outpath }}`}}"
+          mkdir -p $OUTPUT
+          INPUT="{{`{{ workflow.parameters.visitdir }}`}}"/"{{`{{ workflow.parameters.inpath }}`}}"
+          echo '{{ .Files.Get "config/p99_dm.yaml" | b64enc }}' | base64 -d > $OUTPUT/ptypy_config.yaml
+          sed -i 's;<INPATH>;$INPUT;' $OUTPUT/ptypy_config.yaml
     outputs:
       parameters:
         - name: config
@@ -100,6 +100,11 @@ spec:
         - name: reconfile
           valueFrom:
             path: "{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}/test.ptyr"
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory 
 
   - name: ptypy-pipeline
     dag:
@@ -116,7 +121,7 @@ spec:
         arguments:
           parameters:
           - name: config
-            value: "{{`{{ tasks.prepare.output.parameters.config }}`}}"
+            value: "{{`{{ tasks.prepare.outputs.parameters.config }}`}}"
           - name: id
             value: "{{`{{ workflows.parameters.id }}`}}"
           - name: outpath
@@ -135,7 +140,7 @@ spec:
         arguments:
           parameters:
           - name: config
-            value: "{{`{{ tasks.prepare.output.parameters.config }}`}}"
+            value: "{{`{{ tasks.prepare.outputs.parameters.config }}`}}"
           - name: id
             value: "{{`{{ workflows.parameters.id }}`}}"
           - name: outpath
