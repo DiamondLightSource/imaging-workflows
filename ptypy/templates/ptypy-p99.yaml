@@ -91,7 +91,7 @@ spec:
           mkdir -p $OUTPUT
           INPUT="{{`{{ workflow.parameters.visitdir }}`}}"/"{{`{{ workflow.parameters.inpath }}`}}"
           echo '{{ .Files.Get "config/p99_dm.yaml" | b64enc }}' | base64 -d > $OUTPUT/ptypy_config.yaml
-          sed -i 's;<INPATH>;$INPUT;' $OUTPUT/ptypy_config.yaml
+          sed -i "s;<INPATH>;$INPUT;" $OUTPUT/ptypy_config.yaml
           cat $OUTPUT/ptypy_config.yaml
     outputs:
       parameters:
