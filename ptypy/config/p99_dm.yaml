@@ -1,3 +1,4 @@
+base_file: null
 visit_path: <INPATH> 
 parameter_tree:
   run: ''
