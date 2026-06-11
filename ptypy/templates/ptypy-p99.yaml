@@ -122,7 +122,7 @@ spec:
           - name: id
             value: "{{`{{ workflow.parameters.id }}`}}"
           - name: outpath
-            value: "{{`{{ workflow.parameters.outpath }}`}}"
+            value: "{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}"
           - name: nprocs
             value: "{{`{{ workflow.parameters.nprocs }}`}}"
           - name: memory
@@ -141,7 +141,7 @@ spec:
           - name: id
             value: "{{`{{ workflow.parameters.id }}`}}"
           - name: outpath
-            value: "{{`{{ workflow.parameters.outpath }}`}}"
+            value: "{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}"
           - name: nprocs
             value: "{{`{{ workflow.parameters.nprocs }}`}}"
           - name: memory
