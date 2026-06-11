@@ -93,6 +93,7 @@ spec:
           echo '{{ .Files.Get "config/p99_dm.yaml" | b64enc }}' | base64 -d > $OUTPUT/ptypy_config.yaml
           sed -i "s;<INPATH>;$INPUT;" $OUTPUT/ptypy_config.yaml
           "{{`{{ workflow.parameters.usegpu }}`}}" && sed -i "s;DM;DM_cupy;" $OUTPUT/ptypy_config.yaml
+          cat $OUTPUT/ptypy_config.yaml
     outputs:
       parameters:
         - name: config
