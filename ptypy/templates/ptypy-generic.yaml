@@ -37,6 +37,7 @@ spec:
         value: 20Gi
     container:
       image: ghcr.io/ptycho/ptypy_cupy_openmpi:0.9.1
+      imagePullPolicy: Always
       env:
       - name: CUPY_CACHE_DIR
         value: /tmp/.cupy/kernel_cache
