@@ -93,13 +93,10 @@ spec:
           echo '{{ .Files.Get "config/p99_dm.yaml" | b64enc }}' | base64 -d > $OUTPUT/ptypy_config.yaml
           sed -i "s;<INPATH>;$INPUT;" $OUTPUT/ptypy_config.yaml
           "{{`{{ workflow.parameters.usegpu }}`}}" && sed -i "s;DM;DM_cupy;" $OUTPUT/ptypy_config.yaml
-          cat $OUTPUT/ptypy_config.yaml
     outputs:
       parameters:
         - name: config
           value: "{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}/ptypy_config.yaml"
-        - name: reconfile
-          value: "{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}/test.ptyr"
     volumes:
     - name: session
       hostPath:
@@ -155,7 +152,3 @@ spec:
           template: ptypy-plotting
           clusterScope: true
         depends: "reconstruct-with-gpu || reconstruct-with-cpu"
-        arguments:
-          parameters:
-          - name: recon
-            value: "{{`{{ tasks.prepare.outputs.parameters.reconfile }}`}}"

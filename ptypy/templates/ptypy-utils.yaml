@@ -29,8 +29,9 @@ spec:
     inputs:
       parameters:
       - name: recon
+        value: test.ptyr
     script:
-      image: ghcr.io/ptycho/ptypy_full_openmpi:v0.9.0
+      image: ghcr.io/ptycho/ptypy_full_openmpi:0.9.1
       env:
       - name: MKL_NUM_THREADS
         value: "1"
