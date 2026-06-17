@@ -48,7 +48,7 @@ spec:
   templates:
   - name: xanes-sparse-mount-files
     script:
-      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.2
       command: [bash]
       source: |
         echo '{{ .Files.Get "notebooks/xanes_sparse_stack_autoprocessing0.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
@@ -87,7 +87,7 @@ spec:
       - name: edgeElement
       - name: normalise
     script:
-      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.2
       env:
       - name: HOME
         value: /tmp
