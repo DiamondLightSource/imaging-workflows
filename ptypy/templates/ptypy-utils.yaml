@@ -26,10 +26,6 @@ spec:
           key: data_directory
   templates:
   - name: ptypy-plotting
-    inputs:
-      parameters:
-      - name: recon
-        value: test.ptyr
     script:
       image: ghcr.io/ptycho/ptypy_full_openmpi:0.9.1
       env:
@@ -41,13 +37,44 @@ spec:
         value: "1"
       command: [bash]
       source: |
-        echo "{{`{{ inputs.parameters.recon }}`}}"
-      
+        pip install jupyter papermill nbconvert
+        file_path=$(sed -rn "s/^Saving to (.*)$/\1/p" /tmp/ptypy_log.txt)
+        # mount notebook
+        echo '{{ .Files.Get "notebooks/ptypy_plotting.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
+        # run notebook
+        python -m papermill /tmp/notebook.ipynb /tmp/notebook.ipynb -p recon_file "$file_path"
+        python -m nbconvert --to html --output notebook --output-dir /tmp /tmp/notebook.ipynb
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmpdir
         mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: notebook
+        path: /tmp/notebook.html
+        archive:
+          none: {}
+      - name: amplitude
+        path: /tmp/amplitude_plot.png
+        archive:
+          none: {}
+      - name: phase
+        path: /tmp/phase_plot.png
+        archive:
+          none: {}
+      - name: probe-amplitude
+        path: /tmp/probe_amplitude_plot.png
+        archive:
+          none: {}
+      - name: probe-phase
+        path: /tmp/probe_phase_plot.png
+        archive:
+          none: {}
+      - name: errors
+        path: /tmp/error_plot.png
+        archive:
+          none: {}
     podSpecPatch: |
       containers:
       - name: main
