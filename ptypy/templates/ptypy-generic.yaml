@@ -35,6 +35,12 @@ spec:
         value: 1
       - name: memory
         value: 20Gi
+    outputs:
+      artifacts:
+      - name: ptypy-gpu-run-log
+        path: /tmp/ptypy_log.txt
+        archive:
+          none: {}
     container:
       image: ghcr.io/ptycho/ptypy_cupy_openmpi:0.9.1
       env:
@@ -50,6 +56,8 @@ spec:
       - bash
       args:
       - "mpirun"
+      - "--output-filename"
+      - "/tmp/ptypy_log.txt"
       - "-n"
       - "{{`{{ inputs.parameters.nprocs }}`}}"
       - "ptypy.cli"
@@ -63,8 +71,6 @@ spec:
       - "hdf5_loader"
       - "-b"
       - "cupy"
-      - ">"
-      - "/tmp/ptypy_log.txt"
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -109,6 +115,12 @@ spec:
         value: 1
       - name: memory
         value: 20Gi
+    outputs:
+      artifacts:
+      - name: ptypy-cpu-run-log
+        path: /tmp/ptypy_log.txt
+        archive:
+          none: {}
     container:
       image: ghcr.io/ptycho/ptypy_full_openmpi:0.9.1
       env:
@@ -122,6 +134,8 @@ spec:
       - bash
       args:
       - "mpirun"
+      - "--output-filename"
+      - "/tmp/ptypy_log.txt"
       - "-n"
       - "{{`{{ inputs.parameters.nprocs }}`}}"
       - "ptypy.cli"
@@ -133,8 +147,6 @@ spec:
       - "{{`{{ inputs.parameters.outpath }}`}}"
       - "-s"
       - "hdf5_loader"
-      - ">"
-      - "/tmp/ptypy_log.txt"
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
