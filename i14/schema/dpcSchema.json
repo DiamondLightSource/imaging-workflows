@@ -1,10 +1,13 @@
 {
   "type": "object",
   "properties": {
-    "scanNumbers": {
-      "type": "string",
-      "title": "Scan Numbers",
-      "description": "A list containing scan numbers to be processed. Eg. [274317] or [274317, 274318, 274319]"
+    "multiScan": {
+      "title": "Scans",
+      "type": "array",
+      "items":
+        {
+          "type": "object"
+        }
     },
     "outputFolder": {
       "type": "string",
@@ -12,5 +15,5 @@
       "description": "The full path of the output file"
     }
   },
-  "required": ["scanNumbers", "outputFolder"]
+  "required": ["multiScan", "outputFolder"]
 }
