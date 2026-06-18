@@ -56,6 +56,12 @@ spec:
         mountPath: /tmp
   - name: xrd2d-notebook
     steps:
+    - - name: gen-multi-range
+        template: gen-multi-range-tmp
+        arguments:
+          parameters:
+          - name: multiScan
+            value: "{{`{{ workflow.parameters.multiScan }}`}}"
     - - name: xrd2d
         template: gen-notebook
         arguments:
@@ -72,7 +78,29 @@ spec:
             value: "{{`{{ workflow.parameters.maskPath }}`}}"
           - name: flatPath
             value: "{{`{{ workflow.parameters.flatPath }}`}}"
-        withParam: "{{`{{ workflow.parameters.scanNumbers }}`}}"
+        withParam: "{{`{{ steps.gen-multi-range.outputs.result }}`}}"
+  - name: gen-multi-range-tmp
+    inputs:
+      parameters:
+      - name: multiScan
+    script:
+      image: python:3.10
+      command: [python]
+      source: |
+        import json, sys
+        file_number_list = []
+        multiscan_list = {{`{{ inputs.parameters.multiScan }}`}}
+
+        for multiscan in multiscan_list:
+            for range_ in multiscan.values():
+                excluded = range_['excluded']
+                assert isinstance(excluded, list)
+                assert range_['end'] >= range_['start']
+                scans = [x for x in range(range_['start'], range_['end'] + 1) if x not in excluded]
+                file_number_list.append(scans)
+
+        file_numbers = [n for _list in file_number_list for n in _list]
+        json.dump(file_numbers, sys.stdout)
   - name: gen-notebook
     inputs:
       parameters:
