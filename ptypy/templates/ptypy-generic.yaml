@@ -63,8 +63,7 @@ spec:
       - "hdf5_loader"
       - "-b"
       - "cupy"
-      - "|"
-      - "tee"
+      - ">"
       - "/tmp/ptypy_log.txt"
       volumeMounts:
       - name: session
@@ -134,8 +133,7 @@ spec:
       - "{{`{{ inputs.parameters.outpath }}`}}"
       - "-s"
       - "hdf5_loader"
-      - "|"
-      - "tee"
+      - ">"
       - "/tmp/ptypy_log.txt"
       volumeMounts:
       - name: session
