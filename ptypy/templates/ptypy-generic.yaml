@@ -47,8 +47,9 @@ spec:
       - name: OMP_NUM_THREADS
         value: "1"
       command:
-      - mpirun
+      - bash
       args:
+      - "mpirun"
       - "-n"
       - "{{`{{ inputs.parameters.nprocs }}`}}"
       - "ptypy.cli"
@@ -119,8 +120,9 @@ spec:
       - name: OMP_NUM_THREADS
         value: "1"
       command:
-      - mpirun
+      - bash
       args:
+      - "mpirun"
       - "-n"
       - "{{`{{ inputs.parameters.nprocs }}`}}"
       - "ptypy.cli"
