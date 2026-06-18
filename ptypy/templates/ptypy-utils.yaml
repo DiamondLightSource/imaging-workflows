@@ -37,7 +37,7 @@ spec:
         value: "1"
       command: [bash]
       source: |
-        sudo -H pip install jupyter papermill nbconvert
+        mamba install jupyter papermill nbconvert
         file_path=$(sed -rn "s/^Saving to (.*)$/\1/p" /tmp/ptypy_log.txt)
         # mount notebook
         echo '{{ .Files.Get "notebooks/ptypy_plotting.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
