@@ -37,14 +37,15 @@ spec:
         value: "1"
       command: [bash]
       source: |
-        python -m venv --system-site-packages /tmp/venv
-        /tmp/venv/bin/pip install jupyter papermill nbconvert
-        file_path=$(sed -rn "s/^Saving to (.*)$/\1/p" /tmp/ptypy_log.txt)
+        ls /tmp
+        #python -m venv --system-site-packages /tmp/venv
+        #/tmp/venv/bin/pip install jupyter papermill nbconvert
+        #file_path=$(sed -rn "s/^Saving to (.*)$/\1/p" /tmp/ptypy_log.txt)
         # mount notebook
-        echo '{{ .Files.Get "notebooks/ptypy_plotting.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
+        #echo '{{ .Files.Get "notebooks/ptypy_plotting.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
         # run notebook
-        /tmp/venv/bin/python -m papermill /tmp/notebook.ipynb /tmp/notebook.ipynb -p recon_file "$file_path"
-        /tmp/venv/bin/python -m nbconvert --to html --output notebook --output-dir /tmp /tmp/notebook.ipynb
+        #/tmp/venv/bin/python -m papermill /tmp/notebook.ipynb /tmp/notebook.ipynb -p recon_file "$file_path"
+        #/tmp/venv/bin/python -m nbconvert --to html --output notebook --output-dir /tmp /tmp/notebook.ipynb
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"

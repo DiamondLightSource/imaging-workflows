@@ -67,6 +67,8 @@ spec:
       - ">(tee -a /tmp/ptypy_log.txt)"
       - "2>"
       - ">(tee -a /tmp/ptypy_log.txt)"
+      - ";"
+      - "ls /tmp"
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -145,6 +147,8 @@ spec:
       - ">(tee -a /tmp/ptypy_log.txt)"
       - "2>"
       - ">(tee -a /tmp/ptypy_log.txt)"
+      - ";"
+      - "ls /tmp"
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
