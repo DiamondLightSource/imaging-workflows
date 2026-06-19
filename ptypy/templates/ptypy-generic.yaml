@@ -64,7 +64,9 @@ spec:
       - "-b"
       - "cupy"
       - ">"
-      - "/tmp/ptypy_log.txt"
+      - ">(tee -a /tmp/ptypy_log.txt)"
+      - "2>"
+      - ">(tee -a /tmp/ptypy_log.txt)"
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -140,7 +142,9 @@ spec:
       - "-s"
       - "hdf5_loader"
       - ">"
-      - "/tmp/ptypy_log.txt"
+      - ">(tee -a /tmp/ptypy_log.txt)"
+      - "2>"
+      - ">(tee -a /tmp/ptypy_log.txt)"
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
