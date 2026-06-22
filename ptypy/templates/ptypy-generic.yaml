@@ -131,6 +131,7 @@ spec:
       command:
       - bash
       args:
+      - "("
       - "mpirun"
       - "-n"
       - "{{`{{ inputs.parameters.nprocs }}`}}"
@@ -143,6 +144,7 @@ spec:
       - "{{`{{ inputs.parameters.outpath }}`}}"
       - "-s"
       - "hdf5_loader"
+      - ")"
       - ">"
       - ">(tee -a /tmp/ptypy_log.txt)"
       - "2>"
