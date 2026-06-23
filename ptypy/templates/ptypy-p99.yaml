@@ -153,3 +153,7 @@ spec:
           template: ptypy-plotting
           clusterScope: true
         depends: "reconstruct-with-gpu || reconstruct-with-cpu"
+        arguments:
+          artifacts:
+          - name: reconstruction-log
+            fromExpression: "{{`{{ workflow.parameters.usegpu }}`}} == true ? tasks.reconstruct-with-gpu.outputs.result : tasks.reconstruct-with-cpu.outputs.result"

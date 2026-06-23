@@ -26,6 +26,10 @@ spec:
           key: data_directory
   templates:
   - name: ptypy-plotting
+    inputs:
+      artifacts:
+      - name: reconstruction-log
+        path: /tmp/ptypy_log.txt
     script:
       image: ghcr.io/ptycho/ptypy_full_openmpi:0.9.1
       env:
@@ -37,10 +41,10 @@ spec:
         value: "1"
       command: [bash]
       source: |
-        ls /tmp
         #python -m venv --system-site-packages /tmp/venv
         #/tmp/venv/bin/pip install jupyter papermill nbconvert
-        #file_path=$(sed -rn "s/^Saving to (.*)$/\1/p" /tmp/ptypy_log.txt)
+        file_path=$(sed -rn "s/^Saving to (.*)$/\1/p" /tmp/ptypy_log.txt)
+        echo $file_path
         # mount notebook
         #echo '{{ .Files.Get "notebooks/ptypy_plotting.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
         # run notebook
