@@ -35,7 +35,7 @@ spec:
         value: 1
       - name: memory
         value: 20Gi
-    container:
+    script:
       image: ghcr.io/ptycho/ptypy_cupy_openmpi:0.9.1
       env:
       - name: CUPY_CACHE_DIR
@@ -46,29 +46,16 @@ spec:
         value: "1"
       - name: OMP_NUM_THREADS
         value: "1"
-      command:
-      - bash
-      args:
-      - "mpirun"
-      - "-n"
-      - "{{`{{ inputs.parameters.nprocs }}`}}"
-      - "ptypy.cli"
-      - "-f"
-      - "{{`{{ inputs.parameters.config }}`}}"
-      - "-i"
-      - "{{`{{ inputs.parameters.id }}`}}"
-      - "-o"
-      - "{{`{{ inputs.parameters.outpath }}`}}"
-      - "-s"
-      - "hdf5_loader"
-      - "-b"
-      - "cupy"
-      - ">"
-      - ">(tee -a /tmp/ptypy_log.txt)"
-      - "2>"
-      - ">(tee -a /tmp/ptypy_log.txt)"
-      - ";"
-      - "ls /tmp"
+      command: [bash]
+      source:
+        (mpirun -n {{`{{ inputs.parameters.nprocs }}`}} \
+        ptypy.cli \
+        -f {{`{{ inputs.parameters.config }}`}} \
+        -i {{`{{ inputs.parameters.id }}`}} \
+        -o {{`{{ inputs.parameters.outpath }}`}} \
+        -s hdf5_loader \
+        -b cupy \
+        ) > >(tee -a /tmp/ptypy_log.txt)
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -119,7 +106,7 @@ spec:
         path: /tmp/ptypy_log.txt
         archive:
           none: {}
-    container:
+    script:
       image: ghcr.io/ptycho/ptypy_full_openmpi:0.9.1
       env:
       - name: MKL_NUM_THREADS
@@ -128,29 +115,15 @@ spec:
         value: "1"
       - name: OMP_NUM_THREADS
         value: "1"
-      command:
-      - bash
-      args:
-      - "("
-      - "mpirun"
-      - "-n"
-      - "{{`{{ inputs.parameters.nprocs }}`}}"
-      - "ptypy.cli"
-      - "-f"
-      - "{{`{{ inputs.parameters.config }}`}}"
-      - "-i"
-      - "{{`{{ inputs.parameters.id }}`}}"
-      - "-o"
-      - "{{`{{ inputs.parameters.outpath }}`}}"
-      - "-s"
-      - "hdf5_loader"
-      - ")"
-      - ">"
-      - ">(tee -a /tmp/ptypy_log.txt)"
-      - "2>"
-      - ">(tee -a /tmp/ptypy_log.txt)"
-      - ";"
-      - "ls /tmp"
+      command: [bash]
+      source: |
+        (mpirun -n {{`{{ inputs.parameters.nprocs }}`}} \
+        ptypy.cli \
+        -f {{`{{ inputs.parameters.config }}`}} \
+        -i {{`{{ inputs.parameters.id }}`}} \
+        -o {{`{{ inputs.parameters.outpath }}`}} \
+        -s hdf5_loader \
+        ) > >(tee -a /tmp/ptypy_log.txt)
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
