@@ -21,8 +21,7 @@
         "module_path": "httomolibgpu.prep.normalize",
         "parameters": {
             "flats_multiplier": 1,
-            "darks_multiplier": 1,
-            "cutoff": 10
+            "darks_multiplier": 1
         }
     },
     {
