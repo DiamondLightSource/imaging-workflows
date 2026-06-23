@@ -62,7 +62,7 @@ spec:
         arguments:
           parameters:
           - name: outputFolder
-            value: "{{`{{ workflow.parameters.outputFolder }}`}}"
+            value: "{{`{{ workflow.parameters.outputFolder }}`}}/dpc"
           - name: scanNumber
             value: "{{`{{ item }}`}}"
         withParam: "{{`{{ steps.gen-multi-range.outputs.result }}`}}"
@@ -102,23 +102,23 @@ spec:
       source: |
         ERROR_TXT="raise error"
         ERROR_STR="An error arose within the executed notebook. Please open the output file to check."
-        OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}"
+        OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}"
         mkdir -p $OUTPUT
 
         python -m papermill /tmp/notebook.ipynb \
           $OUTPUT/dpc-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb \
           -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.scanNumber }}`}}.nxs" \
           -p process_configfile /tmp/config.yaml \
-          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.scanNumber }}`}}_dpc-phase.nxs" \
+          -p outpath "$OUTPUT/i14-{{`{{ inputs.parameters.scanNumber }}`}}_dpc-phase.nxs" \
           -p auto_processing False \
-          > $OUTPUT/papermill.log 2>&1
+          > $OUTPUT/notebook-{{`{{ inputs.parameters.scanNumber }}`}}.log 2>&1
 
         python -m jupyter nbconvert $OUTPUT/dpc-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb \
           --to html --no-input \
           --output dpc-output-{{`{{ inputs.parameters.scanNumber }}`}} \
           --output-dir $OUTPUT
 
-        grep -q "$ERROR_TXT" "$OUTPUT/papermill.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
+        grep -q "$ERROR_TXT" "$OUTPUT/notebook-{{`{{ inputs.parameters.scanNumber }}`}}.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
         # Raise an exit code to display failure of task if error text found in log
 
       volumeMounts:
@@ -129,11 +129,11 @@ spec:
     outputs:
       artifacts:
       - name: dpc-output
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-output-{{`{{ inputs.parameters.scanNumber }}`}}.html"
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}/dpc-output-{{`{{ inputs.parameters.scanNumber }}`}}.html"
         archive:
           none: {}
       - name: notebook-log
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/papermill.log"
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}/notebook-{{`{{ inputs.parameters.scanNumber }}`}}.log"
         archive:
           none: {}
     podSpecPatch: |
