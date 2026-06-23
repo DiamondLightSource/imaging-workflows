@@ -48,14 +48,13 @@ spec:
         value: "1"
       command: [bash]
       source:
-        (mpirun -n {{`{{ inputs.parameters.nprocs }}`}} \
+        mpirun -n {{`{{ inputs.parameters.nprocs }}`}} \
         ptypy.cli \
         -f {{`{{ inputs.parameters.config }}`}} \
         -i {{`{{ inputs.parameters.id }}`}} \
         -o {{`{{ inputs.parameters.outpath }}`}} \
         -s hdf5_loader \
-        -b cupy \
-        ) > >(tee -a /tmp/ptypy_log.txt)
+        -b cupy
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -100,12 +99,6 @@ spec:
         value: 1
       - name: memory
         value: 20Gi
-    outputs:
-      artifacts:
-      - name: ptypy-cpu-run-log
-        path: /tmp/ptypy_log.txt
-        archive:
-          none: {}
     script:
       image: ghcr.io/ptycho/ptypy_full_openmpi:0.9.1
       env:
@@ -117,13 +110,12 @@ spec:
         value: "1"
       command: [bash]
       source: |
-        (mpirun -n {{`{{ inputs.parameters.nprocs }}`}} \
+        mpirun -n {{`{{ inputs.parameters.nprocs }}`}} \
         ptypy.cli \
         -f {{`{{ inputs.parameters.config }}`}} \
         -i {{`{{ inputs.parameters.id }}`}} \
         -o {{`{{ inputs.parameters.outpath }}`}} \
-        -s hdf5_loader \
-        ) > >(tee -a /tmp/ptypy_log.txt)
+        -s hdf5_loader
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
