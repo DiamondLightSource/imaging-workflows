@@ -26,8 +26,8 @@ spec:
           key: data_directory
     - name: outputFolder
       value: /tmp/output
-    - name: scanNumbers
-      value: "[395329]"
+    - name: multiScan
+      value: '[{"multiScan":{ "start": 395328, "end": 395329, "excluded": [] }}]'
   volumeClaimTemplates:
   - metadata:
       name: tmp
