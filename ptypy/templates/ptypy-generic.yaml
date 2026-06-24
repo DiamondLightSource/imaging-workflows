@@ -47,14 +47,15 @@ spec:
       - name: OMP_NUM_THREADS
         value: "1"
       command: [bash]
-      source:
+      source: |
         mpirun -n {{`{{ inputs.parameters.nprocs }}`}} \
         ptypy.cli \
         -f {{`{{ inputs.parameters.config }}`}} \
         -i {{`{{ inputs.parameters.id }}`}} \
         -o {{`{{ inputs.parameters.outpath }}`}} \
         -s hdf5_loader \
-        -b cupy
+        -b cupy \
+        | tee -a /tmp/ptypy_log.txt
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -115,7 +116,8 @@ spec:
         -f {{`{{ inputs.parameters.config }}`}} \
         -i {{`{{ inputs.parameters.id }}`}} \
         -o {{`{{ inputs.parameters.outpath }}`}} \
-        -s hdf5_loader
+        -s hdf5_loader \
+        | tee -a /tmp/ptypy_log.txt
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
