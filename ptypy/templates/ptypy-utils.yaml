@@ -26,10 +26,6 @@ spec:
           key: data_directory
   templates:
   - name: ptypy-plotting
-    inputs:
-      artifacts:
-      - name: reconstruction-log
-        path: /tmp/ptypy_log.txt
     script:
       image: ghcr.io/ptycho/ptypy_full_openmpi:0.9.1
       env:
