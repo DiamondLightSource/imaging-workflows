@@ -54,7 +54,7 @@ spec:
   templates:
   - name: xanes-mount-files
     script:
-      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.2
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
       command: [bash]
       source: |
         echo '{{ .Files.Get "notebooks/xanes_autoprocessing0.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
@@ -120,7 +120,7 @@ spec:
       - name: method
       - name: normalise
     script:
-      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.2
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
       env:
       - name: HOME
         value: /tmp
