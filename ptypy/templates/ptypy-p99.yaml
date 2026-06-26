@@ -102,7 +102,31 @@ spec:
     - name: session
       hostPath:
         path: "{{`{{ workflow.parameters.visitdir }}`}}"
-        type: Directory 
+        type: Directory
+
+  - name: parse-filepath
+    inputs:
+      parameters:
+      - name: gpu-output
+        default: "no output"
+      - name: cpu-output
+        default: "no output"
+    script:
+      image: alpine:3.23.5
+      command: [bash]
+      source: |
+        cpu="{{`{{ inputs.parameters.cpu-output }}`}}"
+        gpu="{{`{{ inputs.parameters.gpu-output }}`}}"
+        if [[ $cpu == "no output" && $gpu == "no output" ]]; then
+          echo "No inputs from either gpu or cpu reconstructions" >&2
+          exit 1
+        fi
+
+        if [[ $cpu != "no output" ]]; then
+          echo "$cpu" | sed -rn "s/^Saving to (.*)$/\1/p"
+        else
+          echo "$gpu" | sed -rn "s/^Saving to (.*)$/\1/p"
+        fi
 
   - name: ptypy-pipeline
     dag:
@@ -147,10 +171,23 @@ spec:
             value: "{{`{{ workflow.parameters.nprocs }}`}}"
           - name: memory
             value: "{{`{{ workflow.parameters.memory }}`}}"
+      - name: parse-recon-output
+        template: parse-filepath
+        depends: "reconstruct-with-gpu || reconstruct-with-cpu"
+        arguments:
+          parameters:
+          - name: cpu-output
+            value: "{{`{{tasks.reconstruct-with-cpu.outputs.result}}`}}"
+          - name: gpu-output
+            value: "{{`{{tasks.reconstruct-with-gpu.outputs.result}}`}}"
       - name: plot
         templateRef:
           name: ptypy-utils
           template: ptypy-plotting
           clusterScope: true
-        depends: "reconstruct-with-gpu || reconstruct-with-cpu"
+        depends: "parse-recon-output"
+        arguments:
+          parameters:
+          - name: filepath
+            value: "{{`{{tasks.parse-recon-output.outputs.result}}`}}"
 

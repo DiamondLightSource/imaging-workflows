@@ -54,8 +54,7 @@ spec:
         -i {{`{{ inputs.parameters.id }}`}} \
         -o {{`{{ inputs.parameters.outpath }}`}} \
         -s hdf5_loader \
-        -b cupy \
-        | tee -a /tmp/ptypy_log.txt
+        -b cupy
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -111,7 +110,6 @@ spec:
         value: "1"
       command: [bash]
       source: |
-        exec &> >(tee /tmp/ptypy_log.txt)
         mpirun -n {{`{{ inputs.parameters.nprocs }}`}} \
         ptypy.cli \
         -f {{`{{ inputs.parameters.config }}`}} \
