@@ -112,7 +112,7 @@ spec:
       - name: cpu-output
         default: "no output"
     script:
-      image: alpine:3.23.5
+      image: docker.io/alpine:3.23.5
       command: [bash]
       source: |
         cpu="{{`{{ inputs.parameters.cpu-output }}`}}"
@@ -190,4 +190,3 @@ spec:
           parameters:
           - name: filepath
             value: "{{`{{tasks.parse-recon-output.outputs.result}}`}}"
-
