@@ -177,9 +177,13 @@ spec:
         arguments:
           parameters:
           - name: cpu-output
-            value: "{{`{{tasks.reconstruct-with-cpu.outputs.result}}`}}"
+            valueFrom:
+              parameter: "{{`{{tasks.reconstruct-with-cpu.outputs.result}}`}}"
+              default: "no output"
           - name: gpu-output
-            value: "{{`{{tasks.reconstruct-with-gpu.outputs.result}}`}}"
+            valueFrom:
+              parameter: "{{`{{tasks.reconstruct-with-gpu.outputs.result}}`}}"
+              default: "no output"
       - name: plot
         templateRef:
           name: ptypy-utils
