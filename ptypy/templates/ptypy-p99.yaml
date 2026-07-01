@@ -104,30 +104,29 @@ spec:
         path: "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
 
-  - name: parse-filepath
+  - name: get-filepath
     inputs:
       parameters:
-      - name: gpu-output
-        default: "no output"
-      - name: cpu-output
-        default: "no output"
+      - name: config
     script:
-      image: docker.io/alpine:3.23.5
-      command: [bash]
+      image: python:3.14
+      command: [python]
       source: |
-        cpu="{{`{{ inputs.parameters.cpu-output }}`}}"
-        gpu="{{`{{ inputs.parameters.gpu-output }}`}}"
-        if [[ $cpu == "no output" && $gpu == "no output" ]]; then
-          echo "No inputs from either gpu or cpu reconstructions" >&2
-          exit 1
-        fi
-
-        if [[ $cpu != "no output" ]]; then
-          echo "$cpu" | sed -rn "s/^Saving to (.*)$/\1/p"
-        else
-          echo "$gpu" | sed -rn "s/^Saving to (.*)$/\1/p"
-        fi
-
+        import re
+        OUTPATH='"{{`{{ workflow.parameters.visitdir }}`}}"/"{{`{{ workflow.parameters.outpath }}`}}"'
+        SCAN="{{`{{ workflow.parameters.id }}`}}"
+        CONFIG='"{{`{{ inputs.parameters.config }}`}}"'
+        with open("./out.txt", "w") as o:
+          with open(CONFIG, 'r') as f:
+            text = f.read()
+            ENGINE = re.findall("    engine0:\n      name: (.*)", text)[0]
+            NITER = int(re.findall("      numiter: (.*)", text)[0])
+            o.write(f"{OUTPATH}/scan_{SCAN}/{SCAN}_{ENGINE}_{NITER:04d}.ptyr")
+    outputs:
+      parameters:
+      - name: filepath
+        valueFrom:
+          path: /tmp/out.txt
   - name: ptypy-pipeline
     dag:
       tasks:
@@ -171,26 +170,20 @@ spec:
             value: "{{`{{ workflow.parameters.nprocs }}`}}"
           - name: memory
             value: "{{`{{ workflow.parameters.memory }}`}}"
-      - name: parse-recon-output
-        template: parse-filepath
+      - name: get-filepath
+        template: get-filepath
         depends: "reconstruct-with-gpu || reconstruct-with-cpu"
         arguments:
           parameters:
-          - name: cpu-output
-            valueFrom:
-              parameter: "{{`{{tasks.reconstruct-with-cpu.outputs.result}}`}}"
-              default: "no output"
-          - name: gpu-output
-            valueFrom:
-              parameter: "{{`{{tasks.reconstruct-with-gpu.outputs.result}}`}}"
-              default: "no output"
+          - name: config
+            value: "{{`{{ tasks.prepare.outputs.parameters.config }}`}}"
       - name: plot
         templateRef:
           name: ptypy-utils
           template: ptypy-plotting
           clusterScope: true
-        depends: "parse-recon-output"
+        depends: "get-filepath"
         arguments:
           parameters:
           - name: filepath
-            value: "{{`{{tasks.parse-recon-output.outputs.result}}`}}"
+            value: "{{`{{tasks.get-filepath.outputs.parameters.filepath}}`}}"
