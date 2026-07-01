@@ -118,9 +118,9 @@ spec:
       command: [python]
       source: |
         import re
-        OUTPATH='"{{`{{ workflow.parameters.visitdir }}`}}"/"{{`{{ workflow.parameters.outpath }}`}}"'
+        OUTPATH="{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}"
         SCAN="{{`{{ workflow.parameters.id }}`}}"
-        CONFIG='"{{`{{ inputs.parameters.config }}`}}"'
+        CONFIG="{{`{{ inputs.parameters.config }}`}}"
         with open("/tmp/out.txt", "w") as o:
           with open(CONFIG, 'r') as f:
             text = f.read()
