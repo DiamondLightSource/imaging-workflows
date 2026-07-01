@@ -110,6 +110,11 @@ spec:
       - name: config
     script:
       image: python:3.14
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmpdir
+        mountPath: /tmp
       command: [python]
       source: |
         import re
@@ -127,6 +132,11 @@ spec:
       - name: filepath
         valueFrom:
           path: /tmp/out.txt
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
   - name: ptypy-pipeline
     dag:
       tasks:
