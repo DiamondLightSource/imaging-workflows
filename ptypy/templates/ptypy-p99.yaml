@@ -116,7 +116,7 @@ spec:
         OUTPATH='"{{`{{ workflow.parameters.visitdir }}`}}"/"{{`{{ workflow.parameters.outpath }}`}}"'
         SCAN="{{`{{ workflow.parameters.id }}`}}"
         CONFIG='"{{`{{ inputs.parameters.config }}`}}"'
-        with open("./out.txt", "w") as o:
+        with open("/tmp/out.txt", "w") as o:
           with open(CONFIG, 'r') as f:
             text = f.read()
             ENGINE = re.findall("    engine0:\n      name: (.*)", text)[0]
