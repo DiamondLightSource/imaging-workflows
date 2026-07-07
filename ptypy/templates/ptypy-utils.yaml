@@ -30,7 +30,7 @@ spec:
       parameters:
       - name: filepath
     script:
-      image: ghcr.io/diamondlightsource/imaging_toolbox/ptypy_workflows:0.3.3
+      image: ghcr.io/diamondlightsource/imaging_toolbox/ptypy_workflows:v0.3.3
       env:
       - name: MKL_NUM_THREADS
         value: "1"
