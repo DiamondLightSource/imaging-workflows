@@ -23,22 +23,17 @@
             },
             {
               "type": "Control",
-              "label": "Projection start number",
-              "scope": "#/properties/proj_start"
+              "label": "Projection number",
+              "scope": "#/properties/proj_number"
             },
             {
               "type": "Control",
-              "label": "Projection end number",
-              "scope": "#/properties/proj_end"
-            },
-            {
-              "type": "Control",
-              "label": "Number of Processors",
+              "label": "Requested number of Processors",
               "scope": "#/properties/nprocs"
             },
             {
               "type": "Control",
-              "label": "Amount of memory",
+              "label": "Requested memory",
               "scope": "#/properties/memory"
             }
           ]

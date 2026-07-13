@@ -16,18 +16,11 @@
             "title": "Scan number",
             "type": "integer"
         },
-        "proj_start": {
+        "proj_number": {
             "default": null,
             "maximum": 10000000,
             "minimum": 0,
-            "title": "Proj Start",
-            "type": "integer"
-        },
-        "proj_end": {
-            "default": null,
-            "maximum": 10000000,
-            "minimum": 0,
-            "title": "Proj End",
+            "title": "Proj Number",
             "type": "integer"
         },
         "nprocs": {
@@ -40,7 +33,7 @@
         "memory": {
             "type": "string",
             "pattern": "^[0-9]+[GMK]i$",
-            "default": "16Gi"
+            "default": "32Gi"
         }
     },
     "title": "RexSubmission"
