@@ -2,7 +2,7 @@
   "type": "object",
     "description": "basic inputs for ptyrex submission",
     "properties": {
-        "config_path": {
+        "config_json": {
             "default": null,
             "maxLength": 128,
             "minLength": 1,
