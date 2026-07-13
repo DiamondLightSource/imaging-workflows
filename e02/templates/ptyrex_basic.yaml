@@ -44,7 +44,7 @@ spec:
         value: "{{`{{workflow.parameters.config_json}}`}}"
       - name: scan_number
         value: "{{`{{workflow.parameters.scan_number}}`}}"
-      - name: projection_start
+      - name: projection_number
         value: "{{`{{workflow.parameters.proj_number}}`}}"
       - name: nprocs
         value: "{{`{{workflow.parameters.nprocs}}`}}"
@@ -73,7 +73,7 @@ spec:
       - "-s"
       - "{{`{{ inputs.parameters.scan_number }}`}}"
       - "-p"
-      - "{{`{{ inputs.parameters.proj_number }}`}}"
+      - "{{`{{ inputs.parameters.projection_number }}`}}"
 
       volumeMounts:
       - name: tmpdir
