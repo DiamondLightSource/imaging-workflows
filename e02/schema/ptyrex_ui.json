@@ -14,7 +14,7 @@
             {
               "type": "Control",
               "label": "Ptyrex config file path",
-              "scope": "#/properties/config_path"
+              "scope": "#/properties/config_json"
             },
             {
               "type": "Control",

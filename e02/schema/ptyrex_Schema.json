@@ -6,7 +6,7 @@
             "default": null,
             "maxLength": 128,
             "minLength": 1,
-            "title": "Config Path",
+            "title": "Config json",
             "type": "string"
         },
         "scan_number": {
