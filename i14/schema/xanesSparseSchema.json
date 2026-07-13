@@ -16,7 +16,8 @@
     },
     "normalise": {
       "type": "boolean",
-      "title": "Normalise"
+      "title": "Normalise",
+      "default": true
     },
     "edgeElement": {
       "type": "string",

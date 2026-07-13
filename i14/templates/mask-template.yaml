@@ -2,10 +2,13 @@ apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
   name: mask
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
     workflows.argoproj.io/title: Generate a Mask
     workflows.argoproj.io/description: |
       A utility which takes in a file, such as one with complex or phase information, creates a mask, and saves the results.
+    workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
     workflows.diamond.ac.uk/parameter-schema: |
       {{- .Files.Get "schema/maskSchema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
@@ -73,15 +76,27 @@ spec:
         value: /tmp
       command: [bash]
       source: |
-        python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+        ERROR_TXT="raise error"
+        ERROR_STR="An error arose within the executed notebook. Please open the output file to check."
+        OUTPUT="{{`{{ inputs.parameters.outpath }}`}}"
+        mkdir -p $OUTPUT
+
+        python -m papermill /tmp/notebook.ipynb $OUTPUT/mask-notebook.ipynb \
           -p inpath "{{`{{ inputs.parameters.inpath }}`}}" \
           -p outpath "{{`{{ inputs.parameters.outpath }}`}}" \
           -p padding "{{`{{ inputs.parameters.padding }}`}}" \
           -p min_size "{{`{{ inputs.parameters.minSize }}`}}" \
           -p erosion_radius "{{`{{ inputs.parameters.erosionRadius }}`}}" \
-          -p dilation_radius "{{`{{ inputs.parameters.dilationRadius }}`}}"
-        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output mask-notebook --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
-        python -m jupyter nbconvert "{{`{{ inputs.parameters.outpath }}`}}/mask-notebook.ipynb" --to html --output mask-output --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
+          -p dilation_radius "{{`{{ inputs.parameters.dilationRadius }}`}}" \
+          > $OUTPUT/papermill.log 2>&1
+
+        python -m jupyter nbconvert $OUTPUT/mask-notebook.ipynb \
+          --to html --output mask-output \
+          --output-dir $OUTPUT
+
+        grep -q "$ERROR_TXT" "$OUTPUT/papermill.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
+        # Raise an exit code to display failure of task if error text found in log
+
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -95,6 +110,10 @@ spec:
           none: {}
       - name: mask-output
         path: "{{`{{ inputs.parameters.outpath }}`}}/mask-output.html"
+        archive:
+          none: {}
+      - name: notebook-log
+        path: "{{`{{ inputs.parameters.outpath }}`}}/papermill.log"
         archive:
           none: {}
     podSpecPatch: |

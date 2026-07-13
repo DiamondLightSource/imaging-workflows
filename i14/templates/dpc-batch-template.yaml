@@ -51,6 +51,12 @@ spec:
         mountPath: /tmp
   - name: dpc-notebook
     steps:
+    - - name: gen-multi-range
+        template: gen-multi-range-tmp
+        arguments:
+          parameters:
+          - name: multiScan
+            value: "{{`{{ workflow.parameters.multiScan }}`}}"
     - - name: dpc
         template: gen-notebook
         arguments:
@@ -59,7 +65,29 @@ spec:
             value: "{{`{{ workflow.parameters.outputFolder }}`}}"
           - name: scanNumber
             value: "{{`{{ item }}`}}"
-        withParam: "{{`{{ workflow.parameters.scanNumbers }}`}}"
+        withParam: "{{`{{ steps.gen-multi-range.outputs.result }}`}}"
+  - name: gen-multi-range-tmp
+    inputs:
+      parameters:
+      - name: multiScan
+    script:
+      image: python:3.10
+      command: [python]
+      source: |
+        import json, sys
+        file_number_list = []
+        multiscan_list = {{`{{ inputs.parameters.multiScan }}`}}
+
+        for multiscan in multiscan_list:
+            for range_ in multiscan.values():
+                excluded = range_['excluded']
+                assert isinstance(excluded, list)
+                assert range_['end'] >= range_['start']
+                scans = [x for x in range(range_['start'], range_['end'] + 1) if x not in excluded]
+                file_number_list.append(scans)
+
+        file_numbers = [n for _list in file_number_list for n in _list]
+        json.dump(file_numbers, sys.stdout)
   - name: gen-notebook
     inputs:
       parameters:
@@ -72,13 +100,27 @@ spec:
         value: /tmp
       command: [bash]
       source: |
-        python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+        ERROR_TXT="raise error"
+        ERROR_STR="An error arose within the executed notebook. Please open the output file to check."
+        OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}"
+        mkdir -p $OUTPUT
+
+        python -m papermill /tmp/notebook.ipynb \
+          $OUTPUT/dpc-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb \
           -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.scanNumber }}`}}.nxs" \
           -p process_configfile /tmp/config.yaml \
           -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.scanNumber }}`}}_dpc-phase.nxs" \
-          -p auto_processing False
-        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output dpc-notebook-{{`{{ inputs.parameters.scanNumber }}`}} --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
-        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" --to html --no-input --output dpc-output-{{`{{ inputs.parameters.scanNumber }}`}} --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+          -p auto_processing False \
+          > $OUTPUT/papermill.log 2>&1
+
+        python -m jupyter nbconvert $OUTPUT/dpc-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb \
+          --to html --no-input \
+          --output dpc-output-{{`{{ inputs.parameters.scanNumber }}`}} \
+          --output-dir $OUTPUT
+
+        grep -q "$ERROR_TXT" "$OUTPUT/papermill.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
+        # Raise an exit code to display failure of task if error text found in log
+
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -88,6 +130,10 @@ spec:
       artifacts:
       - name: dpc-output
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/dpc-output-{{`{{ inputs.parameters.scanNumber }}`}}.html"
+        archive:
+          none: {}
+      - name: notebook-log
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/papermill.log"
         archive:
           none: {}
     podSpecPatch: |

@@ -2,10 +2,13 @@ apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
   name: ptypy-cpu-job
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
     workflows.argoproj.io/title: PtyPy CPU Job Submitter
     workflows.argoproj.io/description: |
       Runs a PtyPy reconstruction job inside a container.
+    workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
     workflows.diamond.ac.uk/parameter-schema.config: |
     {{- .Files.Get "schema/ptypy_moonflower.json" | nindent 6 }}
     workflows.diamond.ac.uk/parameter-schema.id: |

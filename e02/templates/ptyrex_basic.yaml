@@ -8,6 +8,7 @@ metadata:
     workflows.argoproj.io/title: Simple Ptyrex job submission
     workflows.argoproj.io/description: |
       Submit a Ptyrex job for a particular scan and projection within a given visit
+    workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
     workflows.diamond.ac.uk/parameter-schema: |
       {{- .Files.Get "schema/ptyrex_Schema.json" | nindent 6}} 
     workflows.diamond.ac.uk/ui-schema: |

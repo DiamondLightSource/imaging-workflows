@@ -61,6 +61,12 @@ spec:
         mountPath: /tmp
   - name: xrd1d-notebook
     steps:
+    - - name: gen-multi-range
+        template: gen-multi-range-tmp
+        arguments:
+          parameters:
+          - name: multiScan
+            value: "{{`{{ workflow.parameters.multiScan }}`}}"
     - - name: xrd1d
         template: gen-notebook
         arguments:
@@ -81,7 +87,29 @@ spec:
             value: "{{`{{ workflow.parameters.backgroundType }}`}}"
           - name: polynomialOrder
             value: "{{`{{ workflow.parameters.polynomialOrder }}`}}"
-        withParam: "{{`{{ workflow.parameters.scanNumbers }}`}}"
+        withParam: "{{`{{ steps.gen-multi-range.outputs.result }}`}}"
+  - name: gen-multi-range-tmp
+    inputs:
+      parameters:
+      - name: multiScan
+    script:
+      image: python:3.10
+      command: [python]
+      source: |
+        import json, sys
+        file_number_list = []
+        multiscan_list = {{`{{ inputs.parameters.multiScan }}`}}
+
+        for multiscan in multiscan_list:
+            for range_ in multiscan.values():
+                excluded = range_['excluded']
+                assert isinstance(excluded, list)
+                assert range_['end'] >= range_['start']
+                scans = [x for x in range(range_['start'], range_['end'] + 1) if x not in excluded]
+                file_number_list.append(scans)
+
+        file_numbers = [n for _list in file_number_list for n in _list]
+        json.dump(file_numbers, sys.stdout)
   - name: gen-notebook
     inputs:
       parameters:
@@ -100,17 +128,33 @@ spec:
         value: /tmp
       command: [bash]
       source: |
-        python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+        ERROR_TXT="raise error"
+        ERROR_STR="An error arose within the executed notebook. Please open the output file to check."
+        OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}"
+        mkdir -p $OUTPUT
+
+        python -m papermill /tmp/notebook.ipynb \
+          "$OUTPUT/xrd1d-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" \
           -p inpath "{{`{{ workflow.parameters.visitdir }}`}}/scan/i14-{{`{{ inputs.parameters.scanNumber }}`}}.nxs" \
           -p process_configfile "{{`{{ inputs.parameters.xrdProcessConfigUpload }}`}}" \
-          -p outpath "{{`{{ inputs.parameters.outputFolder }}`}}/i14-{{`{{ inputs.parameters.scanNumber }}`}}-xrd1d.nxs" \
+          -p outpath "$OUTPUT/i14-{{`{{ inputs.parameters.scanNumber }}`}}-xrd1d.nxs" \
           -p calibration_path "{{`{{ inputs.parameters.calibrationPath }}`}}" \
           -p mask_path "{{`{{ inputs.parameters.maskPath }}`}}" \
           -p flat_path "{{`{{ inputs.parameters.flatPath }}`}}" \
           -p background_type "{{`{{ inputs.parameters.backgroundType }}`}}" \
-          -p polynomial_order "{{`{{ inputs.parameters.polynomialOrder }}`}}"
-        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output xrd1d-notebook-{{`{{ inputs.parameters.scanNumber }}`}} --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
-        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xrd1d-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" --to html --no-input --output xrd1d-output-{{`{{ inputs.parameters.scanNumber }}`}} --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+          -p polynomial_order "{{`{{ inputs.parameters.polynomialOrder }}`}}" \
+          > $OUTPUT/papermill.log 2>&1
+
+        python -m jupyter nbconvert "$OUTPUT/xrd1d-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" \
+          --to html --output xanes-sparse-output
+
+        python -m jupyter nbconvert "$OUTPUT/xrd1d-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" \
+          --to html --no-input --output xrd1d-output-{{`{{ inputs.parameters.scanNumber }}`}} \
+          --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+
+        grep -q "$ERROR_TXT" "$OUTPUT/papermill.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
+        # Raise an exit code to display failure of task if error text found in log
+
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -120,6 +164,10 @@ spec:
       artifacts:
       - name: xrd1d-output
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/xrd1d-output-{{`{{ inputs.parameters.scanNumber }}`}}.html"
+        archive:
+          none: {}
+      - name: notebook-log
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/papermill.log"
         archive:
           none: {}
     podSpecPatch: |

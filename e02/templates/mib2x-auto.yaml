@@ -8,6 +8,7 @@ metadata:
     workflows.argoproj.io/title: ePSIC mib automatic conversion
     workflows.argoproj.io/description: |
       Convert MIB file to hdf5/hspy files
+    workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
     workflows.diamond.ac.uk/parameter-schema: |
       {{- .Files.Get "schema/mib2x_auto_Schema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |

@@ -1,13 +1,13 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: ptypy-cpu-moonflower-benchmark
+  name: ptypy-utils
   labels:
     workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
     workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
 spec:
-  entrypoint: ptypy-run
+  entrypoint: ptypy-plotting
   volumeClaimTemplates:
   - metadata:
       name: tmpdir
@@ -25,21 +25,12 @@ spec:
           name: sessionspaces
           key: data_directory
   templates:
-  - name: ptypy-run
+  - name: ptypy-plotting
     inputs:
       parameters:
-      - name: nframes
-        value: 100
-      - name: shape
-        value: 128
-      - name: iterations
-        value: 100
-      - name: nprocs
-        value: 1
-      - name: memory
-        value: 20Gi
-    container:
-      image: ghcr.io/ptycho/ptypy_full_openmpi:v0.9.0
+      - name: filepath
+    script:
+      image: ghcr.io/diamondlightsource/imaging_toolbox/ptypy_workflows:v0.3.3
       env:
       - name: MKL_NUM_THREADS
         value: "1"
@@ -47,34 +38,55 @@ spec:
         value: "1"
       - name: OMP_NUM_THREADS
         value: "1"
-      command:
-      - mpirun
-      args:
-      - "-n"
-      - "{{`{{ inputs.parameters.nprocs }}`}}"
-      - "python"
-      - "benchmark/ptypy_moonflower_script_numpy.py"
-      - "-n"
-      - "{{`{{ inputs.parameters.nframes }}`}}"
-      - "-s"
-      - "{{`{{ inputs.parameters.shape }}`}}"
-      - "-i"
-      - "{{`{{ inputs.parameters.iterations }}`}}"
+      command: [bash]
+      source: |
+        # mount notebook
+        echo '{{ .Files.Get "notebooks/ptypy_plotting.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
+        # run notebook
+        python -m papermill /tmp/notebook.ipynb /tmp/notebook.ipynb \
+          -p recon_file "{{`{{ inputs.parameters.filepath }}`}}"
+        python -m nbconvert --to html --output notebook --output-dir /tmp /tmp/notebook.ipynb
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmpdir
         mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: notebook
+        path: /tmp/notebook.html
+        archive:
+          none: {}
+      - name: amplitude
+        path: /tmp/amplitude_plot.png
+        archive:
+          none: {}
+      - name: phase
+        path: /tmp/phase_plot.png
+        archive:
+          none: {}
+      - name: probe-amplitude
+        path: /tmp/probe_amplitude_plot.png
+        archive:
+          none: {}
+      - name: probe-phase
+        path: /tmp/probe_phase_plot.png
+        archive:
+          none: {}
+      - name: errors
+        path: /tmp/error_plot.png
+        archive:
+          none: {}
     podSpecPatch: |
       containers:
       - name: main
         resources:
           requests:
-            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
-            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            cpu: 1
+            memory: 20Gi
           limits:
-            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
-            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            cpu: 1
+            memory: 20Gi
     tolerations:
     - key: nodegroup
       operator: Equal

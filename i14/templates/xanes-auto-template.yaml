@@ -40,7 +40,7 @@ spec:
     - name: transitionToAlign
       value: None
     - name: normalise
-      value: "True"
+      value: true
   volumeClaimTemplates:
   - metadata:
       name: tmp
@@ -128,7 +128,13 @@ spec:
         value: /opt/venv/lib64/python3.12/site-packages/hdf5plugin/plugins/
       command: [bash]
       source: |
-        python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+        ERROR_TXT="raise error"
+        ERROR_STR="An error arose within the executed notebook. Please open the output file to check."
+        OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}"
+        mkdir -p $OUTPUT
+
+        python -m papermill /tmp/notebook.ipynb \
+          $OUTPUT/xanes-notebook.ipynb \
           -p first "{{`{{ inputs.parameters.first }}`}}" \
           -p last "{{`{{ inputs.parameters.last }}`}}" \
           -p exclude "{{`{{ inputs.parameters.exclude }}`}}" \
@@ -142,9 +148,16 @@ spec:
           -p sztol 0.9 \
           -p ref_index None \
           -p max_fractional_shift 0.2 \
-          -p auto_processing False
-        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output xanes-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}"
-        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}/xanes-notebook.ipynb" --to html --output xanes-output --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}"
+          -p auto_processing False \
+          > $OUTPUT/papermill.log 2>&1
+
+        python -m jupyter nbconvert $OUTPUT/xanes-notebook.ipynb \
+          --to html --output xanes-output \
+          --output-dir $OUTPUT
+
+        grep -q "$ERROR_TXT" "$OUTPUT/papermill.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
+        # Raise an exit code to display failure of task if error text found in log
+
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -154,6 +167,10 @@ spec:
       artifacts:
       - name: xanes-output
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}/xanes-output.html"
+        archive:
+          none: {}
+      - name: notebook-log
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}/papermill.log"
         archive:
           none: {}
     podSpecPatch: |

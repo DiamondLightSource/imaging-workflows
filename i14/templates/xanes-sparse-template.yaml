@@ -34,7 +34,7 @@ spec:
     - name: edgeTransition
       value: "Ka"
     - name: normalise
-      value: "True"
+      value: true
   volumeClaimTemplates:
   - metadata:
       name: tmp
@@ -48,7 +48,7 @@ spec:
   templates:
   - name: xanes-sparse-mount-files
     script:
-      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.2
       command: [bash]
       source: |
         echo '{{ .Files.Get "notebooks/xanes_sparse_stack_autoprocessing0.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
@@ -87,7 +87,7 @@ spec:
       - name: edgeElement
       - name: normalise
     script:
-      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.2
       env:
       - name: HOME
         value: /tmp
@@ -95,7 +95,13 @@ spec:
         value: /opt/venv/lib64/python3.12/site-packages/hdf5plugin/plugins/
       command: [bash]
       source: |
-        python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+        ERROR_TXT="raise error"
+        ERROR_STR="An error arose within the executed notebook. Please open the output file to check."
+        OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}"
+        mkdir -p $OUTPUT
+
+        python -m papermill /tmp/notebook.ipynb \
+          $OUTPUT/xanes-sparse-notebook.ipynb \
           -p first "{{`{{ inputs.parameters.first }}`}}" \
           -p last "{{`{{ inputs.parameters.last }}`}}" \
           -p exclude "{{`{{ inputs.parameters.exclude }}`}}" \
@@ -108,9 +114,15 @@ spec:
           -p num_short_iteration 75 \
           -p num_final_iteration 2000 \
           -p normalised "{{`{{ inputs.parameters.normalise }}`}}" \
-          -p auto_processing False
-        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output xanes-sparse-notebook --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}"
-        python -m jupyter nbconvert "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}/xanes-sparse-notebook.ipynb" --to html --output xanes-sparse-output --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}"
+          -p auto_processing False \
+          > $OUTPUT/papermill.log 2>&1
+
+        python -m jupyter nbconvert $OUTPUT/xanes-sparse-notebook.ipynb \
+          --to html --output xanes-sparse-output
+
+        grep -q "$ERROR_TXT" "$OUTPUT/papermill.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
+        # Raise an exit code to display failure of task if error text found in log
+
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -120,6 +132,10 @@ spec:
       artifacts:
       - name: xanes-sparse
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}/xanes-sparse-output.html"
+        archive:
+          none: {}
+      - name: notebook-log
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}/papermill.log"
         archive:
           none: {}
     podSpecPatch: |

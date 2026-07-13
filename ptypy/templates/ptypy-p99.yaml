@@ -1,0 +1,199 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: ptypy-p99-from-config
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
+  annotations:
+    workflows.argoproj.io/title: PtyPy Reconstruction for P99
+    workflows.argoproj.io/description: |
+      Runs a PtyPy reconstruction job inside a container based on data collected at P99.
+    workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
+    workflows.diamond.ac.uk/parameter-schema.id: |
+      {
+        "title": "Scan Number",
+        "type": "integer"
+      }
+    workflows.diamond.ac.uk/parameter-schema.inpath: |
+      {
+        "title": "Path to raw data folder",
+        "type": "string",
+        "default": "processing/writenData/reconstruction_test_data"
+      }
+    workflows.diamond.ac.uk/parameter-schema.outpath: |
+      {
+        "title": "Path to output folder",
+        "type": "string",
+        "default": "processing/workflows/ptypy"
+      }
+    workflows.diamond.ac.uk/parameter-schema.nprocs: |
+      {
+        "title": "Nr. of processes",
+        "type": "integer",
+        "default": 1
+      }
+    workflows.diamond.ac.uk/parameter-schema.memory: |
+      {
+        "title": "Requested CPU memory",
+        "type": "string",
+        "pattern": "^[0-9]+[GMK]i$",
+        "default": "20Gi"
+      }
+    workflows.diamond.ac.uk/parameter-schema.usegpu: |
+      {
+        "title": "Use GPU",
+        "type": "boolean",
+        "default": false
+      }
+spec:
+  entrypoint: ptypy-pipeline
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+    - name: id
+      value: 7
+    - name: inpath
+      value: "processing/writenData/reconstruction_test_data"
+    - name: outpath
+      value: "processing/workflows/ptypy"
+    - name: nprocs
+      value: 1
+    - name: memory
+      value: 20Gi
+    - name: usegpu
+      value: false
+  volumeClaimTemplates:
+  - metadata:
+      name: tmpdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: netapp
+      
+  templates:
+  - name: ptypy-setup
+    script:
+      image: python:3.14
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmpdir
+        mountPath: /tmp
+      command: [bash]
+      source: | 
+          OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/"{{`{{ workflow.parameters.outpath }}`}}"
+          mkdir -p $OUTPUT
+          INPUT="{{`{{ workflow.parameters.visitdir }}`}}"/"{{`{{ workflow.parameters.inpath }}`}}"
+          echo '{{ .Files.Get "config/p99_dm.yaml" | b64enc }}' | base64 -d > $OUTPUT/ptypy_config.yaml
+          sed -i "s;<INPATH>;$INPUT;" $OUTPUT/ptypy_config.yaml
+          "{{`{{ workflow.parameters.usegpu }}`}}" && sed -i "s;DM;DM_cupy;" $OUTPUT/ptypy_config.yaml
+          cat $OUTPUT/ptypy_config.yaml
+    outputs:
+      parameters:
+        - name: config
+          value: "{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}/ptypy_config.yaml"
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+
+  - name: get-filepath
+    inputs:
+      parameters:
+      - name: config
+    script:
+      image: python:3.14
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmpdir
+        mountPath: /tmp
+      command: [python]
+      source: |
+        import re
+        OUTPATH="{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}"
+        SCAN="{{`{{ workflow.parameters.id }}`}}"
+        CONFIG="{{`{{ inputs.parameters.config }}`}}"
+        with open("/tmp/out.txt", "w") as o:
+          with open(CONFIG, 'r') as f:
+            text = f.read()
+            ENGINE = re.findall("    engine0:\n      name: (.*)", text)[0]
+            NITER = int(re.findall("      numiter: (.*)", text)[0])
+            o.write(f"{OUTPATH}/scan_{SCAN}/{SCAN}_{ENGINE}_{NITER:04d}.ptyr")
+    outputs:
+      parameters:
+      - name: filepath
+        valueFrom:
+          path: /tmp/out.txt
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+  - name: ptypy-pipeline
+    dag:
+      tasks:
+      - name: prepare
+        template: ptypy-setup
+      - name: reconstruct-with-gpu
+        when: "{{`{{ workflow.parameters.usegpu }}`}} == true" 
+        templateRef:
+          name: ptypy-generic
+          template: ptypy-gpu-run
+          clusterScope: true
+        depends: "prepare"
+        arguments:
+          parameters:
+          - name: config
+            value: "{{`{{ tasks.prepare.outputs.parameters.config }}`}}"
+          - name: id
+            value: "{{`{{ workflow.parameters.id }}`}}"
+          - name: outpath
+            value: "{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}"
+          - name: nprocs
+            value: "{{`{{ workflow.parameters.nprocs }}`}}"
+          - name: memory
+            value: "{{`{{ workflow.parameters.memory }}`}}"
+      - name: reconstruct-with-cpu
+        when: "{{`{{ workflow.parameters.usegpu }}`}} == false"
+        templateRef:
+          name: ptypy-generic
+          template: ptypy-cpu-run
+          clusterScope: true
+        depends: "prepare"
+        arguments:
+          parameters:
+          - name: config
+            value: "{{`{{ tasks.prepare.outputs.parameters.config }}`}}"
+          - name: id
+            value: "{{`{{ workflow.parameters.id }}`}}"
+          - name: outpath
+            value: "{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}"
+          - name: nprocs
+            value: "{{`{{ workflow.parameters.nprocs }}`}}"
+          - name: memory
+            value: "{{`{{ workflow.parameters.memory }}`}}"
+      - name: get-filepath
+        template: get-filepath
+        depends: "reconstruct-with-gpu || reconstruct-with-cpu"
+        arguments:
+          parameters:
+          - name: config
+            value: "{{`{{ tasks.prepare.outputs.parameters.config }}`}}"
+      - name: plot
+        templateRef:
+          name: ptypy-utils
+          template: ptypy-plotting
+          clusterScope: true
+        depends: "get-filepath"
+        arguments:
+          parameters:
+          - name: filepath
+            value: "{{`{{tasks.get-filepath.outputs.parameters.filepath}}`}}"

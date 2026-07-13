@@ -2,10 +2,13 @@ apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
   name: phase
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
     workflows.argoproj.io/title: Create phase data
     workflows.argoproj.io/description: |
       A utility which takes in a complex file, a mask, creates the phase data, and saves the results.
+    workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
     workflows.diamond.ac.uk/parameter-schema: |
       {{- .Files.Get "schema/phaseSchema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
@@ -24,7 +27,7 @@ spec:
     - name: maskpath
       value: ""
     - name: normalise
-      value: False
+      value: false
     - name: outpath
       value: ""
   volumeClaimTemplates:
@@ -65,13 +68,26 @@ spec:
         value: /tmp
       command: [bash]
       source: |
-        python -m papermill /tmp/notebook.ipynb /tmp/notebook-parametrized.ipynb \
+        ERROR_TXT="raise error"
+        ERROR_STR="An error arose within the executed notebook. Please open the output file to check."
+        OUTPUT="{{`{{ inputs.parameters.outpath }}`}}"
+        mkdir -p $OUTPUT
+
+        python -m papermill /tmp/notebook.ipynb $OUTPUT/phase-notebook.ipynb \
           -p inpath "{{`{{ inputs.parameters.inpath }}`}}" \
           -p maskpath "{{`{{ inputs.parameters.maskpath }}`}}" \
           -p normalise "{{`{{ inputs.parameters.normalise }}`}}" \
-          -p outpath "{{`{{ inputs.parameters.outpath }}`}}"
-        python -m jupyter nbconvert /tmp/notebook-parametrized.ipynb --to notebook --execute --allow-errors --output phase-notebook --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
-        python -m jupyter nbconvert "{{`{{ inputs.parameters.outpath }}`}}/phase-notebook.ipynb" --to html --output phase-output --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
+          -p outpath "{{`{{ inputs.parameters.outpath }}`}}" \
+          > $OUTPUT/papermill.log 2>&1
+
+        python -m jupyter nbconvert $OUTPUT/phase-notebook.ipynb \
+          --to html \
+          --output phase-output \
+          --output-dir "{{`{{ inputs.parameters.outpath }}`}}"
+
+        grep -q "$ERROR_TXT" "$OUTPUT/papermill.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
+        # Raise an exit code to display failure of task if error text found in log
+
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
@@ -81,6 +97,10 @@ spec:
       artifacts:
       - name: phase-output
         path: "{{`{{ inputs.parameters.outpath }}`}}/phase-output.html"
+        archive:
+          none: {}
+      - name: notebook-log
+        path: "{{`{{ inputs.parameters.outpath }}`}}/papermill.log"
         archive:
           none: {}
     podSpecPatch: |

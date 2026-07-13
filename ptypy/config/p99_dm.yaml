@@ -1,0 +1,82 @@
+base_file: null
+visit_path: <INPATH> 
+parameter_tree:
+  run: ''
+  verbose_level: 3
+  frames_per_block: 1000
+  data_type: single
+  dry_run: false
+  engines:
+    engine0:
+      name: DM
+      numiter: 100
+      numiter_contiguous: 10
+      alpha: 0.95
+      probe_support: null
+      probe_update_start: 0
+      update_object_first: false
+      object_inertia: 0.001
+      probe_inertia: 0.001
+      overlap_converge_factor: 0.01
+      overlap_max_iterations: 10
+      obj_smooth_std: 20
+      fourier_power_bound: 0.25
+  io:
+    autoplot:
+      active: false
+    autosave:
+      active: false
+      interval: 100
+    rformat: dls
+  scans:
+    scan_00:
+      name: BlockFull
+      coherence:
+        num_object_modes: 1
+        num_probe_modes: 1
+      sample:
+        diversity: null
+        model: null
+        process: null
+      illumination:
+        model: null
+        photons: null
+        aperture:
+          form: circ
+          size: 0.000333
+        propagation:
+          antialiasing: 1
+          focussed: 0.013725
+          parallel: 50.e-06
+        diversity:
+          noise:
+          - 0.5
+          - 1.0
+          power: 0.1
+      data:
+        name: Hdf5Loader
+        orientation: 0
+        psize: 11.e-06
+        rebin: 1
+        shape:
+          - 128
+          - 128
+        auto_center: true
+        save: null
+        intensities:
+          file: /%(visit_path)s/p99-%(run)s.nxs
+          key: /entry/andor2_det/andor2_det
+        positions:
+          file: /%(visit_path)s/p99-%(run)s.nxs
+          fast_key: /entry/andor2_det/sample_stage-x
+          fast_multiplier: 0.001
+          slow_key: /entry/andor2_det/sample_stage-y
+          slow_multiplier: 0.001
+        recorded_energy:
+          file: /%(visit_path)s/p99-%(run)s.nxs
+          key: /entry/plan_metadata/energy/value
+          multiplier: 0.001
+        recorded_distance:
+          file: /%(visit_path)s/p99-%(run)s.nxs
+          key: /entry/plan_metadata/detector_dist/value
+          multiplier: 0.001
