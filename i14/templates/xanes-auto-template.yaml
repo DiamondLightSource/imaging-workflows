@@ -54,7 +54,7 @@ spec:
   templates:
   - name: xanes-mount-files
     script:
-      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      image: python:3.10
       command: [bash]
       source: |
         echo '{{ .Files.Get "notebooks/xanes_autoprocessing0.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
