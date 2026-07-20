@@ -24,8 +24,8 @@ spec:
           key: data_directory
     - name: outputFolder
       value: /tmp/output
-    - name: scanNumbers
-      value: "[391572]"
+    - name: multiScan
+      value: '[{"multiScan":{ "start": 391572, "end": 391572, "excluded": [] }}]'
     - name: xrdProcessConfigUpload
       value: ""
     - name: calibrationPath
@@ -119,7 +119,7 @@ spec:
       source: |
         ERROR_TXT="raise error"
         ERROR_STR="An error arose within the executed notebook. Please open the output file to check."
-        OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}"
+        OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}/xrd2d/{{`{{ inputs.parameters.scanNumber }}`}}"
         mkdir -p $OUTPUT
 
         python -m papermill /tmp/notebook.ipynb \
