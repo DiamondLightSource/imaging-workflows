@@ -146,7 +146,11 @@
     "edgeTransition": {
       "type": "string",
       "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
+    },
+    "version": {
+      "type": "string",
+      "enum": ["v0.1", "v0.2"]
     }
   },
-  "required": ["outputFolder", "multiScan", "edgeElement", "edgeTransition"]
+  "required": ["outputFolder", "multiScan", "edgeElement", "edgeTransition", "version"]
 }

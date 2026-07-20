@@ -40,6 +40,10 @@
     {
       "type": "Control",
       "scope": "#/properties/outputFolder"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/version"
     }
   ]
 }

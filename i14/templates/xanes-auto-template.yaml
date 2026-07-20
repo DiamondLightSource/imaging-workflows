@@ -41,6 +41,8 @@ spec:
       value: None
     - name: normalise
       value: true
+    - name: version
+      value: 'v0.1'
   volumeClaimTemplates:
   - metadata:
       name: tmp
@@ -93,6 +95,8 @@ spec:
             value: "{{`{{ workflow.parameters.method }}`}}"
           - name: normalise
             value: "{{`{{ workflow.parameters.normalise }}`}}"
+          - name: version
+            value: "{{`{{ workflow.parameters.version }}`}}"
         withParam: "{{`{{ workflow.parameters.multiScan }}`}}"
   - name: gen-element-to-align-tmp
     inputs:
@@ -119,8 +123,9 @@ spec:
       - name: elementToAlign
       - name: method
       - name: normalise
+      - name: version
     script:
-      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:"{{`{{ inputs.parameters.version }}`}}"
       env:
       - name: HOME
         value: /tmp

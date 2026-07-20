@@ -35,6 +35,8 @@ spec:
       value: "Ka"
     - name: normalise
       value: true
+    - name: version
+      value: 'v0.2'
   volumeClaimTemplates:
   - metadata:
       name: tmp
@@ -75,6 +77,8 @@ spec:
             value: "{{`{{ workflow.parameters.edgeElement }}`}}-{{`{{ workflow.parameters.edgeTransition }}`}}"
           - name: normalise
             value: "{{`{{ workflow.parameters.normalise }}`}}"
+          - name: version
+            value: "{{`{{ workflow.parameters.version }}`}}"
         withParam: "{{`{{ workflow.parameters.multiScan }}`}}"
   - name: gen-notebook-tmp
     inputs:
@@ -86,8 +90,9 @@ spec:
       - name: outputFolder
       - name: edgeElement
       - name: normalise
+      - name: version
     script:
-      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.2
+      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:"{{`{{ inputs.parameters.version }}`}}"
       env:
       - name: HOME
         value: /tmp
