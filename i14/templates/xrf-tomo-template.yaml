@@ -25,11 +25,11 @@ spec:
     - name: outputFolder
       value: "testing"
     - name: multiScan
-      value: '[{"multiScan":{"start":423844,"end":423947,"excluded":[423908,423909,423911,423916,423917,423935,423936,423937,423940,423942,423943,423944,423945]}}]'
+      value: '[{"multiScan":{"start":436147,"end":436230,"excluded":[]}}]'
     - name: multiEdge
-      value: '[{"edgeElement":"Pb","edgeTransition":"La"},{"edgeElement":"Br","edgeTransition":"Ka"}]'
+      value: '[{"edgeElement":"Tl","edgeTransition":"La"},{"edgeElement":"Ga","edgeTransition":"Ka"}]'
     - name: elementToAlign
-      value: "Pb"
+      value: "Tl"
     - name: transitionToAlign
       value: "La"
     - name: alignmentSection
@@ -57,8 +57,6 @@ spec:
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
-      - name: tmp
-        mountPath: /tmp
       command: [bash]
       source: |
         OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
@@ -66,7 +64,7 @@ spec:
         echo '{{ .Files.Get "notebooks/xrf_tomo_align_initial.ipynb" | b64enc }}' | base64 -d > $OUTPUT/align_initial.ipynb
         echo '{{ .Files.Get "notebooks/xrf_tomo_align_and_normalise.ipynb" | b64enc }}' | base64 -d > $OUTPUT/align_and_normalise.ipynb
         echo '{{ .Files.Get "notebooks/xrf_tomo_plotting.ipynb" | b64enc }}' | base64 -d > $OUTPUT/plotting.ipynb
-        echo '{{ .Files.Get "configs/httomo_config_fbp.yaml" | b64enc }}' | base64 -d > $OUTPUT/httomo.yaml
+        echo '{{ .Files.Get "configs/httomo_config_olem.yaml" | b64enc }}' | base64 -d > $OUTPUT/httomo.yaml
     volumes:
     - name: session
       hostPath:
@@ -266,7 +264,7 @@ spec:
       parameters:
         - name: edge
     script:
-      image: ghcr.io/diamondlightsource/httomo:2.5
+      image: ghcr.io/diamondlightsource/httomo:3.2.1
       env:
       - name: CUPY_CACHE_DIR
         value: /tmp/.cupy/kernel_cache

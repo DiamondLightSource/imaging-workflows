@@ -1,0 +1,74 @@
+# --- Standard tomography loader for NeXus files. ---
+- method: standard_tomo
+  module_path: httomo.data.hdf.loaders
+  parameters:
+    data_path: auto
+    image_key_path: auto
+    rotation_angles: auto
+    preview:
+      detector_x:   # horizontal data previewing/cropping.
+        # when null, the full data dimension is used, i.e., no previewing
+        start: null
+        stop: null
+      detector_y:   # vertical data previewing/cropping.
+        # when null, the full data dimension is used, i.e., no previewing
+        start: null
+        stop: null
+    darks: null
+    flats: null
+- method: remove_outlier
+  module_path: httomolibgpu.misc.corr
+  parameters:
+    kernel_size: 3  # The size of the 3D neighbourhood surrounding the voxel. Odd integer.
+    dif: 1000 # A difference between the outlier value and the median value of neighbouring pixels.
+  save_result: true
+- method: find_center
+  module_path: tomopy.recon.rotation
+  parameters:
+    ind: null
+    init: 48
+    tol: 0.5
+    mask: true
+    ratio: 1.0
+    sinogram_order: false
+  id: centering
+  side_outputs:
+    cor: centre_of_rotation
+# --- Reconstruction method. ---
+- method: OSEM3d_tomobar
+  module_path: httomolibgpu.recon.algorithm
+  parameters:
+    center: ${{centering.side_outputs.centre_of_rotation}}
+    detector_pad: false
+    recon_size: null
+    recon_mask_radius: 0.95
+    iterations: 20
+    subsets_number: 12
+    regularisation_type: PD_TV
+    regularisation_parameter: 0.01
+    regularisation_iterations: 30
+    regularisation_half_precision: true
+    nonnegativity: true
+# --- Calculate global statistics on the reconstructed volume, required for data rescaling. ---
+- method: calculate_stats
+  module_path: httomo.methods
+  parameters: {}
+  id: statistics
+  side_outputs:
+    glob_stats: glob_stats
+# --- Rescaling the data using min/max obtained from `calculate_stats`. ---
+- method: rescale_to_int
+  module_path: httomolibgpu.misc.rescale
+  parameters:
+    perc_range_min: 0.0
+    perc_range_max: 100.0
+    bits: 32
+    glob_stats: ${{statistics.side_outputs.glob_stats}}
+# --- Saving data into images. ---
+- method: save_to_images
+  module_path: httomolib.misc.images
+  parameters:
+    subfolder_name: images
+    axis: auto
+    file_format: tif  # `tif` or `jpeg` can be used.
+    asynchronous: true
