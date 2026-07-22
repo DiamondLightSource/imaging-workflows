@@ -1,0 +1,39 @@
+{
+  "type": "VerticalLayout",
+  "options": {
+    "formWidth": "80%"
+  },
+  "elements": [
+    {
+      "type": "Group",
+      "label": "ePSIC notebook which calibrates 4D STEM data",
+      "elements": [
+        {
+          "type": "VerticalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "label": "Name of the sample",
+              "scope": "#/properties/sample"
+            },
+            {
+              "type": "Control",
+              "label": "Time stamp of the data to process",
+              "scope": "#/properties/timestamp"
+            },
+            {
+              "type": "Control",
+              "label": "The lower threshold",
+              "scope": "#/properties/thresh_lower"
+            },
+            {
+              "type": "Control",
+              "label": "The upper threshold",
+              "scope": "#/properties/thresh_upper"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

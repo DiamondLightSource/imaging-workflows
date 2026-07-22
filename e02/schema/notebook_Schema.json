@@ -1,0 +1,36 @@
+{
+  "type": "object",
+    "description": "inputs for ePSIC notebook which calibrates 4D STEM data",
+    "properties": {
+        "sample": {
+            "default": null,
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Sample name",
+            "type": "string"
+        },
+        "timestamp": {
+            "default": null,
+            "maxLength": 1,
+            "minLength": 128,
+            "title": "Time stamp",
+            "type": "string"
+        },
+        "thresh_lower": {
+            "default": 0.05,
+            "maximum": 0.95,
+            "minimum": 0,
+            "title": "The lower threshold",
+            "type": "number"
+        },
+        "thresh_upper": {
+            "default": 0.2,
+            "maximum": 1,
+            "minimum": 0.05,
+            "title": "The upper threshold",
+            "type": "number"
+        }
+    },
+    "title": "Calibration of 4D STEM data notebook"
+}
+    
