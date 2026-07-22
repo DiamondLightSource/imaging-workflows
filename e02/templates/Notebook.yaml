@@ -10,9 +10,9 @@ metadata:
       A utility which takes in a 4D STEM data set and outs the approximate real space pixel size, measured camera length and scan rotation (based off dpc).
     workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
     workflows.diamond.ac.uk/parameter-schema: |
-      {{- .Files.Get "schema/Calibrate4DSTEMSchema.json" | nindent 6 }}
+      {{- .Files.Get "schema/notebook_Schema.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
-      {{- .Files.Get "schema/Calibrate4DSTEMUISchema.json" | nindent 6 }}
+      {{- .Files.Get "schema/notebook_ui.json" | nindent 6 }}
 spec:
   entrypoint: mount-files
   arguments:
