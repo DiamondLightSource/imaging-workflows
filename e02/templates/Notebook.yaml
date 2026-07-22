@@ -5,7 +5,7 @@ metadata:
   labels:
     workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
-    workflows.argoproj.io/title: Calibrate 4D STEM data
+    workflows.argoproj.io/title: Calibrate ptycho STEM data
     workflows.argoproj.io/description: |
       A utility which takes in a 4D STEM data set and outs the approximate real space pixel size, measured camera length and scan rotation, based off dpc
     workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
@@ -73,7 +73,7 @@ spec:
         image: gitlab.diamond.ac.uk:5050/scisoft/ptychography/dimtools/mib2x
         volumeMounts:
         - name: session
-          mountPath: "{{`{{ workflows.parameters.visitdir }}`}}"
+          mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
         - name: tmp
           mountPath: /tmp
         - name: software
@@ -85,12 +85,12 @@ spec:
           OUTPUT="{{`{{workflow.parameters.visitdir}}`}}"/processing/workflows/
           python -m papermill "{{`{{workflow.parameters.visitdir}}`}}"/processing/workflows/Ptycho_calibration.ipynb $OUTPUT/Calibrate-notebook.ipynb \
             -p visit "{{`{{ workflow.parameters.visitdir }}`}}"
-            -p sample "{{`{{ workflows.parameters.sample }}`}}"
-            -p timestamp "{{`{{workflows.parameters.timestamp}}`}}"
+            -p sample "{{`{{ workflow.parameters.sample }}`}}"
+            -p timestamp "{{`{{workflow.parameters.timestamp}}`}}"
             -p maskpath /software/29042024_12bitmask2.h5
-            -p outpath "{{`{{workflows.parameters.outpath}}`}}"
-            -p lower "{{`{{workflows.parameters.thresh_lower}}`}}"
-            -p upper "{{`{{workflows.parameters.thresh_upper}}`}}"
+            -p outpath "{{`{{workflow.parameters.outpath}}`}}"
+            -p lower "{{`{{workflow.parameters.thresh_lower}}`}}"
+            -p upper "{{`{{workflow.parameters.thresh_upper}}`}}"
             > $OUTPUT/papermill.log 2>&1
 
           python  -m jupyter nbconvert $OUTPUT/Calibrate-notebook.ipynb \
