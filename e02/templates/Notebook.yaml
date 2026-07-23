@@ -34,97 +34,93 @@ spec:
       storageClassName: netapp
 
   templates:
-    - name: calibration-notebook
-      steps:
-      - - name: copy-notebook
-          template: mount-files
-      - - name: run-notebook
-          template: notebook
+  - name: calibration-notebook
+    steps:
+    - - name: copy-notebook
+        template: mount-files
+    - - name: run-notebook
+        template: notebook
 
-    - name: mount-files
-      script:
-        image: debian:stable-slim
-        volumeMounts:
-        - name: tmp
-          mountPath: /tmp
-        - name: session
-          mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
-        command: [bash]
-        source: |
-          OUTPUT="{{`{{workflow.parameters.visitdir}}`}}"/processing/workflows/
-          mkdir -p $OUTPUT
-          echo "something!"
-          echo '{{ .Files.Get "notebooks/Ptycho_calibration.ipynb" | b64enc }}' | base64 -d > $OUTPUT/Ptycho_calibration.ipynb
-    
-    - name: notebook
-      inputs:
-        parameters:
-        - name: sample
-          value: "{{`{{workflow.parameters.sample}}`}}"
-        - name: timestamp
-          value: "{{`{{workflow.parameters.timestamp}}`}}"
-        - name: outpath
-          value: "{{`{{workflow.parameters.outpath}}`}}"
-        - name: thresh_lower
-          value: "{{`{{workflow.parameters.thresh_lower}}`}}"
-        - name: thresh_upper
-          value: "{{`{{workflow.parameters.thresh_upper}}`}}"
-      script:
-        image: gitlab.diamond.ac.uk:5050/scisoft/ptychography/dimtools/mib2x
-        volumeMounts:
-        - name: session
-          mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
-        - name: tmp
-          mountPath: /tmp
-        - name: software
-          mountPath: /dls_sw/e02/medipix_mask
-        command: [bash]
-        source: |
-          ERROR_TXT="raise error"
-          ERROR_STR="An error occured within the notebook. Please open the output file to check"
-          OUTPUT="{{`{{workflow.parameters.visitdir}}`}}"/processing/workflows/
-          python -m papermill "{{`{{workflow.parameters.visitdir}}`}}"/processing/workflows/Ptycho_calibration.ipynb $OUTPUT/Calibrate-notebook.ipynb \
-            -p visit "{{`{{ workflow.parameters.visitdir }}`}}"
-            -p sample "{{`{{ workflow.parameters.sample }}`}}"
-            -p timestamp "{{`{{workflow.parameters.timestamp}}`}}"
-            -p maskpath /software/29042024_12bitmask2.h5
-            -p outpath "{{`{{workflow.parameters.outpath}}`}}"
-            -p lower "{{`{{workflow.parameters.thresh_lower}}`}}"
-            -p upper "{{`{{workflow.parameters.thresh_upper}}`}}"
-            > $OUTPUT/papermill.log 2>&1
-
-          python  -m jupyter nbconvert $OUTPUT/Calibrate-notebook.ipynb \
-            --to html 
-
-      outputs:
-        artifacts:
-        - name: phase-output
-          path: "{{`{{workflow.parameters.visitdir}}`}}/Calibrate-notebook.html"
-          archive:
-            none: {}
-      podSpecPatch: |
-        containers:
-        - name: main
-          resources:
-            requests:
-              cpu: 10
-              memory: 50Gi
-            limits:
-              cpu: 10
-              memory: 50Gi
-      tolerations:
-      - key: nodegroup
-        operator: Equal
-        value: workflows
-        effect: NoSchedule
-      volumes:
+  - name: mount-files
+    script:
+      image: debian:stable-slim
+      volumeMounts:
+      - name: tmp
+        mountPath: /tmp
       - name: session
-        hostPath:
-          path: "{{`{{ workflow.parameters.visitdir }}`}}"
-          type: Directory
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      command: [bash]
+      source: |
+        OUTPUT="{{`{{workflow.parameters.visitdir}}`}}"/processing/workflows/
+        mkdir -p $OUTPUT
+        echo "something!"
+        echo '{{ .Files.Get "notebooks/Ptycho_calibration.ipynb" | b64enc }}' | base64 -d > $OUTPUT/Ptycho_calibration.ipynb
+  
+  - name: notebook
+    inputs:
+      parameters:
+      - name: sample
+        value: "{{`{{workflow.parameters.sample}}`}}"
+      - name: timestamp
+        value: "{{`{{workflow.parameters.timestamp}}`}}"
+      - name: thresh_lower
+        value: "{{`{{workflow.parameters.thresh_lower}}`}}"
+      - name: thresh_upper
+        value: "{{`{{workflow.parameters.thresh_upper}}`}}"
+    script:
+      image: gitlab.diamond.ac.uk:5050/scisoft/ptychography/dimtools/mib2x
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
       - name: software
-        hostPath:
-          path: /dls_sw/e02/medipix_mask/
-          type: Directory
+        mountPath: /dls_sw/e02/medipix_mask
+      command: [bash]
+      source: |
+        ERROR_TXT="raise error"
+        ERROR_STR="An error occured within the notebook. Please open the output file to check"
+        OUTPUT="{{`{{workflow.parameters.visitdir}}`}}"/processing/workflows/
+        python -m papermill "{{`{{workflow.parameters.visitdir}}`}}"/processing/workflows/Ptycho_calibration.ipynb $OUTPUT/Calibrate-notebook.ipynb \
+          -p visit "{{`{{ workflow.parameters.visitdir }}`}}"
+          -p sample "{{`{{ workflow.parameters.sample }}`}}"
+          -p timestamp "{{`{{workflow.parameters.timestamp}}`}}"
+          -p maskpath /software/29042024_12bitmask2.h5
+          -p lower "{{`{{workflow.parameters.thresh_lower}}`}}"
+          -p upper "{{`{{workflow.parameters.thresh_upper}}`}}"
+          > $OUTPUT/papermill.log 2>&1
+
+        python  -m jupyter nbconvert $OUTPUT/Calibrate-notebook.ipynb \
+          --to html 
+    outputs:
+      artifacts:
+      - name: phase-output
+        path: "{{`{{workflow.parameters.visitdir}}`}}/Calibrate-notebook.html"
+        archive:
+          none: {}
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: 10
+            memory: 50Gi
+          limits:
+            cpu: 10
+            memory: 50Gi
+    tolerations:
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+    - name: software
+      hostPath:
+        path: /dls_sw/e02/medipix_mask/
+        type: Directory
 
         
