@@ -4,15 +4,15 @@
     "properties": {
         "sample": {
             "default": null,
-            "maxLength": 128,
             "minLength": 1,
+            "maxLength": 128,
             "title": "Sample name",
             "type": "string"
         },
         "timestamp": {
             "default": null,
-            "maxLength": 1,
-            "minLength": 128,
+            "minLength": 1,
+            "maxLength": 128,
             "title": "Time stamp",
             "type": "string"
         },
