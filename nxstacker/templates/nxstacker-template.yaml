@@ -5,7 +5,7 @@ metadata:
   labels:
     workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
-    workflows.argoproj.io/title: nxstacker
+    workflows.argoproj.io/title: NXstacker
     workflows.argoproj.io/description: |
       nxstacker is an utility to stack projections from different types of experiments to produce NeXus-compliance file(s).
     workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/nxstacker"
