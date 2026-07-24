@@ -37,7 +37,7 @@ spec:
     - name: alignmentBand
       value: "15"
     - name: normalise
-      value: true
+      value: "true"
     - name: cor
       value: "nil"
     - name: reconsMethod
