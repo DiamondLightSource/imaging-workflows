@@ -5,6 +5,7 @@ metadata:
   labels:
     workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
+    workflows.argoproj.io/title: PtyPy Reconstruction with moonflower data
     workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
 spec:
   entrypoint: ptypy-run
