@@ -39,7 +39,7 @@ spec:
     - name: normalise
       value: true
     - name: cor
-      value: "null"
+      value: "nil"
     - name: reconsMethod
       value: "FBP"
   volumeClaimTemplates:
@@ -301,9 +301,9 @@ spec:
         mkdir -p $OUTPUT/httomo_output
 
         COR_ESTIMATE="{{`{{ inputs.parameters.initcor }}`}}"
-        [[ $COR_ESTIMATE != "null" ]] && sed -i 's/<INITCOR>/'"${COR_ESTIMATE}"'/' $OUTPUT/httomo.yaml
+        [[ $COR_ESTIMATE != "nil" ]] && sed -i 's/<INITCOR>/'"${COR_ESTIMATE}"'/' $OUTPUT/httomo.yaml
         COR="{{`{{ workflow.parameters.cor }}`}}"
-        [[ $COR != "null" ]] && sed -i 's/${{`{{centering.side_outputs.centre_of_rotation}}`}}/'"${COR}"'/' $OUTPUT/httomo.yaml
+        [[ $COR != "nil" ]] && sed -i 's/${{`{{centering.side_outputs.centre_of_rotation}}`}}/'"${COR}"'/' $OUTPUT/httomo.yaml
 
         cmd=(/opt/conda/bin/mpirun -n 1 /opt/conda/bin/python -m httomo run)
         cmd+=("--output-folder-name=${ELEMENT}-${TRANSITION}")
