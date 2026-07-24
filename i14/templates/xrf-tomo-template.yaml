@@ -25,11 +25,11 @@ spec:
     - name: outputFolder
       value: "testing"
     - name: multiScan
-      value: '[{"multiScan":{"start":423844,"end":423947,"excluded":[423908,423909,423911,423916,423917,423935,423936,423937,423940,423942,423943,423944,423945]}}]'
+      value: '[{"multiScan":{"start":436147,"end":436230,"excluded":[]}}]'
     - name: multiEdge
-      value: '[{"edgeElement":"Pb","edgeTransition":"La"},{"edgeElement":"Br","edgeTransition":"Ka"}]'
+      value: '[{"edgeElement":"Tl","edgeTransition":"La"},{"edgeElement":"Ga","edgeTransition":"Ka"}]'
     - name: elementToAlign
-      value: "Pb"
+      value: "Tl"
     - name: transitionToAlign
       value: "La"
     - name: alignmentSection
@@ -40,6 +40,8 @@ spec:
       value: true
     - name: cor
       value: "null"
+    - name: reconsMethod
+      value: "FBP"
   volumeClaimTemplates:
   - metadata:
       name: tmp
@@ -57,16 +59,24 @@ spec:
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
-      - name: tmp
-        mountPath: /tmp
       command: [bash]
       source: |
         OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
+        METHOD="{{`{{ workflow.parameters.reconsMethod }}`}}"
         mkdir -p $OUTPUT
         echo '{{ .Files.Get "notebooks/xrf_tomo_align_initial.ipynb" | b64enc }}' | base64 -d > $OUTPUT/align_initial.ipynb
         echo '{{ .Files.Get "notebooks/xrf_tomo_align_and_normalise.ipynb" | b64enc }}' | base64 -d > $OUTPUT/align_and_normalise.ipynb
         echo '{{ .Files.Get "notebooks/xrf_tomo_plotting.ipynb" | b64enc }}' | base64 -d > $OUTPUT/plotting.ipynb
-        echo '{{ .Files.Get "configs/httomo_config_fbp.yaml" | b64enc }}' | base64 -d > $OUTPUT/httomo.yaml
+        echo '{{ .Files.Get "configs/httomo_config_OLEM.yaml" | b64enc }}' | base64 -d > $OUTPUT/httomo_OLEM.yaml
+        echo '{{ .Files.Get "configs/httomo_config_FBP.yaml" | b64enc }}' | base64 -d > $OUTPUT/httomo_FBP.yaml
+        if [ "$METHOD" = "OLEM" ]; then
+           mv $OUTPUT/httomo_OLEM.yaml $OUTPUT/httomo.yaml
+           rm $OUTPUT/httomo_FBP.yaml
+        fi
+        if [ "$METHOD" = "FBP" ]; then
+           mv $OUTPUT/httomo_FBP.yaml $OUTPUT/httomo.yaml
+           rm $OUTPUT/httomo_OLEM.yaml
+        fi
     volumes:
     - name: session
       hostPath:
@@ -138,6 +148,7 @@ spec:
           -p inpath "tomo_xrf_${START}_${END}_${EDGE}.nxs" \
           -p outpath_nexus "${EDGE}_aligned_initial.nxs" \
           -p outpath_shifts "${EDGE}_shifts.txt" \
+          -p outpath_cor "${EDGE}_cor.txt" \
           -p alignment_section "{{`{{ workflow.parameters.alignmentSection }}`}}" \
           -p alignment_band "{{`{{ workflow.parameters.alignmentBand }}`}}"
           --prepare-only
@@ -149,6 +160,10 @@ spec:
       - name: tmp
         mountPath: /tmp
     outputs:
+      parameters:
+      - name: initcor
+        valueFrom:
+          path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/{{`{{ workflow.parameters.elementToAlign }}`}}-{{`{{ workflow.parameters.transitionToAlign }}`}}_cor.txt"
       artifacts:
       - name: align_initial
         path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/align_initial.html"
@@ -265,8 +280,9 @@ spec:
     inputs:
       parameters:
         - name: edge
+        - name: initcor
     script:
-      image: ghcr.io/diamondlightsource/httomo:2.5
+      image: ghcr.io/diamondlightsource/httomo:3.2.1
       env:
       - name: CUPY_CACHE_DIR
         value: /tmp/.cupy/kernel_cache
@@ -284,8 +300,10 @@ spec:
         TRANSITION="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeTransition }}`}}"
         mkdir -p $OUTPUT/httomo_output
 
+        COR_ESTIMATE="{{`{{ inputs.parameters.initcor }}`}}"
+        [[ $COR_ESTIMATE != "null" ]] && sed -i 's/<INITCOR>/'"${COR_ESTIMATE}"'/' $OUTPUT/httomo.yaml
         COR="{{`{{ workflow.parameters.cor }}`}}"
-        [[ $COR != "null" ]] && sed -i 's/${{`{{centering.side_outputs.centre_of_rotation}}`}}/'"${COR}"'/' $OUTPUT/httomo.yaml 
+        [[ $COR != "null" ]] && sed -i 's/${{`{{centering.side_outputs.centre_of_rotation}}`}}/'"${COR}"'/' $OUTPUT/httomo.yaml
 
         cmd=(/opt/conda/bin/mpirun -n 1 /opt/conda/bin/python -m httomo run)
         cmd+=("--output-folder-name=${ELEMENT}-${TRANSITION}")
@@ -418,6 +436,7 @@ spec:
     inputs:
       parameters:
         - name: edge
+        - name: initcor
     dag:
       tasks:
       - name: alignment
@@ -432,6 +451,8 @@ spec:
           parameters:
             - name: edge
               value: "{{`{{ inputs.parameters.edge }}`}}"
+            - name: initcor
+              value: "{{`{{ inputs.parameters.initcor }}`}}"
         dependencies: [alignment]
 
   - name: xrf-tomo-pipeline
@@ -463,6 +484,8 @@ spec:
           parameters:
             - name: edge
               value: "{{`{{ item }}`}}"
+            - name: initcor
+              value: "{{`{{ tasks.generate-shifts.outputs.parameters.initcor }}`}}"
         withParam: "{{`{{ workflow.parameters.multiEdge }}`}}"
 
       - name: show-results
