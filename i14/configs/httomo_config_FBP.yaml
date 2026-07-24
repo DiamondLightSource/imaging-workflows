@@ -22,11 +22,12 @@
     kernel_size: 3  # The size of the 3D neighbourhood surrounding the voxel. Odd integer.
     dif: 1000 # A difference between the outlier value and the median value of neighbouring pixels.
   save_result: true
+# --- Center of Rotation auto-finding. Required for reconstruction bellow. ---
 - method: find_center
   module_path: tomopy.recon.rotation
   parameters:
     ind: null
-    init: 48
+    init: <INITCOR>
     tol: 0.5
     mask: true
     ratio: 1.0
@@ -35,20 +36,16 @@
   side_outputs:
     cor: centre_of_rotation
 # --- Reconstruction method. ---
-- method: OSEM3d_tomobar
+- method: FBP2d_astra
   module_path: httomolibgpu.recon.algorithm
   parameters:
-    center: ${{centering.side_outputs.centre_of_rotation}}
-    detector_pad: false
+    center: ${{centering.side_outputs.centre_of_rotation}}  # Reference to center of rotation side output OR an integer.
+    filter_type: ram-lak
+    filter_parameter: null
+    filter_d: null
     recon_size: null
-    recon_mask_radius: 0.95
-    iterations: 20
-    subsets_number: 12
-    regularisation_type: PD_TV
-    regularisation_parameter: 0.01
-    regularisation_iterations: 30
-    regularisation_half_precision: true
-    nonnegativity: true
+    recon_mask_radius: 0.95 # Zero pixels outside the mask-circle radius.
+    neglog: false # Perform negative log here if it was previously switched off.
 # --- Calculate global statistics on the reconstructed volume, required for data rescaling. ---
 - method: calculate_stats
   module_path: httomo.methods

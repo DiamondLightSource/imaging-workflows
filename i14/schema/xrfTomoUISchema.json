@@ -71,9 +71,18 @@
       ]
     },
     {
-      "type": "Control",
-      "scope": "#/properties/cor"
-    },      
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/cor"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/reconsMethod"
+        }
+      ]
+    },
     {
       "type": "Control",
       "scope": "#/properties/outputFolder"

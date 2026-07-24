@@ -40,7 +40,7 @@
     },
     "alignmentSection": {
       "type": "string",
-        "enum": ["all", "top", "middle", "bottom"],
+      "enum": ["all", "top", "middle", "bottom"],
       "title": "Section for alignment",
       "description": "The section of the projections to be used for the initial alignment."
     },
@@ -59,6 +59,12 @@
       "type": "number",
       "title": "Centre of rotation",
       "description": "Optional value for centre of rotation for the tomographic reconstruction, using Vo centering method if not provided."
+    },
+    "reconsMethod" : {
+      "type": "string",
+      "enum": ["FBP", "OLEM"],
+      "title": "Reconstruction Method",
+      "description": "The method to be used for reconstruction. FBP is default. OLEM might provide smoother results."
     }
   },
   "required": ["outputFolder", "multiScan", "multiEdge"],
