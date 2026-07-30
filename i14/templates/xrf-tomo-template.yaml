@@ -292,6 +292,8 @@ spec:
         value: "1"
       - name: OMP_NUM_THREADS
         value: "1"
+      - name: TOMOPY_PYTHON_THREADS
+        value: "1"
       command: [bash]
       source: |
         VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
