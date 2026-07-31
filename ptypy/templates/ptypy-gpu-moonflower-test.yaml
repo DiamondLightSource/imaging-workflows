@@ -33,7 +33,7 @@ spec:
         - cupy
         - cuda
       - name: nprocs
-        value: 1
+        value: "1"
       - name: memory
         value: 20Gi
     container:
