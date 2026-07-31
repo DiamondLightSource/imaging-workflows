@@ -32,7 +32,7 @@ spec:
       - name: id
       - name: outpath
       - name: nprocs
-        value: 1
+        value: "1"
       - name: memory
         value: 20Gi
     script:
@@ -96,7 +96,7 @@ spec:
       - name: id
       - name: outpath
       - name: nprocs
-        value: 1
+        value: "1"
       - name: memory
         value: 20Gi
     script:
