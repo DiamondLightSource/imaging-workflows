@@ -55,7 +55,7 @@ spec:
           name: sessionspaces
           key: data_directory
     - name: id
-      value: 7
+      value: "7"
     - name: inpath
       value: "processing/writenData/reconstruction_test_data"
     - name: outpath
@@ -65,7 +65,7 @@ spec:
     - name: memory
       value: 20Gi
     - name: usegpu
-      value: false
+      value: "false"
   volumeClaimTemplates:
   - metadata:
       name: tmpdir
