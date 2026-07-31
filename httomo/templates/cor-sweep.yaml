@@ -61,7 +61,7 @@ spec:
       - name: httomo-outdir-name
         value: sweep-run
       - name: nprocs
-        value: 1
+        value: "1"
       - name: memory
         value: 20Gi
     steps:
