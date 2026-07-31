@@ -27,6 +27,10 @@ spec:
     hostPath:
       path: "{{`{{ workflow.parameter.vistdir }}`}}"
       type: Directory
+  - name: software
+    hostPath:
+      path: /dls_sw/e02/medipix_mask/
+      type: Directory
   volumeClaimTemplates:
   - metadata:
       name: tmp
@@ -118,14 +122,5 @@ spec:
       operator: Equal
       value: workflows
       effect: NoSchedule
-    volumes:
-    - name: session
-      hostPath:
-        path: "{{`{{ workflow.parameters.visitdir }}`}}"
-        type: Directory
-    - name: software
-      hostPath:
-        path: /dls_sw/e02/medipix_mask/
-        type: Directory
 
         
