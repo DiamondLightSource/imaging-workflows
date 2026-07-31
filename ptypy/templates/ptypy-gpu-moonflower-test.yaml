@@ -22,11 +22,11 @@ spec:
     inputs:
       parameters:
       - name: nframes
-        value: 100
+        value: "100"
       - name: shape
-        value: 128
+        value: "128"
       - name: iterations
-        value: 100
+        value: "100"
       - name: fftlib
         value: cupy
         enum:
