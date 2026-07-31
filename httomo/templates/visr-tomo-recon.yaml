@@ -64,7 +64,7 @@ spec:
       - name: output
       - name: recon-outdir-name
       - name: nprocs
-        value: 1
+        value: "1"
       - name: memory
         value: 1Gi
     container:

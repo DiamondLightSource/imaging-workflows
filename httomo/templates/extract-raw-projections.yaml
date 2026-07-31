@@ -32,7 +32,7 @@ spec:
       - name: dataset-path
       - name: projection-indices
       - name: nprocs
-        value: 1
+        value: "1"
       - name: memory
         value: 20Gi
       - name: tmpdir-path
