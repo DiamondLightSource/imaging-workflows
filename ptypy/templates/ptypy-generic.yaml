@@ -32,9 +32,7 @@ spec:
       - name: id
       - name: outpath
       - name: nprocs
-        value: "1"
       - name: memory
-        value: 20Gi
     script:
       image: ghcr.io/ptycho/ptypy_cupy_openmpi:0.9.1
       env:

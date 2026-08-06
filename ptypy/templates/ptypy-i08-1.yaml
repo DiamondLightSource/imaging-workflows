@@ -24,20 +24,20 @@ metadata:
       {
         "title": "Nr. of processes",
         "type": "integer",
-        "default": 1
+        "default": 4
       }
     workflows.diamond.ac.uk/parameter-schema.memory: |
       {
         "title": "Requested CPU memory",
         "type": "string",
         "pattern": "^[0-9]+[GMK]i$",
-        "default": "20Gi"
+        "default": "100Gi"
       }
     workflows.diamond.ac.uk/parameter-schema.usegpu: |
       {
         "title": "Use GPU",
         "type": "boolean",
-        "default": false
+        "default": true
       }
 spec:
   entrypoint: ptypy-pipeline
@@ -53,7 +53,7 @@ spec:
     - name: outpath
       value: "processing/workflows/ptypy"
     - name: nprocs
-      value: "1"
+      value: "4"
     - name: memory
       value: 100Gi
     - name: usegpu
@@ -83,6 +83,7 @@ spec:
           mkdir -p $OUTPUT
           INPUT="{{`{{ workflow.parameters.visitdir }}`}}"/nexus
           ID="{{`{{ workflow.parameters.id }}`}}"
+          mkdir -p $OUTPUT/scan_$ID
           echo '{{ .Files.Get "config/i08-1_raar.yaml" | b64enc }}' | base64 -d > $OUTPUT/scan_$ID/ptypy_config.yaml
           sed -i "s;<INPATH>;$INPUT/;" $OUTPUT/scan_$ID/ptypy_config.yaml
           "{{`{{ workflow.parameters.usegpu }}`}}" && sed -i "s;RAAR;RAAR_cupy;" $OUTPUT/scan_$ID/ptypy_config.yaml
