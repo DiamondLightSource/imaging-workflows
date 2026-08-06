@@ -84,6 +84,19 @@ spec:
       operator: Equal
       value: workflows
       effect: NoSchedule
+    - key: nodetype
+      operator: Equal
+      value: cs05r_gpfs
+      effect: PreferNoSchedule
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: has_gpfs03
+              operator: In
+              values:
+              - "true"
     volumes:
     - name: session
       hostPath:
