@@ -63,7 +63,11 @@ spec:
       - name: main
         resources:
           requests:
-            cpu: 60
+            cpu: "60"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+          limits:
+            cpu: "60"
             memory: "{{`{{ inputs.parameters.memory }}`}}"
             nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
     tolerations:
