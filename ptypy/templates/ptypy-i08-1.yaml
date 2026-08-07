@@ -51,7 +51,19 @@ metadata:
         "type": "integer",
         "default": 1
       }
-      
+    workflows.diamond.ac.uk/parameter-schema.defocus: |
+      {
+        "title": "Expected defocus in microns",
+        "type": "integer",
+        "default": 50
+      }
+    workflows.diamond.ac.uk/parameter-schema.binning: |
+      {
+        "title": "Detector bin factor",
+        "type": "integer",
+        "default": 2
+      }
+
 spec:
   entrypoint: ptypy-pipeline
   arguments:
@@ -75,6 +87,10 @@ spec:
       value: "100"
     - name: probemodes
       value: "1"
+    - name: defocus
+      value: "50"
+    - name: binning
+      value: "2"
   volumeClaimTemplates:
   - metadata:
       name: tmpdir
@@ -103,10 +119,14 @@ spec:
           mkdir -p $OUTPUT/scan_$ID
           NUMITER="{{`{{ workflow.parameters.numiter }}`}}"
           PROBEMODES="{{`{{ workflow.parameters.probemodes }}`}}"
+          DEFOCUS_MICRONS="{{`{{ workflow.parameters.defocus }}`}}"
+          BINNING="{{`{{ workflow.parameters.binning }}`}}"
           echo '{{ .Files.Get "config/i08-1_raar.yaml" | b64enc }}' | base64 -d > $OUTPUT/scan_$ID/ptypy_config.yaml
           sed -i "s;<INPATH>;$INPUT/;" $OUTPUT/scan_$ID/ptypy_config.yaml
           sed -i "s;<NUMITER>;$NUMITER;" $OUTPUT/scan_$ID/ptypy_config.yaml
           sed -i "s;<PROBEMODES>;$PROBEMODES;" $OUTPUT/scan_$ID/ptypy_config.yaml
+          sed -i "s;<DEFOCUS_MICRONS>;$DEFOCUS_MICRONS;" $OUTPUT/scan_$ID/ptypy_config.yaml
+          sed -i "s;<BINNING>;$BINNING;" $OUTPUT/scan_$ID/ptypy_config.yaml
           "{{`{{ workflow.parameters.usegpu }}`}}" && sed -i "s;RAAR;RAAR_cupy;" $OUTPUT/scan_$ID/ptypy_config.yaml
           cat $OUTPUT/scan_$ID/ptypy_config.yaml
     outputs:

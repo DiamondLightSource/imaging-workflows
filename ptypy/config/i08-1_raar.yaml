@@ -47,7 +47,7 @@ parameter_tree:
         propagation:
           antialiasing: 1
           focussed: 0.013725
-          parallel: 50.e-06
+          parallel: <DEFOCUS_MICRONS>.e-06
         diversity:
           noise:
           - 0.5
@@ -58,7 +58,7 @@ parameter_tree:
         orientation: 0
         distance: 0.072
         psize: 11.e-06
-        rebin: 2
+        rebin: <BINNING>
         shape:
           - 1024
           - 1024
