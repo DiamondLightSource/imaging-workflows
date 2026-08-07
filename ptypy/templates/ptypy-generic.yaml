@@ -43,7 +43,7 @@ spec:
       - name: NUMEXPR_NUM_THREADS
         value: "1"
       - name: OMP_NUM_THREADS
-        value: "1"
+        value: "60"
       command: [bash]
       source: |
         mpirun -n {{`{{ inputs.parameters.nprocs }}`}} \
