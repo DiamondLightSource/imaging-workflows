@@ -9,7 +9,7 @@ parameter_tree:
   engines:
     engine0:
       name: RAAR
-      numiter: 100
+      numiter: <NUMITER>
       numiter_contiguous: 10
       beta: 0.7
       probe_support: null
@@ -33,7 +33,7 @@ parameter_tree:
       name: BlockFull
       coherence:
         num_object_modes: 1
-        num_probe_modes: 1
+        num_probe_modes: <PROBEMODES>
       sample:
         diversity: null
         model: null
