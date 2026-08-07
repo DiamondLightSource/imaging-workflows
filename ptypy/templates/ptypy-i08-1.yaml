@@ -24,7 +24,7 @@ metadata:
       {
         "title": "Nr. of processes",
         "type": "integer",
-        "default": 4
+        "default": 1
       }
     workflows.diamond.ac.uk/parameter-schema.memory: |
       {
@@ -39,6 +39,19 @@ metadata:
         "type": "boolean",
         "default": true
       }
+    workflows.diamond.ac.uk/parameter-schema.numiter: |
+      {
+        "title": "Nr. of iterations",
+        "type": "integer",
+        "default": 100
+      }
+    workflows.diamond.ac.uk/parameter-schema.probemodes: |
+      {
+        "title": "Nr. of probe modes",
+        "type": "integer",
+        "default": 1
+      }
+      
 spec:
   entrypoint: ptypy-pipeline
   arguments:
@@ -53,11 +66,15 @@ spec:
     - name: outpath
       value: "processing/workflows/ptypy"
     - name: nprocs
-      value: "4"
+      value: "1"
     - name: memory
       value: 100Gi
     - name: usegpu
       value: "true"
+    - name: numiter
+      value: "100"
+    - name: probemodes
+      value: "1"
   volumeClaimTemplates:
   - metadata:
       name: tmpdir
@@ -84,8 +101,12 @@ spec:
           INPUT="{{`{{ workflow.parameters.visitdir }}`}}"/nexus
           ID="{{`{{ workflow.parameters.id }}`}}"
           mkdir -p $OUTPUT/scan_$ID
+          NUMITER="{{`{{ workflow.parameters.numiter }}`}}"
+          PROBEMODES="{{`{{ workflow.parameters.probemodes }}`}}"
           echo '{{ .Files.Get "config/i08-1_raar.yaml" | b64enc }}' | base64 -d > $OUTPUT/scan_$ID/ptypy_config.yaml
           sed -i "s;<INPATH>;$INPUT/;" $OUTPUT/scan_$ID/ptypy_config.yaml
+          sed -i "s;<NUMITER>;$NUMITER;" $OUTPUT/scan_$ID/ptypy_config.yaml
+          sed -i "s;<PROBEMODES>;$PROBEMODES;" $OUTPUT/scan_$ID/ptypy_config.yaml
           "{{`{{ workflow.parameters.usegpu }}`}}" && sed -i "s;RAAR;RAAR_cupy;" $OUTPUT/scan_$ID/ptypy_config.yaml
           cat $OUTPUT/scan_$ID/ptypy_config.yaml
     outputs:
