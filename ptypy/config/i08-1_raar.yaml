@@ -54,7 +54,7 @@ parameter_tree:
           - 1.0
           power: 0.1
       data:
-        name: Hdf5Loader
+        name: Hdf5LoaderFast
         orientation: 0
         distance: 0.072
         psize: 11.e-06
