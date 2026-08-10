@@ -48,7 +48,7 @@ spec:
       value: ""
     - name: stacking
       value: "true"
-    - name: pathToStacked
+    - name: pathToStack
       value: ""
   volumeClaimTemplates:
   - metadata:
