@@ -34,6 +34,19 @@
       ]
     },
     {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/stacking"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/pathToStack"
+        }      
+      ]
+    },
+    {
       "type": "Control",
       "scope": "#/properties/multiEdge",
       "options": {

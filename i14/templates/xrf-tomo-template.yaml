@@ -46,6 +46,10 @@ spec:
       value: "false"
     - name: prefix
       value: ""
+    - name: stacking
+      value: "true"
+    - name: pathToStacked
+      value: ""
   volumeClaimTemplates:
   - metadata:
       name: tmp
@@ -133,6 +137,48 @@ spec:
 
         echo "Executing: ${cmd[*]}"
         exec "${cmd[@]}"
+
+    volumes:
+    - name: session
+      hostPath:
+        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+
+  - name: xrf-tomo-copy-stacked-projections
+    inputs:
+      parameters:
+        - name: element
+        - name: transition
+    script:
+      image: debian:stable-slim
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmp
+        mountPath: /tmp
+      env:
+      - name: HOME
+        value: /tmp
+      command: ["bash"]
+      source: |
+        set -euo pipefail
+
+        SCANS="{{`{{= sprig.join(',', map(sprig.mustFromJson(workflow.parameters.multiScan), { string(#.multiScan.start) + '-' + string(#.multiScan.end) })) }}`}}"
+        EXCLUDE="{{`{{= sprig.join(',', jsonpath(workflow.parameters.multiScan, '$..excluded[*]'))  }}`}}"
+        
+        ELEMENT="{{`{{ inputs.parameters.element }}`}}"
+        TRANSITION="{{`{{ inputs.parameters.transition }}`}}"
+        VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
+        STAGING="{{`{{ workflow.parameters.staging }}`}}"
+        if [ "$STAGING" = "true" ]; then
+           VISIT=/dls/staging/$VISIT
+        fi                
+        OUTPUT="{{`{{ workflow.parameters.outputFolder }}`}}"
+
+        FILENAME=$ELEMENT-$TRANSITION.nxs
+        PATH_TO_STACK="$VISIT/{{`{{ workflow.parameters.pathToStack }}`}}"
+
+        cp $PATH_TO_STACK/$FILENAME $OUTPUT/$FILENAME
 
     volumes:
     - name: session
@@ -491,6 +537,7 @@ spec:
         
       - name: nxstacker
         template: xrf-tomo-stack-projections
+        when: "{{`{{ workflow.parameters.stacking }}`}} == true"
         dependencies: [setup]
         arguments:
           parameters:
@@ -500,9 +547,21 @@ spec:
               value: "{{`{{ item.edgeTransition }}`}}"
         withParam: "{{`{{ workflow.parameters.multiEdge }}`}}"
 
+      - name: copy-stacks
+        template: xrf-tomo-copy-stacked-projections
+        when: "{{`{{ workflow.parameters.stacking }}`}} == false"
+        dependecies: [nxstacker]
+
       - name: generate-shifts
         template: xrf-tomo-generate-shifts
-        dependencies: [nxstacker]
+        dependencies: [copy-stacks]
+        arguments:
+          parameters:
+            - name: element
+              value: "{{`{{ item.edgeElement }}`}}"
+            - name: transition
+              value: "{{`{{ item.edgeTransition }}`}}"
+        withParam: "{{`{{ workflow.parameters.multiEdge }}`}}"
 
       - name: align-and-reconstruct
         template: xrf-tomo-alignment-pipeline
