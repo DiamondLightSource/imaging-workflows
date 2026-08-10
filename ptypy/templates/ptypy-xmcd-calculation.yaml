@@ -14,7 +14,7 @@ metadata:
     workflows.diamond.ac.uk/ui-schema: |
       {{- .Files.Get "schema/ptypy_xmcd_calc_ui.json" | nindent 6 }}
 spec:
-  entrypoint: xmcd_calculation
+  entrypoint: xmcd-calculation
   volumeClaimTemplates:
   - metadata:
       name: tmpdir
@@ -32,7 +32,7 @@ spec:
           name: sessionspaces
           key: data_directory
   templates:
-  - name: xmcd_calculation
+  - name: xmcd-calculation
     inputs:
       parameters:
       - name: scan_number_lcp
