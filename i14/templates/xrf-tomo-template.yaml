@@ -163,9 +163,9 @@ spec:
       source: |
         set -euo pipefail
 
-        SCANS="{{`{{= sprig.join(',', map(sprig.mustFromJson(workflow.parameters.multiScan), { string(#.multiScan.start) + '-' + string(#.multiScan.end) })) }}`}}"
-        EXCLUDE="{{`{{= sprig.join(',', jsonpath(workflow.parameters.multiScan, '$..excluded[*]'))  }}`}}"
-        
+        START="{{`{{= string(first(sprig.mustFromJson(workflow.parameters.multiScan)).multiScan['start']) }}`}}"
+        END="{{`{{= string(first(sprig.mustFromJson(workflow.parameters.multiScan)).multiScan['end']) }}`}}"
+
         ELEMENT="{{`{{ inputs.parameters.element }}`}}"
         TRANSITION="{{`{{ inputs.parameters.transition }}`}}"
         VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
@@ -175,7 +175,7 @@ spec:
         fi                
         OUTPUT="{{`{{ workflow.parameters.outputFolder }}`}}"
 
-        FILENAME=$ELEMENT-$TRANSITION.nxs
+        FILENAME=tomo_xrf_$START_$END_$ELEMENT-$TRANSITION.nxs
         PATH_TO_STACK="$VISIT/{{`{{ workflow.parameters.pathToStack }}`}}"
 
         echo $VISIT
