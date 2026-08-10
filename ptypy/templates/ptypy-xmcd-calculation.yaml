@@ -24,67 +24,67 @@ spec:
         requests:
           storage: 1Gi
       storageClassName: netapp
-    arguments:
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+  templates:
+  - name: xmcd_calculation
+    inputs:
       parameters:
-      - name: visitdir
-        valueFrom:
-          configMapKeyRef:
-            name: sessionspaces
-            key: data_directory
-    templates:
-    - name: xmcd_calculation
-      inputs:
-        parameters:
-        - name: scan_number_lcp
-        - name: scan_number_rcp
-        - name: input_dir
-        - name: output_dir
-        - name: crop
-        - name: align_x1
-        - name: align_x2
-        - name: align_y1
-        - name: align_y2
-        - name: ramp_x1
-        - name: ramp_x2
-        - name: ramp_y1
-        - name: ramp_y2
-        - name: norm_x1
-        - name: norm_x2
-        - name: norm_y1
-        - name: norm_y2
-      script:
-        image: ghcr.io/diamondlightsource/imaging_toolbox:v0.3.3
-        command: [bash]
-        source: |
-          # mount notebook
-          echo '{{ .Files.Get "notebooks/xmcd_calc.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
-          # run notebook
-          python -m papermill /tmp/notebook.ipynb /tmp/notebook.ipynb \
-            -p data_dir "{{`{{ workflow.parameters.visitdir }}`}}" \
-            -p scan_number_lcp {{`{{ inputs.parameters.scan_number_lcp }}`}} \
-            -p scan_number_rcp {{`{{ inputs.parameters.scan_number_rcp }}`}} \
-            -p crop {{`{{ inputs.parameters.crop }}`}} \
-            -p align_x1 {{`{{ inputs.parameters.align_x1 }}`}} \
-            -p align_x2 {{`{{ inputs.parameters.align_x2 }}`}} \
-            -p align_y1 {{`{{ inputs.parameters.align_y1 }}`}} \
-            -p align_y2 {{`{{ inputs.parameters.align_y2 }}`}} \
-            -p ramp_x1 {{`{{ inputs.parameters.ramp_x1 }}`}} \
-            -p ramp_x2 {{`{{ inputs.parameters.ramp_x2 }}`}} \
-            -p ramp_y1 {{`{{ inputs.parameters.ramp_y1 }}`}} \
-            -p ramp_y2 {{`{{ inputs.parameters.ramp_y2 }}`}} \
-            -p norm_x1 {{`{{ inputs.parameters.norm_x1 }}`}} \
-            -p norm_x2 {{`{{ inputs.parameters.norm_x2 }}`}} \
-            -p norm_y1 {{`{{ inputs.parameters.norm_y1 }}`}} \
-            -p norm_y2 {{`{{ inputs.parameters.norm_y2 }}`}}
-          python -m nbconvert --to html --output notebook --output-dir /tmp /tmp/notebook.ipynb
-    outputs:
-      artifacts:
-      - name: notebook
-        path: /tmp/notebook.html
-        archive:
-          none: {}
-      - name: xmcd_plot
-        path: /tmp/xmcd_plot.png
-        archive:
-          none: {}
+      - name: scan_number_lcp
+      - name: scan_number_rcp
+      - name: input_dir
+      - name: output_dir
+      - name: crop
+      - name: align_x1
+      - name: align_x2
+      - name: align_y1
+      - name: align_y2
+      - name: ramp_x1
+      - name: ramp_x2
+      - name: ramp_y1
+      - name: ramp_y2
+      - name: norm_x1
+      - name: norm_x2
+      - name: norm_y1
+      - name: norm_y2
+    script:
+      image: ghcr.io/diamondlightsource/imaging_toolbox:v0.3.3
+      command: [bash]
+      source: |
+        # mount notebook
+        echo '{{ .Files.Get "notebooks/xmcd_calc.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
+        # run notebook
+        python -m papermill /tmp/notebook.ipynb /tmp/notebook.ipynb \
+          -p data_dir "{{`{{ workflow.parameters.visitdir }}`}}" \
+          -p scan_number_lcp {{`{{ inputs.parameters.scan_number_lcp }}`}} \
+          -p scan_number_rcp {{`{{ inputs.parameters.scan_number_rcp }}`}} \
+          -p crop {{`{{ inputs.parameters.crop }}`}} \
+          -p align_x1 {{`{{ inputs.parameters.align_x1 }}`}} \
+          -p align_x2 {{`{{ inputs.parameters.align_x2 }}`}} \
+          -p align_y1 {{`{{ inputs.parameters.align_y1 }}`}} \
+          -p align_y2 {{`{{ inputs.parameters.align_y2 }}`}} \
+          -p ramp_x1 {{`{{ inputs.parameters.ramp_x1 }}`}} \
+          -p ramp_x2 {{`{{ inputs.parameters.ramp_x2 }}`}} \
+          -p ramp_y1 {{`{{ inputs.parameters.ramp_y1 }}`}} \
+          -p ramp_y2 {{`{{ inputs.parameters.ramp_y2 }}`}} \
+          -p norm_x1 {{`{{ inputs.parameters.norm_x1 }}`}} \
+          -p norm_x2 {{`{{ inputs.parameters.norm_x2 }}`}} \
+          -p norm_y1 {{`{{ inputs.parameters.norm_y1 }}`}} \
+          -p norm_y2 {{`{{ inputs.parameters.norm_y2 }}`}}
+        python -m nbconvert --to html --output notebook --output-dir /tmp /tmp/notebook.ipynb
+  outputs:
+    artifacts:
+    - name: notebook
+      path: /tmp/notebook.html
+      archive:
+        none: {}
+    - name: xmcd_plot
+      path: /tmp/xmcd_plot.png
+      archive:
+        none: {}
         
