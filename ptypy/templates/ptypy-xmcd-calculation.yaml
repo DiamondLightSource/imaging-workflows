@@ -77,14 +77,14 @@ spec:
           -p norm_y1 {{`{{ inputs.parameters.norm_y1 }}`}} \
           -p norm_y2 {{`{{ inputs.parameters.norm_y2 }}`}}
         python -m nbconvert --to html --output notebook --output-dir /tmp /tmp/notebook.ipynb
-  outputs:
-    artifacts:
-    - name: notebook
-      path: /tmp/notebook.html
-      archive:
-        none: {}
-    - name: xmcd_plot
-      path: /tmp/xmcd_plot.png
-      archive:
-        none: {}
+    outputs:
+      artifacts:
+      - name: notebook
+        path: /tmp/notebook.html
+        archive:
+          none: {}
+      - name: xmcd_plot
+        path: /tmp/xmcd_plot.png
+        archive:
+          none: {}
         
