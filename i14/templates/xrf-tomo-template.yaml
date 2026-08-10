@@ -178,7 +178,10 @@ spec:
         FILENAME=$ELEMENT-$TRANSITION.nxs
         PATH_TO_STACK="$VISIT/{{`{{ workflow.parameters.pathToStack }}`}}"
 
-        cp $PATH_TO_STACK/$FILENAME $OUTPUT/$FILENAME
+        echo $VISIT
+        echo $PATH_TO_STACK
+
+        cp $PATH_TO_STACK/$FILENAME $VISIT/processing/workflows/$OUTPUT/$FILENAME
 
     volumes:
     - name: session
