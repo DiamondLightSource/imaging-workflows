@@ -10,9 +10,9 @@ metadata:
       Calculates the XMCD from a given LCP and RCP ptychography reconstruction
     workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
     workflows.diamond.ac.uk/parameter-schema: |
-      {{ -Files.Get "schema/ptypy_xmcd_calc_param.json" | nindent 6 }}
+      {{- .Files.Get "schema/ptypy_xmcd_calc_param.json" | nindent 6 }}
     workflows.diamond.ac.uk/ui-schema: |
-      {{ -Files.Get "schema/ptypy_xmcd_calc_ui.json" | nindent 6 }}
+      {{- .Files.Get "schema/ptypy_xmcd_calc_ui.json" | nindent 6 }}
 spec:
   entrypoint: xmcd_calculation
   volumeClaimTemplates:
