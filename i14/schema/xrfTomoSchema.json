@@ -76,7 +76,7 @@
       "type": "string",
       "title": "Staging prefix",
       "description": "Set this to /dls/staging if data has been re-staged"  
-    },      
+    }   
   },
   "required": ["outputFolder", "multiScan", "multiEdge"],
   "$defs": {
