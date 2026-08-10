@@ -1,0 +1,123 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Control",
+      "scope": "#/properties/scan_number_lcp",
+      "label": "LCP Scan Number"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/scan_number_rcp",
+      "label": "RCP Scan Number"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/input_dir",
+      "label": "Path to Input Folder"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/output_dir",
+      "label": "Path to Output Folder"
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/crop",
+      "label": "Crop"
+    },
+    {
+      "type": "Group",
+      "label": "Alignment ROI",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/align_x1",
+              "label": "X1"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/align_x2",
+              "label": "X2"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/align_y1",
+              "label": "Y1"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/align_y2",
+              "label": "Y2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "Phase Ramp Removal ROI",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/ramp_x1",
+              "label": "X1"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/ramp_x2",
+              "label": "X2"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/ramp_y1",
+              "label": "Y1"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/ramp_y2",
+              "label": "Y2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "Normalisation ROI",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/norm_x1",
+              "label": "X1"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/norm_x2",
+              "label": "X2"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/norm_y1",
+              "label": "Y1"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/norm_y2",
+              "label": "Y2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
