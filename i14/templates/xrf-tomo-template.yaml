@@ -526,7 +526,7 @@ spec:
               value: "{{`{{ inputs.parameters.edge }}`}}"
             - name: initcor
               value: "{{`{{ inputs.parameters.initcor }}`}}"
-        dependencies: [alignment]
+        depends: "alignment"
 
   - name: xrf-tomo-pipeline
     dag:
@@ -538,7 +538,7 @@ spec:
       - name: nxstacker
         template: xrf-tomo-stack-projections
         when: "{{`{{ workflow.parameters.stacking }}`}} == true"
-        dependencies: [setup]
+        depends: "setup"
         arguments:
           parameters:
             - name: element
@@ -550,11 +550,7 @@ spec:
       - name: copy-stacks
         template: xrf-tomo-copy-stacked-projections
         when: "{{`{{ workflow.parameters.stacking }}`}} == false"
-        dependecies: [nxstacker]
-
-      - name: generate-shifts
-        template: xrf-tomo-generate-shifts
-        dependencies: [copy-stacks]
+        depends: "nxstacker"
         arguments:
           parameters:
             - name: element
@@ -563,9 +559,13 @@ spec:
               value: "{{`{{ item.edgeTransition }}`}}"
         withParam: "{{`{{ workflow.parameters.multiEdge }}`}}"
 
+      - name: generate-shifts
+        template: xrf-tomo-generate-shifts
+        depends: "copy-stacks"
+
       - name: align-and-reconstruct
         template: xrf-tomo-alignment-pipeline
-        dependencies: [generate-shifts]
+        depends: "generate-shifts"
         arguments:
           parameters:
             - name: edge
@@ -576,6 +576,6 @@ spec:
 
       - name: show-results
         template: xrf-tomo-plotting
-        dependencies: [align-and-reconstruct]
+        depends: "align-and-reconstruct"
 
 
