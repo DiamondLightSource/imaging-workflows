@@ -62,9 +62,7 @@ spec:
       image: debian:stable-slim
       volumeMounts:
       - name: session
-        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
-      - name: staging
-        mountPath: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
+        mountPath: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
       command: [bash]
       source: |
         OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
@@ -90,11 +88,7 @@ spec:
     volumes:
     - name: session
       hostPath:
-        path: "{{`{{ workflow.parameters.visitdir }}`}}"
-        type: Directory
-    - name: staging
-      hostPath:
-        path: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
+        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
 
   - name: xrf-tomo-stack-projections
@@ -106,9 +100,7 @@ spec:
       image: ghcr.io/diamondlightsource/nxstacker:latest
       volumeMounts:
       - name: session
-        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
-      - name: staging
-        mountPath: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"       
+        mountPath: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
       env:
@@ -145,13 +137,8 @@ spec:
     volumes:
     - name: session
       hostPath:
-        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
-    - name: staging
-      hostPath:
-        path: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
-        type: Directory
-
 
   - name: xrf-tomo-generate-shifts
     script:
@@ -185,9 +172,7 @@ spec:
         python -m jupyter nbconvert --to html --execute --output align_initial --output-dir $OUTPUT/_assets --embed-images $OUTPUT/align_initial.ipynb
       volumeMounts:
       - name: session
-        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
-      - name: staging
-        mountPath: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
+        mountPath: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
     outputs:
@@ -232,13 +217,8 @@ spec:
     volumes:
     - name: session
       hostPath:
-        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
-    - name: staging
-      hostPath:
-        path: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
-        type: Directory
-
 
   - name: xrf-tomo-align-and-normalise
     inputs:
@@ -275,9 +255,7 @@ spec:
         python -m jupyter nbconvert --to html --execute --output "alignment_${ELEMENT}" --output-dir $OUTPUT/_assets --embed-images "$OUTPUT/alignment_${ELEMENT}-${TRANSITION}.ipynb"
       volumeMounts:
       - name: session
-        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
-      - name: staging
-        mountPath: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
+        mountPath: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
     outputs:
@@ -314,11 +292,7 @@ spec:
     volumes:
     - name: session
       hostPath:
-        path: "{{`{{ workflow.parameters.visitdir }}`}}"
-        type: Directory
-    - name: staging
-      hostPath:
-        path: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
+        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
 
   - name: xrf-tomo-reconstruct
@@ -368,9 +342,7 @@ spec:
         
       volumeMounts:
       - name: session
-        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
-      - name: staging
-        mountPath: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
+        mountPath: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
     outputs:
@@ -405,13 +377,8 @@ spec:
     volumes:
     - name: session
       hostPath:
-        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
-    - name: staging
-      hostPath:
-        path: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
-        type: Directory
-
 
   - name: xrf-tomo-plotting
     script:
@@ -440,9 +407,7 @@ spec:
         python -m jupyter nbconvert --to html --execute --output plotting --output-dir $OUTPUT/_assets --embed-images "$OUTPUT/plotting.ipynb"
       volumeMounts:
       - name: session
-        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
-      - name: staging
-        mountPath: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
+        mountPath: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
     outputs:
@@ -491,13 +456,8 @@ spec:
     volumes:
     - name: session
       hostPath:
-        path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
-    - name: staging
-      hostPath:
-        path: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
-        type: Directory
-
 
   - name: xrf-tomo-alignment-pipeline
     inputs:
