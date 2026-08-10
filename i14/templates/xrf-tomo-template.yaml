@@ -64,7 +64,7 @@ spec:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
       - name: staging
-        mountPath: /dls/staging/"{{`{{ workflow.parameters.visitdir }}`}}"
+        mountPath: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
       command: [bash]
       source: |
         OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
