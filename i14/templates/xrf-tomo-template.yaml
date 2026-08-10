@@ -42,6 +42,10 @@ spec:
       value: "nil"
     - name: reconsMethod
       value: "FBP"
+    - name: staging
+      value: "false"
+    - name: prefix
+      value: ""
   volumeClaimTemplates:
   - metadata:
       name: tmp
@@ -59,9 +63,15 @@ spec:
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: staging
+        mountPath: /dls/staging/"{{`{{ workflow.parameters.visitdir }}`}}"
       command: [bash]
       source: |
         OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
+        STAGING="{{`{{ workflow.parameters.staging }}`}}"
+        if [ "$STAGING" = "true" ]; then
+           OUTPUT=/dls/staging/$OUTPUT
+        fi
         METHOD="{{`{{ workflow.parameters.reconsMethod }}`}}"
         mkdir -p $OUTPUT
         echo '{{ .Files.Get "notebooks/xrf_tomo_align_initial.ipynb" | b64enc }}' | base64 -d > $OUTPUT/align_initial.ipynb
@@ -82,7 +92,11 @@ spec:
       hostPath:
         path: "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
-        
+    - name: staging
+      hostPath:
+        path: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+
   - name: xrf-tomo-stack-projections
     inputs:
       parameters:
@@ -93,6 +107,8 @@ spec:
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: staging
+        mountPath: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"       
       - name: tmp
         mountPath: /tmp
       env:
@@ -108,6 +124,10 @@ spec:
         ELEMENT="{{`{{ inputs.parameters.element }}`}}"
         TRANSITION="{{`{{ inputs.parameters.transition }}`}}"
         VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
+        STAGING="{{`{{ workflow.parameters.staging }}`}}"
+        if [ "$STAGING" = "true" ]; then
+           VISIT=/dls/staging/$VISIT
+        fi                
         OUTPUT="{{`{{ workflow.parameters.outputFolder }}`}}"
 
         cmd=(tomojoin xrf)
@@ -127,6 +147,11 @@ spec:
       hostPath:
         path: "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
+    - name: staging
+      hostPath:
+        path: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+
 
   - name: xrf-tomo-generate-shifts
     script:
@@ -137,6 +162,10 @@ spec:
       command: [bash]
       source: |
         VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
+        STAGING="{{`{{ workflow.parameters.staging }}`}}"
+        if [ "$STAGING" = "true" ]; then
+           VISIT=/dls/staging/$VISIT
+        fi                
         OUTPUT=$VISIT/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
         EDGE="{{`{{ workflow.parameters.elementToAlign }}`}}"-"{{`{{ workflow.parameters.transitionToAlign }}`}}"
         START="{{`{{= string(first(sprig.mustFromJson(workflow.parameters.multiScan)).multiScan['start']) }}`}}"
@@ -157,20 +186,22 @@ spec:
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: staging
+        mountPath: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
     outputs:
       parameters:
       - name: initcor
         valueFrom:
-          path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/{{`{{ workflow.parameters.elementToAlign }}`}}-{{`{{ workflow.parameters.transitionToAlign }}`}}_cor.txt"
+          path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/{{`{{ workflow.parameters.elementToAlign }}`}}-{{`{{ workflow.parameters.transitionToAlign }}`}}_cor.txt"
       artifacts:
       - name: align_initial
-        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/align_initial.html"
+        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/align_initial.html"
         archive:
           none: {}
       - name: aligned_stack
-        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/align_stack.gif"
+        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/align_stack.gif"
         archive:
           none: {}
     podSpecPatch: |
@@ -203,6 +234,11 @@ spec:
       hostPath:
         path: "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
+    - name: staging
+      hostPath:
+        path: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+
 
   - name: xrf-tomo-align-and-normalise
     inputs:
@@ -216,6 +252,10 @@ spec:
       command: [bash]
       source: |
         VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
+        STAGING="{{`{{ workflow.parameters.staging }}`}}"
+        if [ "$STAGING" = "true" ]; then
+           VISIT=/dls/staging/$VISIT
+        fi                
         OUTPUT=$VISIT/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
         ELEMENT="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}"
         TRANSITION="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeTransition }}`}}"
@@ -236,12 +276,14 @@ spec:
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: staging
+        mountPath: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
     outputs:
       artifacts:
       - name: alignment
-        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/alignment_{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}.html"
+        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/alignment_{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}.html"
         archive:
           none: {}
     podSpecPatch: |
@@ -274,7 +316,10 @@ spec:
       hostPath:
         path: "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
-
+    - name: staging
+      hostPath:
+        path: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
 
   - name: xrf-tomo-reconstruct
     inputs:
@@ -297,35 +342,41 @@ spec:
       command: [bash]
       source: |
         VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
+        STAGING="{{`{{ workflow.parameters.staging }}`}}"
+        if [ "$STAGING" = "true" ]; then
+           VISIT=/dls/staging/$VISIT
+        fi                
         OUTPUT=$VISIT/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
         ELEMENT="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}"
         TRANSITION="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeTransition }}`}}"
         mkdir -p $OUTPUT/httomo_output
-
+        
         COR_ESTIMATE="{{`{{ inputs.parameters.initcor }}`}}"
         [[ $COR_ESTIMATE != "nil" ]] && sed -i 's/<INITCOR>/'"${COR_ESTIMATE}"'/' $OUTPUT/httomo.yaml
         COR="{{`{{ workflow.parameters.cor }}`}}"
         [[ $COR != "nil" ]] && sed -i 's/${{`{{centering.side_outputs.centre_of_rotation}}`}}/'"${COR}"'/' $OUTPUT/httomo.yaml
-
+        
         cmd=(/opt/conda/bin/mpirun -n 1 /opt/conda/bin/python -m httomo run)
         cmd+=("--output-folder-name=${ELEMENT}-${TRANSITION}")
         cmd+=("--recon-filename-stem=${ELEMENT}-${TRANSITION}")
         cmd+=("$OUTPUT/${ELEMENT}-${TRANSITION}_aligned.nxs")
         cmd+=("$OUTPUT/httomo.yaml")
         cmd+=("$OUTPUT/httomo_output")
-
+        
         echo "Executing: ${cmd[*]}"
         exec "${cmd[@]}"
         
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: staging
+        mountPath: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
     outputs:
       artifacts:
       - name: images32bit_tif
-        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/httomo_output/{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}-{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeTransition }}`}}/images32bit_tif"
+        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/httomo_output/{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}-{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeTransition }}`}}/images32bit_tif"
 
     podSpecPatch: |
       containers:
@@ -356,6 +407,10 @@ spec:
       hostPath:
         path: "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
+    - name: staging
+      hostPath:
+        path: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
 
 
   - name: xrf-tomo-plotting
@@ -367,6 +422,10 @@ spec:
       command: [bash]
       source: |
         VISIT="{{`{{ workflow.parameters.visitdir }}`}}"
+        STAGING="{{`{{ workflow.parameters.staging }}`}}"
+        if [ "$STAGING" = "true" ]; then
+           VISIT=/dls/staging/$VISIT
+        fi                
         OUTPUT=$VISIT/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
         EDGES="{{`{{= sprig.join(',', map(sprig.mustFromJson(workflow.parameters.multiEdge), { string(#.edgeElement) + '-' + string(#.edgeTransition) })) }}`}}"
         echo $EDGES
@@ -382,24 +441,26 @@ spec:
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: staging
+        mountPath: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
     outputs:
       artifacts:
       - name: plotting
-        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/plotting.html"
+        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/plotting.html"
         archive:
           none: {}
       - name: overview_transverse
-        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/recons_transverse.png"
+        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/recons_transverse.png"
         archive:
           none: {}
       - name: overview_sagittal
-        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/recons_sagittal.png"
+        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/recons_sagittal.png"
         archive:
           none: {}
       - name: overview_coronal
-        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/recons_coronal.png"
+        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/_assets/recons_coronal.png"
         archive:
           none: {}
     podSpecPatch: |
@@ -431,6 +492,10 @@ spec:
     - name: session
       hostPath:
         path: "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+    - name: staging
+      hostPath:
+        path: "/dls/staging/{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
 
 
