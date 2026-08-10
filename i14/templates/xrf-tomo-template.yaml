@@ -48,7 +48,7 @@ spec:
       value: ""
     - name: stacking
       value: "true"
-    - name: pathToStacked
+    - name: pathToStack
       value: ""
   volumeClaimTemplates:
   - metadata:
@@ -378,6 +378,7 @@ spec:
         TRANSITION="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeTransition }}`}}"
         mkdir -p $OUTPUT/httomo_output
         mkdir -p $OUTPUT/httomo_output/${ELEMENT}-${TRANSITION}
+        mkdir -p /tmp/httomo_output
 
         ln -s $OUTPUT/httomo_output/${ELEMENT}-${TRANSITION} /tmp/httomo_output/${ELEMENT}-${TRANSITION}
 
