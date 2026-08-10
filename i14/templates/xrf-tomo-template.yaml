@@ -377,6 +377,7 @@ spec:
         ELEMENT="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}"
         TRANSITION="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeTransition }}`}}"
         mkdir -p $OUTPUT/httomo_output
+        mkdir -p $OUTPUT/httomo_output/${ELEMENT}-${TRANSITION}
 
         ln -s $OUTPUT/httomo_output/${ELEMENT}-${TRANSITION} /tmp/httomo_output/${ELEMENT}-${TRANSITION}
 
