@@ -21,6 +21,19 @@
       }
     },
     {
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/staging"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/prefix"
+        }      
+      ]
+    },
+    {
       "type": "Control",
       "scope": "#/properties/multiEdge",
       "options": {
