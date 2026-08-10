@@ -1,0 +1,71 @@
+{
+  "type": "object",
+  "properties": {
+    "scan_number_lcp": {
+      "type": "integer"
+    },
+    "scan_number_rcp": {
+      "type": "integer"
+    },
+    "input_dir": {
+      "type": "string",
+      "default": "/processing/workflows/ptychography"
+    },
+    "output_dir": {
+      "type": "string",
+      "default": "/processing/workflows/xmcd"
+    },
+    "crop": {
+      "type": "integer",
+      "default": "10"
+    },
+    "align_x1": {
+      "type": "integer",
+      "default": "0"
+    },
+    "align_x2": {
+      "type": "integer",
+      "default": "-1"
+    },
+    "align_y1": {
+      "type": "integer",
+      "default": "0"
+    },
+    "align_y2": {
+      "type": "integer",
+      "default": "-1"
+    },
+    "ramp_x1": {
+      "type": "integer",
+      "default": "0"
+    },
+    "ramp_x2": {
+      "type": "integer",
+      "default": "-1"
+    },
+    "ramp_y1": {
+      "type": "integer",
+      "default": "0"
+    },
+    "ramp_y2": {
+      "type": "integer",
+      "default": "-1"
+    },
+    "norm_x1": {
+      "type": "integer",
+      "default": "0"
+    },
+    "norm_x2": {
+      "type": "integer",
+      "default": "-1"
+    },
+    "norm_y1": {
+      "type": "integer",
+      "default": "0"
+    },
+    "norm_y2": {
+      "type": "integer",
+      "default": "-1"
+    }
+  }
+}
