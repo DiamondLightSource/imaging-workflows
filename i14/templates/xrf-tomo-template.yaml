@@ -377,7 +377,9 @@ spec:
         ELEMENT="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeElement }}`}}"
         TRANSITION="{{`{{= sprig.mustFromJson(inputs.parameters.edge).edgeTransition }}`}}"
         mkdir -p $OUTPUT/httomo_output
-        
+
+        ln -s $OUTPUT/httomo_output/${ELEMENT}-${TRANSITION} /tmp/httomo_output/${ELEMENT}-${TRANSITION}
+
         COR_ESTIMATE="{{`{{ inputs.parameters.initcor }}`}}"
         [[ $COR_ESTIMATE != "nil" ]] && sed -i 's/<INITCOR>/'"${COR_ESTIMATE}"'/' $OUTPUT/httomo.yaml
         COR="{{`{{ workflow.parameters.cor }}`}}"
@@ -392,8 +394,6 @@ spec:
         
         echo "Executing: ${cmd[*]}"
         exec "${cmd[@]}"
-
-        cp -r $OUTPUT/httomo_output /tmp
         
       volumeMounts:
       - name: session
