@@ -75,8 +75,20 @@
     "prefix" : {
       "type": "string",
       "title": "Staging prefix",
-      "description": "Set this to /dls/staging if data has been re-staged"  
+      "description": "Set this to /dls/staging if data has been re-staged."  
+    },
+    "stacking" : {
+      "type": "boolean",
+      "title": "Stacking required",
+      "default": true,
+      "description": "Set this option to False if the data has already been stacked, and provide the path to the stacked data."  
+    },
+    "pathToStack" : {
+      "type": "string",
+      "title": "Patch to stacked projections",
+      "description": "Set this path to the already stacked projections (relative to the visit path)"
     }   
+
   },
   "required": ["outputFolder", "multiScan", "multiEdge"],
   "$defs": {
