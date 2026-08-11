@@ -3,11 +3,11 @@
   "properties": {
     "scan_number_lcp": {
       "type": "integer",
-      "minimum": "0"
+      "minimum": 0
     },
     "scan_number_rcp": {
       "type": "integer",
-      "minimum": "0"
+      "minimum": 0
     },
     "input_dir": {
       "type": "string",
