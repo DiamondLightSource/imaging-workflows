@@ -104,6 +104,8 @@ spec:
       env:
       - name: CUPY_CACHE_DIR
         value: "/tmp/.cupy/kernel_cache"
+      - name: TMPDIR
+        value: "{{`{{ inputs.parameters.output }}`}}/{{`{{ inputs.parameters.httomo-outdir-name }}`}}/.tmp"
       - name: MKL_NUM_THREADS
         value: "1"
       - name: NUMEXPR_NUM_THREADS
