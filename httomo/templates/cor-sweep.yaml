@@ -76,6 +76,10 @@ spec:
         template: sweep-artifact-script
         arguments:
           parameters:
+          - name: nprocs
+            value: "{{`{{ inputs.parameters.nprocs }}`}}"
+          - name: memory
+            value: "{{`{{ inputs.parameters.memory }}`}}"
           - name: output-dir-path
             value: "{{`{{ inputs.parameters.output }}`}}/{{`{{ inputs.parameters.httomo-outdir-name }}`}}"
     tolerations:
@@ -152,6 +156,8 @@ spec:
     inputs:
       parameters:
       - name: output-dir-path
+      - name: nprocs
+      - name: memory
       - name: output-filename
         value: multi-page-tiff.tif
     script:
@@ -185,6 +191,16 @@ spec:
       hostPath:
         path:  "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+          limits:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
     outputs:
       artifacts:
       - name: sweep-res
