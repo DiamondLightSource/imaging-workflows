@@ -32,9 +32,7 @@ spec:
       - name: id
       - name: outpath
       - name: nprocs
-        value: 1
       - name: memory
-        value: 20Gi
     script:
       image: ghcr.io/ptycho/ptypy_cupy_openmpi:0.9.1
       env:
@@ -45,7 +43,7 @@ spec:
       - name: NUMEXPR_NUM_THREADS
         value: "1"
       - name: OMP_NUM_THREADS
-        value: "1"
+        value: "60"
       command: [bash]
       source: |
         mpirun -n {{`{{ inputs.parameters.nprocs }}`}} \
@@ -65,11 +63,11 @@ spec:
       - name: main
         resources:
           requests:
-            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            cpu: 60
             memory: "{{`{{ inputs.parameters.memory }}`}}"
             nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
           limits:
-            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            cpu: 60
             memory: "{{`{{ inputs.parameters.memory }}`}}"
             nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
     tolerations:
@@ -84,6 +82,19 @@ spec:
       operator: Equal
       value: workflows
       effect: NoSchedule
+    - key: nodetype
+      operator: Equal
+      value: cs05r_gpfs
+      effect: PreferNoSchedule
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: has_gpfs03
+              operator: In
+              values:
+              - "true"
     volumes:
     - name: session
       hostPath:
@@ -96,7 +107,7 @@ spec:
       - name: id
       - name: outpath
       - name: nprocs
-        value: 1
+        value: "1"
       - name: memory
         value: 20Gi
     script:

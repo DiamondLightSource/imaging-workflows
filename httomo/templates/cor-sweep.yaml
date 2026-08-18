@@ -35,15 +35,6 @@ metadata:
     {{- .Files.Get "schemas/cor-sweep-ui.json" | nindent 6 }}
 spec:
   entrypoint: run
-  volumeClaimTemplates:
-  - metadata:
-      name: tmpdir
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 1Gi
-      storageClassName: netapp
   arguments:
     parameters:
     - name: visitdir
@@ -61,7 +52,7 @@ spec:
       - name: httomo-outdir-name
         value: sweep-run
       - name: nprocs
-        value: 1
+        value: "1"
       - name: memory
         value: 20Gi
     steps:
@@ -85,6 +76,10 @@ spec:
         template: sweep-artifact-script
         arguments:
           parameters:
+          - name: nprocs
+            value: "{{`{{ inputs.parameters.nprocs }}`}}"
+          - name: memory
+            value: "{{`{{ inputs.parameters.memory }}`}}"
           - name: output-dir-path
             value: "{{`{{ inputs.parameters.output }}`}}/{{`{{ inputs.parameters.httomo-outdir-name }}`}}"
     tolerations:
@@ -108,13 +103,13 @@ spec:
       - name: httomo-outdir-name
       - name: nprocs
       - name: memory
-      - name: tmpdir-path
-        value: /tmp
     container:
       image: ghcr.io/diamondlightsource/httomo:latest
       env:
       - name: CUPY_CACHE_DIR
-        value: "{{`{{ inputs.parameters.tmpdir-path }}`}}/.cupy/kernel_cache"
+        value: "/tmp/.cupy/kernel_cache"
+      - name: TMPDIR
+        value: "{{`{{ inputs.parameters.output }}`}}/{{`{{ inputs.parameters.httomo-outdir-name }}`}}/.tmp"
       - name: MKL_NUM_THREADS
         value: "1"
       - name: NUMEXPR_NUM_THREADS
@@ -140,8 +135,6 @@ spec:
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
-      - name: tmpdir
-        mountPath: "{{`{{ inputs.parameters.tmpdir-path }}`}}"
     volumes:
     - name: session
       hostPath:
@@ -163,8 +156,8 @@ spec:
     inputs:
       parameters:
       - name: output-dir-path
-      - name: tmpdir-path
-        value: /tmp
+      - name: nprocs
+      - name: memory
       - name: output-filename
         value: multi-page-tiff.tif
     script:
@@ -178,7 +171,7 @@ spec:
         IMAGE_DIR_PATTERN = "images_sweep_recon*"
         OUTPUT_DIR = Path("{{`{{ inputs.parameters.output-dir-path }}`}}")
         image_dir = list(OUTPUT_DIR.glob(IMAGE_DIR_PATTERN))[0]
-        OUT_PATH = "{{`{{ inputs.parameters.tmpdir-path }}`}}/{{`{{ inputs.parameters.output-filename }}`}}"
+        OUT_PATH = OUTPUT_DIR / "{{`{{ inputs.parameters.output-filename }}`}}"
         filenames = list(image_dir.glob("*.tif"))
         filenames.sort()
         single_image = tifffile.tifffile.imread(filenames[0])
@@ -193,16 +186,24 @@ spec:
       volumeMounts:
       - name: session
         mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
-      - name: tmpdir
-        mountPath: "{{`{{ inputs.parameters.tmpdir-path }}`}}"
     volumes:
     - name: session
       hostPath:
         path:  "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+          limits:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
     outputs:
       artifacts:
       - name: sweep-res
-        path: "{{`{{ inputs.parameters.tmpdir-path }}`}}/{{`{{ inputs.parameters.output-filename }}`}}"
+        path: "{{`{{ inputs.parameters.output-dir-path }}`}}/{{`{{ inputs.parameters.output-filename }}`}}"
         archive:
           none: { }

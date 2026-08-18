@@ -1,0 +1,92 @@
+{
+  "type": "object",
+  "properties": {
+    "scan_number_lcp": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "scan_number_rcp": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "input_dir": {
+      "type": "string",
+      "default": "/processing/workflows/ptychography"
+    },
+    "output_dir": {
+      "type": "string",
+      "default": "/processing/workflows/xmcd"
+    },
+    "crop": {
+      "type": "integer",
+      "default": "10"
+    },
+    "align_x1": {
+      "type": "integer",
+      "default": "0"
+    },
+    "align_x2": {
+      "type": "integer",
+      "default": "-1"
+    },
+    "align_y1": {
+      "type": "integer",
+      "default": "0"
+    },
+    "align_y2": {
+      "type": "integer",
+      "default": "-1"
+    },
+    "ramp_x1": {
+      "type": "integer",
+      "default": "0"
+    },
+    "ramp_x2": {
+      "type": "integer",
+      "default": "-1"
+    },
+    "ramp_y1": {
+      "type": "integer",
+      "default": "0"
+    },
+    "ramp_y2": {
+      "type": "integer",
+      "default": "-1"
+    },
+    "norm_x1": {
+      "type": "integer",
+      "default": "0"
+    },
+    "norm_x2": {
+      "type": "integer",
+      "default": "-1"
+    },
+    "norm_y1": {
+      "type": "integer",
+      "default": "0"
+    },
+    "norm_y2": {
+      "type": "integer",
+      "default": "-1"
+    }
+  },
+  "required": [
+    "scan_number_lcp",
+    "scan_number_rcp",
+    "input_dir",
+    "output_dir",
+    "crop",
+    "align_x1",
+    "align_x2",
+    "align_y1",
+    "align_y2",
+    "ramp_x1",
+    "ramp_x2",
+    "ramp_y1",
+    "ramp_y2",
+    "norm_x1",
+    "norm_x2",
+    "norm_y1",
+    "norm_y2"
+  ]
+}

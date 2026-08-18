@@ -1,0 +1,90 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: ptypy-xmcd-calculation
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
+  annotations:
+    workflows.argoproj.io/title: XMCD Calculation from Ptychography Reconstructions
+    workflows.argoproj.io/description: |
+      Calculates the XMCD from a given LCP and RCP ptychography reconstruction
+    workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/ptypy_xmcd_calc_param.json" | nindent 6 }}
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/ptypy_xmcd_calc_ui.json" | nindent 6 }}
+spec:
+  entrypoint: xmcd-calculation
+  volumeClaimTemplates:
+  - metadata:
+      name: tmpdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: netapp
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+  templates:
+  - name: xmcd-calculation
+    inputs:
+      parameters:
+      - name: scan_number_lcp
+      - name: scan_number_rcp
+      - name: input_dir
+      - name: output_dir
+      - name: crop
+      - name: align_x1
+      - name: align_x2
+      - name: align_y1
+      - name: align_y2
+      - name: ramp_x1
+      - name: ramp_x2
+      - name: ramp_y1
+      - name: ramp_y2
+      - name: norm_x1
+      - name: norm_x2
+      - name: norm_y1
+      - name: norm_y2
+    script:
+      image: ghcr.io/diamondlightsource/imaging_toolbox:v0.3.3
+      command: [bash]
+      source: |
+        # mount notebook
+        echo '{{ .Files.Get "notebooks/xmcd_calc.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
+        # run notebook
+        python -m papermill /tmp/notebook.ipynb /tmp/notebook.ipynb \
+          -p data_dir "{{`{{ workflow.parameters.visitdir }}`}}" \
+          -p scan_number_lcp {{`{{ inputs.parameters.scan_number_lcp }}`}} \
+          -p scan_number_rcp {{`{{ inputs.parameters.scan_number_rcp }}`}} \
+          -p crop {{`{{ inputs.parameters.crop }}`}} \
+          -p align_x1 {{`{{ inputs.parameters.align_x1 }}`}} \
+          -p align_x2 {{`{{ inputs.parameters.align_x2 }}`}} \
+          -p align_y1 {{`{{ inputs.parameters.align_y1 }}`}} \
+          -p align_y2 {{`{{ inputs.parameters.align_y2 }}`}} \
+          -p ramp_x1 {{`{{ inputs.parameters.ramp_x1 }}`}} \
+          -p ramp_x2 {{`{{ inputs.parameters.ramp_x2 }}`}} \
+          -p ramp_y1 {{`{{ inputs.parameters.ramp_y1 }}`}} \
+          -p ramp_y2 {{`{{ inputs.parameters.ramp_y2 }}`}} \
+          -p norm_x1 {{`{{ inputs.parameters.norm_x1 }}`}} \
+          -p norm_x2 {{`{{ inputs.parameters.norm_x2 }}`}} \
+          -p norm_y1 {{`{{ inputs.parameters.norm_y1 }}`}} \
+          -p norm_y2 {{`{{ inputs.parameters.norm_y2 }}`}}
+        python -m nbconvert --to html --output notebook --output-dir /tmp /tmp/notebook.ipynb
+    outputs:
+      artifacts:
+      - name: notebook
+        path: /tmp/notebook.html
+        archive:
+          none: {}
+      - name: xmcd_plot
+        path: /tmp/xmcd_plot.png
+        archive:
+          none: {}
+        

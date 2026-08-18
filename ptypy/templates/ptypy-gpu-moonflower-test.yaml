@@ -22,22 +22,22 @@ spec:
     inputs:
       parameters:
       - name: nframes
-        value: 100
+        value: "100"
       - name: shape
-        value: 128
+        value: "128"
       - name: iterations
-        value: 100
+        value: "100"
       - name: fftlib
         value: cupy
         enum:
         - cupy
         - cuda
       - name: nprocs
-        value: 1
+        value: "1"
       - name: memory
         value: 20Gi
     container:
-      image: ghcr.io/ptycho/ptypy_cupy_openmpi:v0.9.0
+      image: ghcr.io/ptycho/ptypy_cupy_openmpi:0.9.1
       env:
       - name: CUPY_CACHE_DIR
         value: /tmp/.cupy/kernel_cache

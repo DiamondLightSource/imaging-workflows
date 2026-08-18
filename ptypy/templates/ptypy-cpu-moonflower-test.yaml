@@ -5,6 +5,7 @@ metadata:
   labels:
     workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
+    workflows.argoproj.io/title: PtyPy Moonflower benchmark
     workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
 spec:
   entrypoint: ptypy-run
@@ -29,17 +30,17 @@ spec:
     inputs:
       parameters:
       - name: nframes
-        value: 100
+        value: "100"
       - name: shape
-        value: 128
+        value: "128"
       - name: iterations
-        value: 100
+        value: "100"
       - name: nprocs
-        value: 1
+        value: "1"
       - name: memory
         value: 20Gi
     container:
-      image: ghcr.io/ptycho/ptypy_full_openmpi:v0.9.0
+      image: ghcr.io/ptycho/ptypy_full_openmpi:0.9.1
       env:
       - name: MKL_NUM_THREADS
         value: "1"

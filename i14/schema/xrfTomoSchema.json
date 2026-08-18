@@ -65,7 +65,30 @@
       "enum": ["FBP", "OLEM"],
       "title": "Reconstruction Method",
       "description": "The method to be used for reconstruction. FBP is default. OLEM might provide smoother results."
-    }
+    },
+    "staging" : {
+      "type": "boolean",
+      "title": "Staging",
+      "default": false,
+      "description": "Use this option if data is on archive and has been re-staged to /dls/staging. Also change prefix to /dls/staging"  
+    },
+    "prefix" : {
+      "type": "string",
+      "title": "Staging prefix",
+      "description": "Set this to /dls/staging if data has been re-staged."  
+    },
+    "stacking" : {
+      "type": "boolean",
+      "title": "Stacking required",
+      "default": true,
+      "description": "Set this option to False if the data has already been stacked, and provide the path to the stacked data."  
+    },
+    "pathToStack" : {
+      "type": "string",
+      "title": "Patch to stacked projections",
+      "description": "Set this path to the already stacked projections (relative to the visit path)"
+    }   
+
   },
   "required": ["outputFolder", "multiScan", "multiEdge"],
   "$defs": {
