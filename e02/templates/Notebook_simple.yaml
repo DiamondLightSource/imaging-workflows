@@ -27,10 +27,6 @@ spec:
     hostPath:
       path: "{{`{{ workflow.parameters.visitdir }}`}}"
       type: Directory
-  - name: software
-    hostPath:
-      path: /dls_sw/e02/medipix_mask
-      type: Directory
   volumeClaimTemplates:
   - metadata:
       name: tmp
@@ -77,8 +73,6 @@ spec:
             mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
           - name: tmp
             mountPath: /tmp
-          - name: software
-            mountPath: /dls_sw/e02/medipix_mask
         command: [bash]
         source: |
           ERROR_TXT="raise error"
@@ -89,7 +83,7 @@ spec:
             -p visit "{{`{{ workflow.parameters.visitdir }}`}}" \
             -p sample "{{`{{ workflow.parameters.sample }}`}}" \
             -p timestamp "{{`{{workflow.parameters.timestamp}}`}}" \
-            -p maskpath /software/29042024_12bitmask2.h5 \
+            -p maskpath "/home/ruska/29042024_12bitmask2.h5" \
             -p lower "{{`{{workflow.parameters.thresh_lower}}`}}" \
             -p upper "{{`{{workflow.parameters.thresh_upper}}`}}" \
             > $OUTPUT/papermill.log 2>&1
