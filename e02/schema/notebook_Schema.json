@@ -29,6 +29,13 @@
             "minimum": 0.05,
             "title": "The upper threshold",
             "type": "number"
+        },
+        "maskpath": {
+            "deafult": null,
+            "minlength": 0,
+            "maxlength": 100,
+            "title": "Mask path",
+            "type": "string"
         }
     },
     "title": "Calibration of 4D STEM data notebook"
