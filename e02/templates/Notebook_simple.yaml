@@ -62,6 +62,8 @@ spec:
             value: "{{`{{workflow.parameters.sample}}`}}"
           - name: timestamp
             value: "{{`{{workflow.parameters.timestamp}}`}}"
+          - name: maskpath
+            value: "{{`{{workflow.parameters.maskpath}}`}}"
           - name: thresh_lower
             value: "{{`{{workflow.parameters.thresh_lower}}`}}"
           - name: thresh_upper
@@ -83,10 +85,10 @@ spec:
             -p visit "{{`{{ workflow.parameters.visitdir }}`}}" \
             -p sample "{{`{{ workflow.parameters.sample }}`}}" \
             -p timestamp "{{`{{workflow.parameters.timestamp}}`}}" \
-            -p maskpath "/home/ruska/29042024_12bitmask2.h5" \
+            -p maskpath "{{`{{workflow.parameters.maskpath}}`}}" \
             -p lower "{{`{{workflow.parameters.thresh_lower}}`}}" \
             -p upper "{{`{{workflow.parameters.thresh_upper}}`}}" \
-            > $OUTPUT/papermill.log 2>&1
+            > $OUTPUT/papermill.log 2>&1 -k python3
 
           python  -m jupyter nbconvert $OUTPUT/Calibrate-notebook.ipynb \
             --to html 
