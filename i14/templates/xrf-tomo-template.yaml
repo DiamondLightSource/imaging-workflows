@@ -66,7 +66,7 @@ spec:
       image: debian:stable-slim
       volumeMounts:
       - name: session
-        mountPath: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
+        mountPath: "{{`{{ workflow.parameters.prefix }}`}}{{`{{ workflow.parameters.visitdir }}`}}"
       command: [bash]
       source: |
         OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/processing/workflows/"{{`{{ workflow.parameters.outputFolder }}`}}"
@@ -92,7 +92,7 @@ spec:
     volumes:
     - name: session
       hostPath:
-        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
+        path: "{{`{{ workflow.parameters.prefix }}`}}{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
 
   - name: xrf-tomo-stack-projections
@@ -104,7 +104,7 @@ spec:
       image: ghcr.io/diamondlightsource/nxstacker:latest
       volumeMounts:
       - name: session
-        mountPath: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
+        mountPath: "{{`{{ workflow.parameters.prefix }}`}}{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
       env:
@@ -141,7 +141,7 @@ spec:
     volumes:
     - name: session
       hostPath:
-        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
+        path: "{{`{{ workflow.parameters.prefix }}`}}{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
 
   - name: xrf-tomo-copy-stacked-projections
@@ -153,7 +153,7 @@ spec:
       image: debian:stable-slim
       volumeMounts:
       - name: session
-        mountPath: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
+        mountPath: "{{`{{ workflow.parameters.prefix }}`}}{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
       env:
@@ -186,7 +186,7 @@ spec:
     volumes:
     - name: session
       hostPath:
-        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
+        path: "{{`{{ workflow.parameters.prefix }}`}}{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
 
   - name: xrf-tomo-generate-shifts
@@ -223,14 +223,14 @@ spec:
 
       volumeMounts:
       - name: session
-        mountPath: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
+        mountPath: "{{`{{ workflow.parameters.prefix }}`}}{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
     outputs:
       parameters:
       - name: initcor
         valueFrom:
-          path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/{{`{{ workflow.parameters.elementToAlign }}`}}-{{`{{ workflow.parameters.transitionToAlign }}`}}_cor.txt"
+          path: "{{`{{ workflow.parameters.prefix }}`}}{{`{{ workflow.parameters.visitdir }}`}}/processing/workflows/{{`{{ workflow.parameters.outputFolder }}`}}/{{`{{ workflow.parameters.elementToAlign }}`}}-{{`{{ workflow.parameters.transitionToAlign }}`}}_cor.txt"
       artifacts:
       - name: align_initial
         path: "/tmp/align_initial.html"
@@ -268,7 +268,7 @@ spec:
     volumes:
     - name: session
       hostPath:
-        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
+        path: "{{`{{ workflow.parameters.prefix }}`}}{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
 
   - name: xrf-tomo-align-and-normalise
@@ -308,7 +308,7 @@ spec:
 
       volumeMounts:
       - name: session
-        mountPath: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
+        mountPath: "{{`{{ workflow.parameters.prefix }}`}}{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
     outputs:
@@ -345,7 +345,7 @@ spec:
     volumes:
     - name: session
       hostPath:
-        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
+        path: "{{`{{ workflow.parameters.prefix }}`}}{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
 
   - name: xrf-tomo-reconstruct
@@ -399,7 +399,7 @@ spec:
         
       volumeMounts:
       - name: session
-        mountPath: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
+        mountPath: "{{`{{ workflow.parameters.prefix }}`}}{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
     outputs:
@@ -434,7 +434,7 @@ spec:
     volumes:
     - name: session
       hostPath:
-        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
+        path: "{{`{{ workflow.parameters.prefix }}`}}{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
 
   - name: xrf-tomo-plotting
@@ -467,7 +467,7 @@ spec:
 
       volumeMounts:
       - name: session
-        mountPath: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
+        mountPath: "{{`{{ workflow.parameters.prefix }}`}}{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmp
         mountPath: /tmp
     outputs:
@@ -516,7 +516,7 @@ spec:
     volumes:
     - name: session
       hostPath:
-        path: "{{`{{ workflow.parameters.prefix }}`}}/{{`{{ workflow.parameters.visitdir }}`}}"
+        path: "{{`{{ workflow.parameters.prefix }}`}}{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
 
   - name: xrf-tomo-alignment-pipeline
