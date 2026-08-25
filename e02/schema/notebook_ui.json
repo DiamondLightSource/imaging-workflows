@@ -30,6 +30,11 @@
               "type": "Control",
               "label": "The upper threshold",
               "scope": "#/properties/thresh_upper"
+            },
+            {
+              "type": "Control",
+              "label": "The path to the mask, to be applied to the 4DSTEM data",
+              "scope": "#/properties/maskpath"
             }
           ]
         }
