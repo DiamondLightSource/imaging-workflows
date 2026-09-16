@@ -5,7 +5,7 @@ metadata:
   labels:
     workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
-    workflows.argoproj.io/title: ePSIC mib automatic conversion
+    workflows.argoproj.io/title: ePSIC mib Batch conversion
     workflows.argoproj.io/description: |
       Convert MIB file to hdf5/hspy files
     workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
@@ -126,14 +126,14 @@ spec:
             logging.append('\nThe following path exists: %s\nskipping creation of folder\n' %dest_path)
           else:
             logging.append('\nThe following path does not exists: %s\nTherefore creating this folder now...\n' %dest_path)
-            os.mkdir(dest_path)
+            os.makedirs(dest_path)
 
           os.chdir(dest_path)
           logging.append('***\nsearching destination path for already converted files: %s\n***' % dest_path)
 
           #ToDO wrap the rest of the function within this as means no other files have been created
           if not os.path.exists(dest_path):
-            os.mkdir(dest_path)
+            os.makdirs(dest_path)
             logging.append('the following folder has been created: %s' % dest_path)
           
           for num, file in enumerate(sorted(list(glob.glob('*/**data.hdf5*')))):
