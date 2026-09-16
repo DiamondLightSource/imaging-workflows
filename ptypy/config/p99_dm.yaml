@@ -64,19 +64,19 @@ parameter_tree:
         auto_center: true
         save: null
         intensities:
-          file: /%(visit_path)s/p99-%(run)s.nxs
+          file: /%(visit_path)s/p99-bs-%(run)s.nxs
           key: /entry/andor2_det/andor2_det
         positions:
-          file: /%(visit_path)s/p99-%(run)s.nxs
+          file: /%(visit_path)s/p99-bs-%(run)s.nxs
           fast_key: /entry/andor2_det/sample_stage-x
           fast_multiplier: 0.001
           slow_key: /entry/andor2_det/sample_stage-y
           slow_multiplier: 0.001
         recorded_energy:
-          file: /%(visit_path)s/p99-%(run)s.nxs
+          file: /%(visit_path)s/p99-bs-%(run)s.nxs
           key: /entry/plan_metadata/energy/value
           multiplier: 0.001
         recorded_distance:
-          file: /%(visit_path)s/p99-%(run)s.nxs
+          file: /%(visit_path)s/p99-bs-%(run)s.nxs
           key: /entry/plan_metadata/detector_dist/value
           multiplier: 0.001

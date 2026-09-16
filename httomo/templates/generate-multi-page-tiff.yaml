@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: generate-multi-page-tiff
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
+  annotations:
+    workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
+spec:
+  entrypoint: generate-multi-page-tiff
+  volumeClaimTemplates:
+  - metadata:
+      name: tmpdir
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: netapp
+  templates:
+  - name: generate-multi-page-tiff
+    script:
+      image: ghcr.io/diamondlightsource/httomo:3.3
+      command: [/opt/conda/bin/python]
+      source: |
+        from pathlib import Path
+        import numpy as np
+        import tifffile
+
+        OUT_PATH = Path("/tmp/random-multi-page-tifffile.tif")
+        SHAPE = (5, 400, 400)
+        image_stack = np.random.random(SHAPE).astype(np.float32)
+        tifffile.tifffile.imwrite(OUT_PATH, image_stack)
+      volumeMounts:
+        - name: tmpdir
+          mountPath: /tmp
+    outputs:
+      artifacts:
+      - name: random-data
+        path: "/tmp/random-multi-page-tifffile.tif"
+        archive:
+          none: { }
