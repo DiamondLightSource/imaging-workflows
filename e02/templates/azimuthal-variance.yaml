@@ -1,0 +1,116 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: epsic-azimuthal-variance
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
+  annotations:
+    workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
+    workflows.argoproj.io/title: Azimuthal variance (FEM) analysis of NBED data
+    workflows.argoproj.io/description: |
+      Calibrates a 4D STEM nanobeam diffraction dataset (Au cross-grating pixel size and ellipticity, fitted descan origin),
+      polar transforms every pattern and saves maps of the azimuthal mean, variance and normalised variance versus q
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/azimuthal_variance_Schema.json" | nindent 6 }}
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/azimuthal_variance_ui.json" | nindent 6 }}
+spec:
+  entrypoint: start
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+  volumes:
+  - name: session
+    hostPath:
+      path: "{{`{{ workflow.parameters.visitdir }}`}}"
+      type: Directory
+  volumeClaimTemplates:
+  - metadata:
+      name: tmp
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 2Gi
+      storageClassName: netapp
+
+  templates:
+    - name: mount-files
+      script:
+        image: debian:stable-slim
+        volumeMounts:
+          - name: tmp
+            mountPath: /tmp
+          - name: session
+            mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+        command: [bash]
+        source: |
+          OUTPUT="{{`{{workflow.parameters.visitdir}}`}}"/processing/workflows/
+          mkdir -p $OUTPUT
+          echo '{{ .Files.Get "notebooks/Azimuthal_variance.ipynb" | b64enc }}' | base64 -d > $OUTPUT/Azimuthal_variance.ipynb
+
+    - name: process-notebook
+      script:
+        image: gitlab.diamond.ac.uk:5050/scisoft/ptychography/dimtools/mib2x
+        volumeMounts:
+          - name: session
+            mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+          - name: tmp
+            mountPath: /tmp
+        command: [bash]
+        source: |
+          set -o pipefail
+          OUTPUT="{{`{{workflow.parameters.visitdir}}`}}"/processing/workflows
+          RUN="$OUTPUT"/Azimuthal_variance_{{`{{workflow.parameters.sample}}`}}_{{`{{workflow.parameters.timestamp}}`}}
+          python -m papermill "$OUTPUT"/Azimuthal_variance.ipynb "$RUN".ipynb \
+            -p visit "{{`{{workflow.parameters.visitdir}}`}}" \
+            -p sample "{{`{{workflow.parameters.sample}}`}}" \
+            -p timestamp "{{`{{workflow.parameters.timestamp}}`}}" \
+            -p calib_path "{{`{{workflow.parameters.calib_path}}`}}" \
+            -p maskpath "{{`{{workflow.parameters.maskpath}}`}}" \
+            -p origin_method "{{`{{workflow.parameters.origin_method}}`}}" \
+            -p crop_q "{{`{{workflow.parameters.crop_q}}`}}" \
+            -p bin_factor "{{`{{workflow.parameters.bin_factor}}`}}" \
+            -p hot_pix_thresh "{{`{{workflow.parameters.hot_pix_thresh}}`}}" \
+            -p peak_finding_minAbsoluteIntensity "{{`{{workflow.parameters.peak_finding_minAbsoluteIntensity}}`}}" \
+            -p n_annular "{{`{{workflow.parameters.n_annular}}`}}" \
+            -k python3 > "$RUN"_papermill.log 2>&1
+          STATUS=$?
+          # convert whatever ran, so a failed run can still be inspected in the browser
+          python -m jupyter nbconvert "$RUN".ipynb --to html --output /tmp/Azimuthal-variance-notebook.html
+          exit $STATUS
+      outputs:
+        artifacts:
+          - name: notebook-output
+            path: /tmp/Azimuthal-variance-notebook.html
+            archive:
+              none: {}
+      podSpecPatch: |
+        containers:
+        - name: main
+          resources:
+            requests:
+              cpu: 4
+              memory: 64Gi
+            limits:
+              cpu: 4
+              memory: 64Gi
+      tolerations:
+      - key: nodegroup
+        operator: Equal
+        value: workflows
+        effect: NoSchedule
+
+    - name: start
+      dag:
+        tasks:
+        - name: setup
+          template: mount-files
+        - name: run
+          template: process-notebook
+          dependencies: [setup]
