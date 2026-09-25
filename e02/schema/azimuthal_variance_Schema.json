@@ -1,0 +1,68 @@
+{
+  "type": "object",
+  "title": "Azimuthal variance analysis of 4D STEM NBED data",
+  "description": "inputs for the ePSIC notebook which computes azimuthal mean and variance maps from nanobeam diffraction data",
+  "required": ["sample", "timestamp", "calib_path"],
+  "properties": {
+    "sample": {
+      "title": "Sample name",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "timestamp": {
+      "title": "Time stamp",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "calib_path": {
+      "title": "Au calibration folder",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "maskpath": {
+      "title": "Mask path",
+      "type": "string",
+      "default": "",
+      "maxLength": 256
+    },
+    "origin_method": {
+      "title": "Origin (descan) method",
+      "type": "string",
+      "enum": ["bragg", "com"],
+      "default": "bragg"
+    },
+    "crop_q": {
+      "title": "Diffraction crop half-width (px, 0 = none)",
+      "type": "integer",
+      "default": 0,
+      "minimum": 0
+    },
+    "bin_factor": {
+      "title": "Real-space binning factor",
+      "type": "integer",
+      "default": 1,
+      "minimum": 1
+    },
+    "hot_pix_thresh": {
+      "title": "Hot pixel threshold",
+      "type": "number",
+      "default": 0.1,
+      "minimum": 0
+    },
+    "peak_finding_minAbsoluteIntensity": {
+      "title": "Bragg disk minimum absolute intensity",
+      "type": "number",
+      "default": 0.25,
+      "minimum": 0
+    },
+    "n_annular": {
+      "title": "Number of azimuthal bins",
+      "type": "integer",
+      "default": 360,
+      "minimum": 8
+    }
+  }
+}

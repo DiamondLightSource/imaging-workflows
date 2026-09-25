@@ -1,0 +1,30 @@
+{
+  "type": "VerticalLayout",
+  "options": {
+    "formWidth": "80%"
+  },
+  "elements": [
+    {
+      "type": "Group",
+      "label": "Data",
+      "elements": [
+        { "type": "Control", "label": "Name of the sample", "scope": "#/properties/sample" },
+        { "type": "Control", "label": "Time stamp of the data to process", "scope": "#/properties/timestamp" },
+        { "type": "Control", "label": "Folder containing the Au cross-grating calibration .json files", "scope": "#/properties/calib_path" },
+        { "type": "Control", "label": "Detector mask (h5) to apply to the data, blank for none", "scope": "#/properties/maskpath" }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "Processing",
+      "elements": [
+        { "type": "Control", "label": "Origin method: bragg (slow, as in the manual notebook) or com (fast)", "scope": "#/properties/origin_method" },
+        { "type": "Control", "label": "Diffraction crop half-width in pixels (0 = no crop)", "scope": "#/properties/crop_q" },
+        { "type": "Control", "label": "Real-space binning factor", "scope": "#/properties/bin_factor" },
+        { "type": "Control", "label": "Hot pixel threshold", "scope": "#/properties/hot_pix_thresh" },
+        { "type": "Control", "label": "Bragg disk minimum absolute intensity", "scope": "#/properties/peak_finding_minAbsoluteIntensity" },
+        { "type": "Control", "label": "Number of azimuthal bins", "scope": "#/properties/n_annular" }
+      ]
+    }
+  ]
+}
