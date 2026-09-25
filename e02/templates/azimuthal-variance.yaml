@@ -96,10 +96,10 @@ spec:
           resources:
             requests:
               cpu: 4
-              memory: 128Gi
+              memory: 64Gi
             limits:
               cpu: 4
-              memory: 128Gi
+              memory: 64Gi
       tolerations:
       - key: nodegroup
         operator: Equal
