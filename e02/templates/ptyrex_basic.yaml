@@ -46,7 +46,7 @@ spec:
         arguments:
           parameters:
           - name: stringlog
-            value: "{{`{{steps.recon.outputs.results}}`}}"
+            value: "{{steps.recon.outputs.results}}"
   - name: perfrom-recon
     inputs:
       parameters:
