@@ -39,14 +39,11 @@ spec:
   templates:
   - name: ptyrex-container
     steps:
-    - - name: recon
+    - - name: perfrom-recon
         template: perfrom-recon
     - - name: recon-artifact
-        template: get-artifact
-        arguments:
-          parameters:
-          - name: stringlog
-            value: "{{steps.recon.outputs.results}}"
+        template: recon-artifact
+
   - name: perfrom-recon
     inputs:
       parameters:
@@ -120,14 +117,15 @@ spec:
         path:  "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
 
-  - name: get-artifact
+  - name: recon-artifact
     inputs:
       parameters:
-      - name: stringlog
+      - name: config_json
+        value: "{{`{{workflow.parameters.config_json}}`}}"
     outputs: 
       artifacts:
       - name: ptyrex-output
-        path: /tmp/ptyrex_recon.hdf5
+        path: /tmp/ptyrex_recon.tif
         archive:
           none: {}
     script:
@@ -141,7 +139,7 @@ spec:
       source: |
         #Aim: find the ptyrex_recon file and move a copy of object phase to tmp
         print('###start of log###')
-        print("{{`{{inputs.parameters.stringlog}}`}}")
+        print("{{`{{inputs.parameters.config_json}}`}}")
         print('###end of log###')
     
 
