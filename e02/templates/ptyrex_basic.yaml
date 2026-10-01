@@ -122,25 +122,116 @@ spec:
       parameters:
       - name: config_json
         value: "{{`{{workflow.parameters.config_json}}`}}"
+      - name: memory
+        value: "{{`{{ workflow.parameters.memory }}`}}" 
+      - name: nprocs
+        value: "{{`{{workflow.parameters.nprocs}}`}}"
     outputs: 
       artifacts:
-      - name: ptyrex-output
-        path: /tmp/ptyrex_recon.tif
+      - name: ptyrex-object-modulus
+        path: /tmp/object_modulus.jpeg
+      - name: ptyrex-object-phase
+        path: /tmp/object_phase.jpeg
+      - name: ptyrex-probe-modulus
+        path: /tmp/probe_modulus.jpeg
+      - name: ptyrex-probe-phase
+        path: /tmp/probe_phase.jpeg
         archive:
           none: {}
     script:
-      image: ghcr.io/diamondlightsource/httomo:latest
+      image: gitlab.diamond.ac.uk:5050/scisoft/ptychography/dimtools/mib2x
+      imagePullPolicy: Always
+      env:
+      - name: BLOSC_NTHREADS
+        value: "{{ `{{inputs.parameters.nprocs}}` }}"
+      - name: OMP_NUM_THREADS
+        value: "{{ `{{inputs.parameters.nprocs}}` }}"
       volumeMounts:
-      - name: session
-        mountPath: "{{ `{{workflow.parameters.visitdir}}` }}"
-      - name: tmpdir
-        mountPath: /tmp
-      command: [/opt/conda/bin/python]
+        - name: tmpdir
+          mountPath: /tmp
+        - name: session
+          mountPath: "{{ `{{workflow.parameters.visitdir}}` }}"
+      command: [python]
       source: |
-        #Aim: find the ptyrex_recon file and move a copy of object phase to tmp
+        #Aim: find the ptyrex_recon file and then load corresponding hdf file and 
+        #create a jpeg of object/probe phase/modulus and display as artifacts
+        import json
+        import h5py
+        import glob
+        import numpy
+        import numpy as np
+        from PIL import Image
         print('###start of log###')
-        print("{{`{{inputs.parameters.config_json}}`}}")
+        print('json path: %s' % (test_path))
         print('###end of log###')
+
+        #find the output path of the recon from loading the json used in the recon
+        json_path = test_path
+        with open(json_path,'r') as f:
+          json_data = json.load(f)
+          outdir = json_data['process']['save_dir']
+          prefix = json_data['process']['save_prefix']
+        if outdir == '':
+          outdir = '/'.join(json_path.split('/')[:-1]) + '/'
+
+        #search dir for the most recent reconstruction note this might be incorrect
+        #when multiple reconstructions are occuring at once
+        search_string = outdir + prefix +'**.hdf'
+        hdf_list = glob.glob(search_string)
+        hdf_list.sort()
+        chosen_recon = hdf_list[-1]
+        print(f'saving this recon to jpeg: {chosen_recon}...')
+
+        #load obj and probe
+        with h5py.File(chosen_recon,'r') as f:
+          obj = np.squeeze(f['/entry_1/process_1/output_1/object'][()])
+          probe = np.squeeze(f['/entry_1/process_1/output_1/probe'][()])
+
+        #check probe shape and slice and reshape if needed
+        print(f'probe shape: {probe.shape}')
+        if len(probe.shape) == 3:
+          probe = np.reshape(probe,(probe.shape[0]*probe.shape[1],probe.shape[2])).T
+        elif len(probe.shape) == 4:
+          probe = probe[:,0,:,:]
+          probe = np.reshape(probe,(probe.shape[0]*probe.shape[1],probe.shape[2])).T
+
+        #convert unsigned 8 for jpeg format
+        obj_abs = np.abs(obj) - np.amin(np.abs(obj))
+        obj_abs = np.uint8(255*obj_abs/np.amax(obj_abs))
+        obj_ang = np.angle(obj) - np.amin(np.angle(obj))
+        obj_ang = np.uint8(255*obj_ang/np.amax(obj_ang))
+
+        probe_abs = np.abs(probe) - np.amin(np.abs(probe))
+        probe_abs = np.uint8(255*probe_abs/np.amax(probe_abs))
+        probe_ang = np.angle(probe) - np.amin(np.angle(probe))
+        probe_ang = np.uint8(255*probe_ang/np.amax(probe_ang))
+
+        #determine outpaths
+        obj_modulus_path = '/tmp/object_modulus.jpeg'
+        obj_phase_path = '/tmp/object_phase.jpeg'
+        probe_modulus_path = '/tmp/probe_modulus.jpeg'
+        probe_phase_path = '/tmp/probe_phase.jpeg'
+        
+        #save probe and object (save and modulus) as JPEG's
+        obj_mj = Image.fromarray(obj_abs)
+        obj_mj.save(obj_modulus_path)
+        obj_pj = Image.fromarray(obj_ang)
+        obj_pj.save(obj_phase_path)
+        probe_mj = Image.fromarray(probe_abs)
+        probe_mj.save(probe_modulus_path)
+        probe_pj = Image.fromarray(probe_ang)
+        probe_pj.save(probe_phase_path)
+
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{ `{{inputs.parameters.nprocs}}` }}"
+            memory: "{{ `{{inputs.parameters.memory}}` }}"
+          limits:
+            cpu: "{{ `{{inputs.parameters.nprocs}}` }}"
+            memory: "{{ `{{inputs.parameters.memory}}` }}"
     
 
 
