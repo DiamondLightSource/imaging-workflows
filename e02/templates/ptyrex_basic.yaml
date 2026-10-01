@@ -38,6 +38,13 @@ spec:
       storageClassName: netapp
   templates:
   - name: ptyrex-container
+    steps:
+    - - name: perfrom-recon
+        template: perfrom-recon
+    - - name: recon-artifact
+        template: recon-artifact
+
+  - name: perfrom-recon
     inputs:
       parameters:
       - name: config_json
@@ -109,4 +116,32 @@ spec:
       hostPath:
         path:  "{{`{{ workflow.parameters.visitdir }}`}}"
         type: Directory
+
+  - name: recon-artifact
+    inputs:
+      parameters:
+      - name: config_json
+        value: "{{`{{workflow.parameters.config_json}}`}}"
+    outputs: 
+      artifacts:
+      - name: ptyrex-output
+        path: /tmp/ptyrex_recon.tif
+        archive:
+          none: {}
+    script:
+      image: ghcr.io/diamondlightsource/httomo:latest
+      volumeMounts:
+      - name: session
+        mountPath: "{{ `{{workflow.parameters.visitdir}}` }}"
+      - name: tmpdir
+        mountPath: /tmp
+      command: [/opt/conda/bin/python]
+      source: |
+        #Aim: find the ptyrex_recon file and move a copy of object phase to tmp
+        print('###start of log###')
+        print("{{`{{inputs.parameters.config_json}}`}}")
+        print('###end of log###')
+    
+
+
 
