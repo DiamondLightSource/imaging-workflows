@@ -139,11 +139,9 @@ spec:
       imagePullPolicy: Always
       env:
       - name: BLOSC_NTHREADS
-        value: "{{ `{{inputs.parameters.nprocs}}` }}"
+        value: 1
       - name: OMP_NUM_THREADS
-        value: "{{ `{{inputs.parameters.nprocs}}` }}"
-      - name: M2X_DEBUG
-        value: "{{ `{{inputs.parameters.DEBUG}}` }}"
+        value: 1
       volumeMounts:
         - name: tmpdir
           mountPath: /tmp
@@ -220,7 +218,6 @@ spec:
         probe_pj = Image.fromarray(probe_ang)
         probe_pj.save(probe_phase_path)
 
-        
     podSpecPatch: |
       containers:
       - name: main
