@@ -25,7 +25,7 @@ spec:
   volumes:
   - name: session
     hostPath:
-      path: "{{`{{ workflows.parameters.visitdir}}`}}"
+      path: "{{`{{ workflow.parameters.visitdir}}`}}"
       type: Directory
   volumeClaimTemplates:
   - metadata:
@@ -137,7 +137,7 @@ spec:
       - name: ptyrex-probe-phase
         path: /tmp/probe_phase.jpeg
         archive:
-          none: {}
+          none: { }
     script:
       image: gitlab.diamond.ac.uk:5050/scisoft/ptychography/dimtools/mib2x
       imagePullPolicy: Always
@@ -146,12 +146,7 @@ spec:
         value: "{{ `{{inputs.parameters.nprocs}}` }}"
       - name: OMP_NUM_THREADS
         value: "{{ `{{inputs.parameters.nprocs}}` }}"
-      volumeMounts:
-        - name: tmpdir
-          mountPath: /tmp
-        - name: session
-          mountPath: "{{ `{{workflow.parameters.visitdir}}` }}"
-      command: [python]
+      command: [/bin/python]
       source: |
         #Aim: find the ptyrex_recon file and then load corresponding hdf file and 
         #create a jpeg of object/probe phase/modulus and display as artifacts
@@ -221,6 +216,11 @@ spec:
         probe_mj.save(probe_modulus_path)
         probe_pj = Image.fromarray(probe_ang)
         probe_pj.save(probe_phase_path)
+      volumeMounts:
+        - name: tmpdir
+          mountPath: /tmp
+        - name: session
+          mountPath: "{{ `{{workflow.parameters.visitdir}}` }}"
 
     podSpecPatch: |
       containers:
