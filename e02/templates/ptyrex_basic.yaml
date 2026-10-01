@@ -122,6 +122,10 @@ spec:
       parameters:
       - name: config_json
         value: "{{`{{workflow.parameters.config_json}}`}}"
+      - name: memory
+        value: "{{`{{ workflow.parameters.memory }}`}}" 
+      - name: nprocs
+        value: "{{`{{workflow.parameters.nprocs}}`}}"
     outputs: 
       artifacts:
       - name: ptyrex-object-modulus
@@ -139,9 +143,9 @@ spec:
       imagePullPolicy: Always
       env:
       - name: BLOSC_NTHREADS
-        value: 1
+        value: "{{ `{{inputs.parameters.nprocs}}` }}"
       - name: OMP_NUM_THREADS
-        value: 1
+        value: "{{ `{{inputs.parameters.nprocs}}` }}"
       volumeMounts:
         - name: tmpdir
           mountPath: /tmp
