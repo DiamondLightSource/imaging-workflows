@@ -130,14 +130,20 @@ spec:
       artifacts:
       - name: ptyrex-object-modulus
         path: /tmp/object_modulus.jpeg
+        archive:
+          none: {}
       - name: ptyrex-object-phase
         path: /tmp/object_phase.jpeg
+        archive:
+          none: {}
       - name: ptyrex-probe-modulus
         path: /tmp/probe_modulus.jpeg
+        archive:
+          none: {}
       - name: ptyrex-probe-phase
         path: /tmp/probe_phase.jpeg
         archive:
-          none: { }
+          none: {}
     script:
       image: gitlab.diamond.ac.uk:5050/scisoft/ptychography/dimtools/mib2x
       imagePullPolicy: Always
@@ -157,7 +163,7 @@ spec:
         import numpy as np
         from PIL import Image
         print('###start of log###')
-        print('json path: %s' % ("{{`{{workflow.parameters.config_json}}`}}"))
+        print('Current json path: %s' % ("{{`{{workflow.parameters.config_json}}`}}"))
         print('###end of log###')
 
         #find the output path of the recon from loading the json used in the recon
@@ -175,7 +181,7 @@ spec:
         hdf_list = glob.glob(search_string)
         hdf_list.sort()
         chosen_recon = hdf_list[-1]
-        print(f'saving this recon to jpeg: {chosen_recon}...')
+        print(f'converting this recon: {chosen_recon}\ninto jpegs...')
 
         #load obj and probe
         with h5py.File(chosen_recon,'r') as f:
