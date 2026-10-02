@@ -130,14 +130,20 @@ spec:
       artifacts:
       - name: ptyrex-object-modulus
         path: /tmp/object_modulus.jpeg
+        archive:
+          none: {}
       - name: ptyrex-object-phase
         path: /tmp/object_phase.jpeg
+        archive:
+          none: {}
       - name: ptyrex-probe-modulus
         path: /tmp/probe_modulus.jpeg
+        archive:
+          none: {}
       - name: ptyrex-probe-phase
         path: /tmp/probe_phase.jpeg
         archive:
-          none: { }
+          none: {}
     script:
       image: gitlab.diamond.ac.uk:5050/scisoft/ptychography/dimtools/mib2x
       imagePullPolicy: Always
