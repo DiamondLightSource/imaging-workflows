@@ -157,11 +157,11 @@ spec:
         import numpy as np
         from PIL import Image
         print('###start of log###')
-        print('json path: %s' % (test_path))
+        print('json path: %s' % ("{{`{{workflow.parameters.config_json}}`}}"))
         print('###end of log###')
 
         #find the output path of the recon from loading the json used in the recon
-        json_path = test_path
+        json_path = "{{`{{workflow.parameters.config_json}}`}}"
         with open(json_path,'r') as f:
           json_data = json.load(f)
           outdir = json_data['process']['save_dir']
