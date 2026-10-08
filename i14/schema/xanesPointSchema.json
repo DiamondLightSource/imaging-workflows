@@ -13,7 +13,6 @@
     "edgeElement": {
       "type": "string",
       "enum": [
-        "",
         "H",
         "He",
         "Li",
@@ -136,7 +135,7 @@
     },
     "edgeTransition": {
       "type": "string",
-      "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
+      "enum": ["Ka", "Kb", "La", "Lb", "M"]
     },
     "normalise": {
       "type": "boolean",

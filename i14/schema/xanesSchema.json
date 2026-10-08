@@ -19,14 +19,14 @@
     },
     "edgeTransition": {
       "type": "string",
-      "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
+      "enum": ["Ka", "Kb", "La", "Lb", "M"]
     },
     "elementToAlign": {
       "$ref": "#/$defs/elements"
     },
     "transitionToAlign": {
       "type": "string",
-      "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
+      "enum": ["Ka", "Kb", "La", "Lb", "M"]
     },
     "method": {
       "type": "string",
@@ -46,7 +46,6 @@
     "elements": {
       "type": "string",
       "enum": [
-        "",
         "H",
         "He",
         "Li",
