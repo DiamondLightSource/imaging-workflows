@@ -26,8 +26,8 @@ spec:
           key: data_directory
     - name: outputFolder
       value: /tmp/output
-    - name: scanNumbers
-      value: "[395329]"
+    - name: multiScan
+      value: '[{"multiScan":{ "start": 395328, "end": 395329, "excluded": [] }}]'
   volumeClaimTemplates:
   - metadata:
       name: tmp
@@ -102,7 +102,7 @@ spec:
       source: |
         ERROR_TXT="raise error"
         ERROR_STR="An error arose within the executed notebook. Please open the output file to check."
-        OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}"
+        OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}/dpc/{{`{{ inputs.parameters.scanNumber }}`}}"
         mkdir -p $OUTPUT
 
         python -m papermill /tmp/notebook.ipynb \
