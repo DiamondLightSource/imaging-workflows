@@ -39,6 +39,10 @@ spec:
       value: None
     - name: transitionToAlign
       value: None
+    - name: max_fractional_shift
+      value: 0.2
+    - name: brute
+      value: false
     - name: normalise
       value: true
   volumeClaimTemplates:
@@ -89,6 +93,10 @@ spec:
             value: "{{`{{ workflow.parameters.edgeElement }}`}}-{{`{{ workflow.parameters.edgeTransition }}`}}"
           - name: elementToAlign
             value: "{{`{{ steps.gen-element-to-align.outputs.result }}`}}"
+          - name: max_fractional_shift
+            value: "{{`{{ workflow.parameters.max_fractional_shift }}`}}"
+          - name: brute
+            value: "{{`{{ workflow.parameters.brute }}`}}"
           - name: method
             value: "{{`{{ workflow.parameters.method }}`}}"
           - name: normalise
@@ -117,6 +125,8 @@ spec:
       - name: outputFolder
       - name: edgeElement
       - name: elementToAlign
+      - name: max_fractional_shift
+      - name: brute
       - name: method
       - name: normalise
     script:
@@ -147,7 +157,8 @@ spec:
           -p window_width 40 \
           -p sztol 0.9 \
           -p ref_index None \
-          -p max_fractional_shift 0.2 \
+          -p max_fractional_shift "{{`{{ inputs.parameters.max_fractional_shift }}`}}" \
+          -p brute "{{`{{ inputs.parameters.brute }}`}}" \
           -p auto_processing False \
           > $OUTPUT/papermill.log 2>&1
 

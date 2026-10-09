@@ -29,6 +29,14 @@
         },
         {
           "type": "Control",
+          "scope": "#/properties/max_fractional_shift"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/brute"
+        },
+        {
+          "type": "Control",
           "scope": "#/properties/normalise"
         }
       ]

@@ -34,6 +34,20 @@
       "title": "Method",
       "description": "The method to use for alignment. `mutual` (mutual information) or `fourier` (Fourier correlation)."
     },
+    "max_fractional_shift": {
+      "type": "number",
+      "title": "Max Fractional Shift",
+      "default": 0.2,
+      "maximum": 1,
+      "minimum": 0,
+      "description": "This number is used to define the maximum shift that could be applied to an axis, as a fraction of the size of the axis. Setting it to a higher number results in longer duration of alignment."
+    },
+    "brute": {
+      "type": "boolean",
+      "title": "Brute",
+      "default": false,
+      "description": "To use a brute force method or mutual information."
+    },
     "normalise": {
       "type": "boolean",
       "title": "Normalise",
