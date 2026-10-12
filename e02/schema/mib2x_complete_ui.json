@@ -83,10 +83,6 @@
             {
               "type": "Control",
               "scope": "#/properties/memory"
-            },
-            {
-              "type": "Control",
-              "scope": "#/properties/DEBUG"
             }
           ]
         }
