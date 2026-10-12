@@ -53,7 +53,7 @@ spec:
           arguments:
             parameters:
             - name: sample_name
-              value: "{{`{{items}}`}}"
+              value: "{{`{{item}}`}}"
           withParam: "{{`{{steps.raw.outputs.result}}`}}"
           #arguments:
             #parameters:
