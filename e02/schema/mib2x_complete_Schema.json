@@ -61,11 +61,6 @@
         "type": "string",
         "pattern": "^[0-9]+[GMK]i$",
         "default": "16Gi"
-      },
-      "DEBUG": 
-      {
-        "type": "integer",
-        "default": 0
       }
   }
 }
