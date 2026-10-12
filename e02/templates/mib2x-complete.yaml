@@ -88,6 +88,7 @@ spec:
           import glob
           import traceback
           import json
+          import sys
 
           samples = []
           logging = []
