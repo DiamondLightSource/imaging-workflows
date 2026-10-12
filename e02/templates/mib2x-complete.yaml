@@ -240,9 +240,9 @@ spec:
           import sys
           import json 
           logging = []
-          logging.append('The input to this step is: %s' % ("{{`{{inputs.parameters.mib}}`}}"))
+          logging.append('The input to this step is: %s' % ("{{`{{inputs.parameters.mibs}}`}}"))
 
-          input = "{{`{{inputs.parameters.mib}}`}}"
+          input = "{{`{{inputs.parameters.mibs}}`}}"
 
           with open("/tmp/log_mibs.txt",'w') as ofile:
             for item in logging:
