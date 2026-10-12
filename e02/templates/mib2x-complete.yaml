@@ -242,7 +242,7 @@ spec:
           logging = []
           mibs = []
 
-          input = "{{`{{inputs.parameters.mibs}}`}}"
+          input = {{`{{inputs.parameters.mibs}}`}}
           for element in input:
             for subelement in element:
               mibs.append(subelement)
