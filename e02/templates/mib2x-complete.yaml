@@ -240,15 +240,22 @@ spec:
           import sys
           import json 
           logging = []
-          logging.append('The input to this step is: %s' % ("{{`{{inputs.parameters.mibs}}`}}"))
+          mibs = []
 
           input = "{{`{{inputs.parameters.mibs}}`}}"
+          for element in input:
+            for subelement in element:
+              mibs.append(subelement)
+
+          json.dump(mibs, sys.stdout)
+
+          logging.append('aggregated mibs files: %s' % mibs)
 
           with open("/tmp/log_mibs.txt",'w') as ofile:
             for item in logging:
               print(item,file=ofile)
 
-          json.dump(input, sys.stdout)
+          
 
 
     - name: convert-found-mib-files
