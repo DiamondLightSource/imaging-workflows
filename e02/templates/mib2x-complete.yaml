@@ -40,12 +40,8 @@ spec:
   ###
   templates:
     - name: mib2x-complete
-      #inputs: 
-      #  parameters: 
 
-
-          #- name: #name parameters here
-      steps: #steps is on the name level as inputs
+      steps: 
       - - name: raw
           template: find-raw
       - - name: find
@@ -55,17 +51,21 @@ spec:
             - name: sample_name
               value: "{{`{{item}}`}}"
           withParam: "{{`{{steps.raw.outputs.result}}`}}"
-          #arguments:
-            #parameters:
-              #- name: base_path
-              
+
+      - - name: aggregate
+          template: aggregate-mib
+          arguments:
+            parameters:
+            - name: mibs
+              value: "{{`{{steps.find.outputs.result}}`}}"
+
       - - name: convert-mib
           template: convert-found-mib-files
           arguments:
             parameters:
               - name: mibfiles
                 value: "{{`{{item}}`}}"
-          withParam: "{{`{{steps.find.outputs.result}}`}}"
+          withParam: "{{`{{steps.aggregate.outputs.result}}`}}"
   ###
     - name: find-raw
       outputs:
@@ -205,6 +205,8 @@ spec:
             logging.append('%i: %s' % (num, mib_files[mib_index]))
             data_to_convert.append(mib_files[mib_index])
 
+          logging.append("***\nData to convert: %s" % (data_to_convert))
+
           #ToDo think about this printing in the context of an Error
           #this should be try statement 
           with open("/tmp/find_files_logging.txt",'w') as ofile:
@@ -213,6 +215,41 @@ spec:
 
           #This is used to produce the input for the next step .i.e inputs.parameters.mibfiles
           json.dump(data_to_convert, sys.stdout)
+
+    - name: aggregate-mib
+      inputs:
+        parameters:
+        - name: mibs
+      outputs:
+        artifacts:
+        - name: log_mibs
+          path: /tmp/log_mibs.txt
+          archive:
+            none: {}
+      script:
+        image: python:3.10
+        volumeMounts:
+          - name: session
+            mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+          - name: tmpdir
+            mountPath: /tmp
+        command: [python]
+        source: |
+          #
+          import os
+          import sys
+          import json 
+          logging = []
+          logging.append('The input to this step is: %s' % ("{{`{{inputs.parameters.mibs}}`}}"))
+
+          input = "{{`{{inputs.parameters.mibs}}`}}"
+
+          with open("/tmp/log_mibs.txt",'w') as ofile:
+            for item in logging:
+              print(item,file=ofile)
+
+          json.dump(input, sys.stdout)
+
 
     - name: convert-found-mib-files
       inputs:
