@@ -1,5 +1,8 @@
 {
   "type": "VerticalLayout",
+  "options": {
+    "formWidth": "80%"
+  },
   "elements": [
     {
       "type": "Control",
@@ -29,7 +32,29 @@
         },
         {
           "type": "Control",
-          "scope": "#/properties/normalise"
+          "scope": "#/properties/brute",
+          "rule": {
+            "effect": "SHOW",
+            "condition": {
+              "scope": "#/properties/method",
+              "schema": {
+                "const": "mutual"
+              }
+            }
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/max_fractional_shift",
+          "rule": {
+            "effect": "SHOW",
+            "condition": {
+              "scope": "#/properties/brute",
+              "schema": {
+                "const": true
+              }
+            }
+          }
         }
       ]
     },
@@ -58,6 +83,10 @@
           "scope": "#/properties/transitionToAlign"
         }
       ]
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/normalise"
     },
     {
       "type": "Control",
