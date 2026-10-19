@@ -49,8 +49,8 @@ spec:
       parameters:
       - name: config_json
         value: "{{`{{workflow.parameters.config_json}}`}}"
-      - name: scan_number
-        value: "{{`{{workflow.parameters.scan_number}}`}}"
+      - name: scanId
+        value: "{{`{{workflow.parameters.scanId}}`}}"
       - name: projection_number
         value: "{{`{{workflow.parameters.proj_number}}`}}"
       - name: nprocs
@@ -78,7 +78,7 @@ spec:
       - "-c"
       - "{{`{{ inputs.parameters.config_json }}`}}"
       - "-s"
-      - "{{`{{ inputs.parameters.scan_number }}`}}"
+      - "{{`{{ inputs.parameters.scanId }}`}}"
       - "-p"
       - "{{`{{ inputs.parameters.projection_number }}`}}"
 
