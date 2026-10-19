@@ -9,7 +9,7 @@ metadata:
     workflows.argoproj.io/description: |
       Runs a PtyPy reconstruction job inside a container based on data collected at P99.
     workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
-    workflows.diamond.ac.uk/parameter-schema.id: |
+    workflows.diamond.ac.uk/parameter-schema.scanId: |
       {
         "title": "Scan Number",
         "type": "integer"
@@ -48,7 +48,7 @@ spec:
         configMapKeyRef:
           name: sessionspaces
           key: data_directory
-    - name: id
+    - name: scanId
       value: "7"
     - name: outpath
       value: "processing/workflows/ptypy"
@@ -111,7 +111,7 @@ spec:
       source: |
         import re
         OUTPATH="{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}"
-        SCAN="{{`{{ workflow.parameters.id }}`}}"
+        SCAN="{{`{{ workflow.parameters.scanId }}`}}"
         CONFIG="{{`{{ inputs.parameters.config }}`}}"
         with open("/tmp/out.txt", "w") as o:
           with open(CONFIG, 'r') as f:
@@ -146,7 +146,7 @@ spec:
           - name: config
             value: "{{`{{ tasks.prepare.outputs.parameters.config }}`}}"
           - name: id
-            value: "{{`{{ workflow.parameters.id }}`}}"
+            value: "{{`{{ workflow.parameters.scanId }}`}}"
           - name: outpath
             value: "{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}"
           - name: nprocs
@@ -165,7 +165,7 @@ spec:
           - name: config
             value: "{{`{{ tasks.prepare.outputs.parameters.config }}`}}"
           - name: id
-            value: "{{`{{ workflow.parameters.id }}`}}"
+            value: "{{`{{ workflow.parameters.scanId }}`}}"
           - name: outpath
             value: "{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}"
           - name: nprocs
