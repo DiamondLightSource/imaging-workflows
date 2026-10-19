@@ -128,7 +128,6 @@
         "element": {
           "type": "string",
           "enum": [
-            "",
             "H",
             "He",
             "Li",
@@ -251,7 +250,7 @@
         },
         "transition": {
           "type": "string",
-          "enum": ["", "Ka", "Kb", "La", "Lb", "M"]
+          "enum": ["Ka", "Kb", "La", "Lb", "M"]
         }
       }
     },
