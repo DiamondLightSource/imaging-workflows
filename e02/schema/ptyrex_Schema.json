@@ -9,7 +9,7 @@
             "title": "Config json",
             "type": "string"
         },
-        "scan_number": {
+        "scanId": {
             "default": null,
             "maximum": 10000000000,
             "minimum": 0,

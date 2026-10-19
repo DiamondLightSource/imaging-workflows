@@ -19,7 +19,7 @@
             {
               "type": "Control",
               "label": "Scan number",
-              "scope": "#/properties/scan_number"
+              "scope": "#/properties/scanId"
             },
             {
               "type": "Control",
