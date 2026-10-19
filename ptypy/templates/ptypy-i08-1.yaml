@@ -9,7 +9,7 @@ metadata:
     workflows.argoproj.io/description: |
       Runs a PtyPy reconstruction job inside a container based on data collected at I08-1.
     workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
-    workflows.diamond.ac.uk/parameter-schema.id: |
+    workflows.diamond.ac.uk/parameter-schema.scanId: |
       {
         "title": "Scan Number",
         "type": "integer"
@@ -73,7 +73,7 @@ spec:
         configMapKeyRef:
           name: sessionspaces
           key: data_directory
-    - name: id
+    - name: scanId
       value: "77113"
     - name: outpath
       value: "processing/workflows/ptypy"
@@ -115,7 +115,7 @@ spec:
           OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/"{{`{{ workflow.parameters.outpath }}`}}"
           mkdir -p $OUTPUT
           INPUT="{{`{{ workflow.parameters.visitdir }}`}}"/nexus
-          ID="{{`{{ workflow.parameters.id }}`}}"
+          ID="{{`{{ workflow.parameters.scanId }}`}}"
           mkdir -p $OUTPUT/scan_$ID
           NUMITER="{{`{{ workflow.parameters.numiter }}`}}"
           PROBEMODES="{{`{{ workflow.parameters.probemodes }}`}}"
@@ -132,7 +132,7 @@ spec:
     outputs:
       parameters:
         - name: config
-          value: "{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}/scan_{{`{{ workflow.parameters.id }}`}}/ptypy_config.yaml"
+          value: "{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}/scan_{{`{{ workflow.parameters.scanId }}`}}/ptypy_config.yaml"
     volumes:
     - name: session
       hostPath:
@@ -154,7 +154,7 @@ spec:
       source: |
         import re
         OUTPATH="{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}"
-        SCAN="{{`{{ workflow.parameters.id }}`}}"
+        SCAN="{{`{{ workflow.parameters.scanId }}`}}"
         CONFIG="{{`{{ inputs.parameters.config }}`}}"
         with open("/tmp/out.txt", "w") as o:
           with open(CONFIG, 'r') as f:
@@ -189,7 +189,7 @@ spec:
           - name: config
             value: "{{`{{ tasks.prepare.outputs.parameters.config }}`}}"
           - name: id
-            value: "{{`{{ workflow.parameters.id }}`}}"
+            value: "{{`{{ workflow.parameters.scanId }}`}}"
           - name: outpath
             value: "{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}"
           - name: nprocs
@@ -208,7 +208,7 @@ spec:
           - name: config
             value: "{{`{{ tasks.prepare.outputs.parameters.config }}`}}"
           - name: id
-            value: "{{`{{ workflow.parameters.id }}`}}"
+            value: "{{`{{ workflow.parameters.scanId }}`}}"
           - name: outpath
             value: "{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}"
           - name: nprocs
