@@ -49,10 +49,17 @@
           "rule": {
             "effect": "SHOW",
             "condition": {
-              "scope": "#/properties/brute",
-              "schema": {
-                "const": true
-              }
+              "type": "AND",
+              "conditions": [
+                {
+                  "scope": "#/properties/method",
+                  "schema": { "const": "mutual" }
+                },
+                {
+                  "scope": "#/properties/brute",
+                  "schema": { "const": true }
+                }
+              ]
             }
           }
         }
