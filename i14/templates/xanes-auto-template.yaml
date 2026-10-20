@@ -40,11 +40,11 @@ spec:
     - name: transitionToAlign
       value: None
     - name: max_fractional_shift
-      value: 0.2
+      value: "0.2"
     - name: brute
-      value: false
+      value: "false"
     - name: normalise
-      value: true
+      value: "true"
   volumeClaimTemplates:
   - metadata:
       name: tmp
