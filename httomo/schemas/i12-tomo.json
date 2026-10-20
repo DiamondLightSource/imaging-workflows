@@ -1,0 +1,834 @@
+{
+  "$defs": {
+    "EmptyDict": {
+      "description": "Empty dict representation",
+      "properties": {},
+      "title": "EmptyDict",
+      "type": "object"
+    },
+    "FindCenter360SideOutput": {
+      "description": "Side output of find_center_vo method",
+      "properties": {
+        "cor": {
+          "const": "centre_of_rotation",
+          "default": "centre_of_rotation",
+          "title": "Cor",
+          "type": "string"
+        },
+        "overlap": {
+          "const": "overlap",
+          "default": "overlap",
+          "title": "Overlap",
+          "type": "string"
+        },
+        "side": {
+          "const": "side",
+          "default": "side",
+          "title": "Side",
+          "type": "string"
+        },
+        "overlap_position": {
+          "const": "overlap_position",
+          "default": "overlap_position",
+          "title": "Overlap Position",
+          "type": "string"
+        }
+      },
+      "title": "FindCenter360SideOutput",
+      "type": "object"
+    },
+    "FindCenterVoSideOutput": {
+      "description": "Side output of find_center_vo method",
+      "properties": {
+        "cor": {
+          "const": "centre_of_rotation",
+          "default": "centre_of_rotation",
+          "title": "Cor",
+          "type": "string"
+        }
+      },
+      "title": "FindCenterVoSideOutput",
+      "type": "object"
+    },
+    "HttomolibgpuDarkFlatFieldCorrectionConfig": {
+      "description": "httomolibgpu.prep.normalize.dark_flat_field_correction method config",
+      "properties": {
+        "method": {
+          "default": "dark_flat_field_correction",
+          "title": "Method",
+          "type": "string"
+        },
+        "module_path": {
+          "default": "httomolibgpu.prep.normalize",
+          "title": "Module Path",
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/$defs/HttomolibgpuDarkFlatFieldCorrectionParams"
+        },
+        "save_result": {
+          "default": false,
+          "title": "Save Result",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "parameters"
+      ],
+      "title": "HttomolibgpuDarkFlatFieldCorrectionConfig",
+      "type": "object"
+    },
+    "HttomolibgpuDarkFlatFieldCorrectionParams": {
+      "description": "httomolibgpu.prep.normalize.dark_flat_field_correction parameters config",
+      "properties": {
+        "flats_multiplier": {
+          "default": 1,
+          "title": "Flats Multiplier",
+          "type": "integer"
+        },
+        "darks_multiplier": {
+          "default": 1,
+          "title": "Darks Multiplier",
+          "type": "integer"
+        },
+        "upper_bound": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper Bound"
+        },
+        "lower_bound": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower Bound"
+        },
+        "clipping_warning": {
+          "default": false,
+          "title": "Clipping Warning",
+          "type": "boolean"
+        }
+      },
+      "title": "HttomolibgpuDarkFlatFieldCorrectionParams",
+      "type": "object"
+    },
+    "HttomolibgpuDistortionCorrectionConfig": {
+      "description": "httomolibgpu.prep.alignment.distortion_correction_proj_discorpy method config",
+      "properties": {
+        "method": {
+          "default": "distortion_correction_proj_discorpy",
+          "title": "Method",
+          "type": "string"
+        },
+        "module_path": {
+          "default": "httomolibgpu.prep.alignment",
+          "title": "Module Path",
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/$defs/HttomolibgpuDistortionCorrectionParams"
+        },
+        "save_result": {
+          "default": false,
+          "title": "Save Result",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "parameters"
+      ],
+      "title": "HttomolibgpuDistortionCorrectionConfig",
+      "type": "object"
+    },
+    "HttomolibgpuDistortionCorrectionParams": {
+      "description": "httomolibgpu.prep.alignment.distortion_correction_proj_discorpy parameters config",
+      "properties": {
+        "metadata_path": {
+          "title": "Metadata Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "metadata_path"
+      ],
+      "title": "HttomolibgpuDistortionCorrectionParams",
+      "type": "object"
+    },
+    "HttomolibgpuFbp3dTomobarConfig": {
+      "description": "httomolibgpu.recon.algorithm method config",
+      "properties": {
+        "method": {
+          "default": "FBP3d_tomobar",
+          "title": "Method",
+          "type": "string"
+        },
+        "module_path": {
+          "default": "httomolibgpu.recon.algorithm",
+          "title": "Module Path",
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/$defs/HttomolibgpuFbp3dTomobarParams"
+        },
+        "save_result": {
+          "default": true,
+          "title": "Save Result",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "parameters"
+      ],
+      "title": "HttomolibgpuFbp3dTomobarConfig",
+      "type": "object"
+    },
+    "HttomolibgpuFbp3dTomobarParams": {
+      "description": "httomolibgpu.recon.algorithm parameters config",
+      "properties": {
+        "center": {
+          "const": "${{centering.side_outputs.centre_of_rotation}}",
+          "default": "${{centering.side_outputs.centre_of_rotation}}",
+          "title": "Center",
+          "type": "string"
+        }
+      },
+      "title": "HttomolibgpuFbp3dTomobarParams",
+      "type": "object"
+    },
+    "HttomolibgpuFindCenter360Config": {
+      "description": "httomolibgpu.recon.rotation.find_center_360 method config",
+      "properties": {
+        "method": {
+          "default": "find_center_360",
+          "title": "Method",
+          "type": "string"
+        },
+        "module_path": {
+          "default": "httomolibgpu.recon.rotation",
+          "title": "Module Path",
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/$defs/HttomolibgpuFindCenter360Params"
+        },
+        "side_outputs": {
+          "$ref": "#/$defs/FindCenter360SideOutput"
+        },
+        "save_result": {
+          "default": false,
+          "title": "Save Result",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "parameters",
+        "side_outputs"
+      ],
+      "title": "HttomolibgpuFindCenter360Config",
+      "type": "object"
+    },
+    "HttomolibgpuFindCenter360Params": {
+      "description": "httomolibgpu.recon.rotation.find_center_vo parameters config",
+      "properties": {
+        "smin": {
+          "default": -50,
+          "title": "Smin",
+          "type": "integer"
+        },
+        "smax": {
+          "default": 50,
+          "title": "Smax",
+          "type": "integer"
+        },
+        "id": {
+          "const": "centering",
+          "default": "centering",
+          "title": "Id",
+          "type": "string"
+        }
+      },
+      "title": "HttomolibgpuFindCenter360Params",
+      "type": "object"
+    },
+    "HttomolibgpuFindCenterVoConfig": {
+      "description": "httomolibgpu.recon.rotation.find_center_vo method config",
+      "properties": {
+        "method": {
+          "default": "find_center_vo",
+          "title": "Method",
+          "type": "string"
+        },
+        "module_path": {
+          "default": "httomolibgpu.recon.rotation",
+          "title": "Module Path",
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/$defs/HttomolibgpuFindCenterVoParams"
+        },
+        "side_outputs": {
+          "$ref": "#/$defs/FindCenterVoSideOutput"
+        },
+        "save_result": {
+          "default": false,
+          "title": "Save Result",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "parameters",
+        "side_outputs"
+      ],
+      "title": "HttomolibgpuFindCenterVoConfig",
+      "type": "object"
+    },
+    "HttomolibgpuFindCenterVoParams": {
+      "description": "httomolibgpu.recon.rotation.find_center_vo parameters config",
+      "properties": {
+        "smin": {
+          "default": -50,
+          "title": "Smin",
+          "type": "integer"
+        },
+        "smax": {
+          "default": 50,
+          "title": "Smax",
+          "type": "integer"
+        },
+        "id": {
+          "const": "centering",
+          "default": "centering",
+          "title": "Id",
+          "type": "string"
+        }
+      },
+      "title": "HttomolibgpuFindCenterVoParams",
+      "type": "object"
+    },
+    "HttomolibgpuMinusLogConfig": {
+      "description": "httomolibgpu.prep.normalize.minus_log method config",
+      "properties": {
+        "method": {
+          "default": "minus_log",
+          "title": "Method",
+          "type": "string"
+        },
+        "module_path": {
+          "default": "httomolibgpu.prep.normalize",
+          "title": "Module Path",
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/$defs/EmptyDict",
+          "default": {}
+        },
+        "save_result": {
+          "default": false,
+          "title": "Save Result",
+          "type": "boolean"
+        }
+      },
+      "title": "HttomolibgpuMinusLogConfig",
+      "type": "object"
+    },
+    "HttomolibgpuPaganinFilterConfig": {
+      "description": "httomolibgpu.prep.phase.paganin_filter method config",
+      "properties": {
+        "method": {
+          "default": "paganin_filter",
+          "title": "Method",
+          "type": "string"
+        },
+        "module_path": {
+          "default": "httomolibgpu.prep.phase",
+          "title": "Module Path",
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/$defs/HttomolibgpuPaganinFilterParams"
+        },
+        "save_result": {
+          "default": false,
+          "title": "Save Result",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "parameters"
+      ],
+      "title": "HttomolibgpuPaganinFilterConfig",
+      "type": "object"
+    },
+    "HttomolibgpuPaganinFilterParams": {
+      "description": "httomolibgpu.prep.phase.paganin_filter parameters config",
+      "properties": {
+        "pixel_size": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "default": 1.28,
+          "title": "Pixel Size"
+        },
+        "distance": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "default": 1.0,
+          "title": "Distance"
+        },
+        "energy": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "default": 53.0,
+          "title": "Energy"
+        },
+        "ration_delta_beta": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "default": 250,
+          "title": "Ration Delta Beta"
+        }
+      },
+      "title": "HttomolibgpuPaganinFilterParams",
+      "type": "object"
+    },
+    "HttomolibgpuRemoveAllStripeConfig": {
+      "description": "httomolibgpu.prep.stripe.remove_all_stripe method config",
+      "properties": {
+        "method": {
+          "default": "remove_all_stripe",
+          "title": "Method",
+          "type": "string"
+        },
+        "module_path": {
+          "default": "httomolibgpu.prep.stripe",
+          "title": "Module Path",
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/$defs/HttomolibgpuRemoveAllStripeParams"
+        },
+        "save_result": {
+          "default": false,
+          "title": "Save Result",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "parameters"
+      ],
+      "title": "HttomolibgpuRemoveAllStripeConfig",
+      "type": "object"
+    },
+    "HttomolibgpuRemoveAllStripeParams": {
+      "description": "httomolibgpu.prep.stripe.remove_all_stripe parameters config",
+      "properties": {
+        "snr": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "default": 3.0,
+          "title": "Snr"
+        },
+        "la_size": {
+          "default": 61,
+          "title": "La Size",
+          "type": "integer"
+        },
+        "sm_size": {
+          "default": 21,
+          "title": "Sm Size",
+          "type": "integer"
+        }
+      },
+      "title": "HttomolibgpuRemoveAllStripeParams",
+      "type": "object"
+    },
+    "PreviewParam": {
+      "description": "Preview configuration dict.",
+      "properties": {
+        "angles": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StartStopEntry"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "detector_y": {
+          "anyOf": [
+            {
+              "const": "mid",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/StartStopEntry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Detector Y"
+        },
+        "detector_x": {
+          "anyOf": [
+            {
+              "const": "mid",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/StartStopEntry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Detector X"
+        }
+      },
+      "required": [
+        "angles",
+        "detector_y",
+        "detector_x"
+      ],
+      "title": "PreviewParam",
+      "type": "object"
+    },
+    "RawAngles": {
+      "maxItems": 1,
+      "minItems": 1,
+      "prefixItems": [
+        {
+          "title": "Data Path",
+          "type": "string"
+        }
+      ],
+      "type": "array"
+    },
+    "StandardTomoLoaderConfig": {
+      "description": "Standard tomo loader HTTomo config",
+      "properties": {
+        "method": {
+          "default": "standard_tomo",
+          "title": "Method",
+          "type": "string"
+        },
+        "module_path": {
+          "default": "httomo.data.hdf.loaders",
+          "title": "Module Path",
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/$defs/StandardTomoLoaderParams"
+        }
+      },
+      "required": [
+        "parameters"
+      ],
+      "title": "StandardTomoLoaderConfig",
+      "type": "object"
+    },
+    "StandardTomoLoaderParams": {
+      "description": "Parameters dict for HTTomo's standard tomo loader",
+      "properties": {
+        "data_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "const": "auto",
+              "type": "string"
+            }
+          ],
+          "title": "Data Path"
+        },
+        "image_key_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "const": "auto",
+              "type": "string"
+            }
+          ],
+          "title": "Image Key Path"
+        },
+        "rotation_angles": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RawAngles"
+            },
+            {
+              "$ref": "#/$defs/UserDefinedAngles"
+            },
+            {
+              "const": "auto",
+              "type": "string"
+            }
+          ],
+          "title": "Rotation Angles"
+        },
+        "preview": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PreviewParam"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "data_path",
+        "image_key_path",
+        "rotation_angles"
+      ],
+      "title": "StandardTomoLoaderParams",
+      "type": "object"
+    },
+    "StartStopEntry": {
+      "description": "Configuration for a single dimension's previewing in terms of start/stop values.",
+      "properties": {
+        "start": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Start"
+        },
+        "start_offset": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Start Offset"
+        },
+        "stop": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Stop"
+        },
+        "stop_offset": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Stop Offset"
+        }
+      },
+      "required": [
+        "start",
+        "start_offset",
+        "stop",
+        "stop_offset"
+      ],
+      "title": "StartStopEntry",
+      "type": "object"
+    },
+    "UserDefinedAngles": {
+      "maxItems": 3,
+      "minItems": 3,
+      "prefixItems": [
+        {
+          "title": "Start Angle",
+          "type": "integer"
+        },
+        {
+          "title": "Stop Angle",
+          "type": "integer"
+        },
+        {
+          "title": "Angles Total",
+          "type": "integer"
+        }
+      ],
+      "type": "array"
+    }
+  },
+  "anyOf": [
+    {
+      "maxItems": 4,
+      "minItems": 4,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/StandardTomoLoaderConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuDistortionCorrectionConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuDarkFlatFieldCorrectionConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuMinusLogConfig"
+        }
+      ],
+      "type": "array"
+    },
+    {
+      "maxItems": 5,
+      "minItems": 5,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/StandardTomoLoaderConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuDarkFlatFieldCorrectionConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuFindCenterVoConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuPaganinFilterConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuFbp3dTomobarConfig"
+        }
+      ],
+      "type": "array"
+    },
+    {
+      "maxItems": 6,
+      "minItems": 6,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/StandardTomoLoaderConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuDarkFlatFieldCorrectionConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuFindCenterVoConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuPaganinFilterConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuRemoveAllStripeConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuFbp3dTomobarConfig"
+        }
+      ],
+      "type": "array"
+    },
+    {
+      "maxItems": 5,
+      "minItems": 5,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/StandardTomoLoaderConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuDarkFlatFieldCorrectionConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuFindCenter360Config"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuPaganinFilterConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuFbp3dTomobarConfig"
+        }
+      ],
+      "type": "array"
+    },
+    {
+      "maxItems": 6,
+      "minItems": 6,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/StandardTomoLoaderConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuDarkFlatFieldCorrectionConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuFindCenter360Config"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuPaganinFilterConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuRemoveAllStripeConfig"
+        },
+        {
+          "$ref": "#/$defs/HttomolibgpuFbp3dTomobarConfig"
+        }
+      ],
+      "type": "array"
+    }
+  ],
+  "description": "I12 pipeline",
+  "title": "I12Pipeline"
+}
