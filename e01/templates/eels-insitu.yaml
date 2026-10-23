@@ -1,0 +1,123 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: epsic-eels-insitu
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
+  annotations:
+    workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
+    workflows.argoproj.io/title: Calibrate and align Gatan multiframe EELS
+    workflows.argoproj.io/description: |
+      Loads a Gatan multiframe (in-situ) STEM/EELS acquisition lazily and calibrated, optionally aligns the frames
+      for drift and the low loss on its zero-loss peak, saves every stream as .hspy and writes an analysis notebook
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/eels_insitu_Schema.json" | nindent 6 }}
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/eels_insitu_ui.json" | nindent 6 }}
+spec:
+  entrypoint: start
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+  volumes:
+  - name: session
+    hostPath:
+      path: "{{`{{ workflow.parameters.visitdir }}`}}"
+      type: Directory
+  # TODO: the folder that contains the gatan_insitu package, unless the image has it installed
+  - name: software
+    hostPath:
+      path: /dls_sw/e02/software
+      type: Directory
+  volumeClaimTemplates:
+  - metadata:
+      name: tmp
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 2Gi
+      storageClassName: netapp
+
+  templates:
+    - name: mount-files
+      script:
+        image: debian:stable-slim
+        volumeMounts:
+          - name: tmp
+            mountPath: /tmp
+          - name: session
+            mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+        command: [bash]
+        source: |
+          OUTPUT="{{`{{workflow.parameters.visitdir}}`}}"/processing/workflows/
+          mkdir -p $OUTPUT
+          echo '{{ .Files.Get "notebooks/EELS_insitu_processing.ipynb" | b64enc }}' | base64 -d > $OUTPUT/EELS_insitu_processing.ipynb
+
+    - name: process-notebook
+      script:
+        # TODO: an image with hyperspy, exspy, scikit-image, nbformat and papermill
+        image: gitlab.diamond.ac.uk:5050/scisoft/ptychography/dimtools/mib2x
+        volumeMounts:
+          - name: session
+            mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+          - name: tmp
+            mountPath: /tmp
+          - name: software
+            mountPath: /dls_sw/e02/software
+        command: [bash]
+        source: |
+          set -o pipefail
+          OUTPUT="{{`{{workflow.parameters.visitdir}}`}}"/processing/workflows
+          SAMPLE="{{`{{workflow.parameters.sample}}`}}"
+          DATASET="{{`{{workflow.parameters.dataset_name}}`}}"
+          RUN="$OUTPUT"/EELS_insitu_"${SAMPLE// /_}"_"${DATASET// /_}"
+          python -m papermill "$OUTPUT"/EELS_insitu_processing.ipynb "$RUN".ipynb \
+            -p visit "{{`{{workflow.parameters.visitdir}}`}}" \
+            -p sample "$SAMPLE" \
+            -p dataset_name "$DATASET" \
+            -p align_zlp "{{`{{workflow.parameters.align_zlp}}`}}" \
+            -p align_frames "{{`{{workflow.parameters.align_frames}}`}}" \
+            -p frame_reference "{{`{{workflow.parameters.frame_reference}}`}}" \
+            -p compression "{{`{{workflow.parameters.compression}}`}}" \
+            -p gatan_insitu_path /dls_sw/e02/software \
+            -k python3 > "$RUN"_papermill.log 2>&1
+          STATUS=$?
+          # convert whatever ran, so a failed run can still be inspected in the browser
+          python -m jupyter nbconvert "$RUN".ipynb --to html --output /tmp/EELS-insitu-notebook.html
+          exit $STATUS
+      outputs:
+        artifacts:
+          - name: notebook-output
+            path: /tmp/EELS-insitu-notebook.html
+            archive:
+              none: {}
+      podSpecPatch: |
+        containers:
+        - name: main
+          resources:
+            requests:
+              cpu: 4
+              memory: 32Gi
+            limits:
+              cpu: 4
+              memory: 32Gi
+      tolerations:
+      - key: nodegroup
+        operator: Equal
+        value: workflows
+        effect: NoSchedule
+
+    - name: start
+      dag:
+        tasks:
+        - name: setup
+          template: mount-files
+        - name: run
+          template: process-notebook
+          dependencies: [setup]

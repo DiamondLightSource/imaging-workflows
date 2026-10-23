@@ -1,0 +1,26 @@
+{
+  "type": "VerticalLayout",
+  "options": {
+    "formWidth": "80%"
+  },
+  "elements": [
+    {
+      "type": "Group",
+      "label": "Data",
+      "elements": [
+        { "type": "Control", "label": "Name of the sample folder", "scope": "#/properties/sample" },
+        { "type": "Control", "label": "Folder with the EELS multiframe data (e.g. InSitu (5))", "scope": "#/properties/dataset_name" }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "Processing",
+      "elements": [
+        { "type": "Control", "label": "Align the frames for specimen drift (measured on the HAADF, applied to all streams)", "scope": "#/properties/align_frames" },
+        { "type": "Control", "label": "Align the low loss on its ZLP and shift the high loss to match (reads the data twice)", "scope": "#/properties/align_zlp" },
+        { "type": "Control", "label": "Drift reference: previous frame (robust to specimen change) or first frame", "scope": "#/properties/frame_reference" },
+        { "type": "Control", "label": "Compression of the saved .hspy files", "scope": "#/properties/compression" }
+      ]
+    }
+  ]
+}
