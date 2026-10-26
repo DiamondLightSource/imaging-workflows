@@ -1,0 +1,42 @@
+{
+  "type": "object",
+  "title": "Gatan multiframe EELS: calibrate, align and save",
+  "description": "inputs for the ePSIC notebook which calibrates and aligns Gatan multiframe (in-situ) STEM/EELS data",
+  "required": ["sample", "dataset_name"],
+  "properties": {
+    "sample": {
+      "title": "Sample name",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "dataset_name": {
+      "title": "Dataset folder name",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "align_frames": {
+      "title": "Align frames for drift",
+      "type": "boolean",
+      "default": false
+    },
+    "align_zlp": {
+      "title": "Align on the zero-loss peak",
+      "type": "boolean",
+      "default": false
+    },
+    "frame_reference": {
+      "title": "Drift reference frame",
+      "type": "string",
+      "enum": ["previous", "first"],
+      "default": "previous"
+    },
+    "compression": {
+      "title": "Compression of the saved files",
+      "type": "string",
+      "enum": ["gzip", "none"],
+      "default": "gzip"
+    }
+  }
+}
