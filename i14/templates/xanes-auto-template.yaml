@@ -114,7 +114,6 @@ spec:
         if "None" in "{{`{{ workflow.parameters.elementToAlign }}`}}":
           elementToAlign = "None"
           # elementToAlign = f"{{`{{ workflow.parameters.edgeElement }}`}}"
-        print(elementToAlign)
   - name: gen-notebook-tmp
     inputs:
       parameters:
