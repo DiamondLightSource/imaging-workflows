@@ -1,0 +1,89 @@
+{
+  "type": "VerticalLayout",
+  "options": {
+    "formWidth": "80%"
+  },
+  "elements": [
+    {
+      "type": "Group",
+      "label": "Ptyrex job submission",
+      "elements": [
+        {
+          "type": "VerticalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "label": "Scan number",
+              "scope": "#/properties/scanId"
+            },
+            {
+              "type": "Control",
+              "label": "Projection number",
+              "scope": "#/properties/proj_number"
+            },
+            {
+              "type": "Control",
+              "label": "prefix of the reconstruction output file",
+              "scope": "#/properties/prefix"
+            },
+            {
+              "type": "Control",
+              "label": "Number of iterations to perfrom",
+              "scope": "#/properties/iterations"
+            },
+            {
+              "type": "Control",
+              "label": "The update rate of the object (alpha)",
+              "scope": "#/properties/objectupdate"
+            },
+            {
+              "type": "Control",
+              "label": "The update rate of the probe (beta)",
+              "scope": "#/properties/probeupdate"
+            },
+            {
+              "type": "Control",
+              "label": "The number probe modes",
+              "scope": "#/properties/modes"
+            },
+            {
+              "type": "Control",
+              "label": "The degree of upsampling applied to the collected data",
+              "scope": "#/properties/upsampling"
+            },
+            {
+              "type": "Control",
+              "label": "The bit depth used to load the experimental diffraction pattern (can exceed actual bit depth)",
+              "scope": "#/properties/bitdepth"
+            },
+            {
+              "type": "Control",
+              "label": "path to the reconstruction you want to load the probe from",
+              "scope": "#/properties/probepath"
+            },
+            {
+              "type": "Control",
+              "label": "toggle whether to load a prevoius probe to use in this new reconstruction",
+              "scope": "#/properties/probeloadflag"
+            },
+            {
+              "type": "Control",
+              "label": "Relative output path within the visit",
+              "scope": "#/properties/outdir"
+            },
+            {
+              "type": "Control",
+              "label": "Requested number of Processors",
+              "scope": "#/properties/nprocs"
+            },
+            {
+              "type": "Control",
+              "label": "Requested memory",
+              "scope": "#/properties/memory"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

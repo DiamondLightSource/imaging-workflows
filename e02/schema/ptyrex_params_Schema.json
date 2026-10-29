@@ -1,0 +1,124 @@
+{
+  "type": "object",
+    "description": "basic inputs for ptyrex submission",
+    "properties": {
+        "scanId": {
+            "default": null,
+            "maximum": 10000000000,
+            "minimum": 0,
+            "title": "Scan number",
+            "type": "integer"
+        },
+        "proj_number": {
+            "default": null,
+            "maximum": 10000000,
+            "minimum": 0,
+            "title": "Proj Number",
+            "type": "integer"
+        },
+        "nprocs": {
+            "default": 4,
+            "maximum": 4,
+            "minimum": 0,
+            "title": "Nprocs",
+            "type": "integer"
+        },
+        "memory": {
+            "type": "string",
+            "pattern": "^[0-9]+[GMK]i$",
+            "default": "32Gi"
+        },
+        "prefix": {
+            "type": "string",
+            "maximum": 64,
+            "minimum": 0,
+            "title": "Reconstruction output file prefix"
+        },
+        "iterations": {
+            "type": "interger",
+            "default": 100,
+            "minimum": 1,
+            "maximum": 10000,
+            "title": "The number of ptyrex iterations to perform"
+        },
+        "objectupdate": {
+            "type": "float",
+            "default": 1,
+            "minimum": 0,
+            "maximum": 1,
+            "title": "Object update rate (alpha)"
+        },
+        "probeupdate": {
+            "type": "float",
+            "default": 1,
+            "minimum": 0,
+            "maximum": 1,
+            "title": "Probe update rate (beta)"
+        },
+        "modes": {
+            "type": "interger",
+            "default": 1,
+            "minimum": 0,
+            "maximum": 20,
+            "title": "Probe modes"
+        },
+        "upsample": {
+            "type": "interger",
+            "oneOf": [
+                {
+                    "const": 1,
+                    "title": "1"
+                },
+                {
+                    "const": 2,
+                    "title": "2"
+                },
+                {
+                    "const": 4,
+                    "title": "4"
+                }
+            ],
+            "title": "The degree of upsampling applied to the collected data"
+        },
+        "bitdepth": {
+            "type": "interger",
+            "default": 32,
+            "title": "The degree of upsampling applied to the collected data",
+            "oneOf": [
+                {
+                    "const": 8,
+                    "title": 8
+                },
+                {
+                    "const": 16,
+                    "title": 16
+                },
+                {
+                    "const": 32,
+                    "title": 32
+                }
+            ]
+        },
+        "probepath": {
+            "type": "string",
+            "maximum": 128,
+            "minimum": 0,
+            "title": "Path to a probe reconstruction (must be within the same visit)"
+        },
+        "probeloadflag": {
+            "type": "interger",
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Path to a probe reconstruction (must be within the same visit)"
+        },
+        "outdir": {
+            "type": "string",
+            "maximum": 128,
+            "minimum": 1,
+            "title": "Relative output path within the visit"
+        }
+        
+    },
+    "title": "RexSubmission"
+}
+    

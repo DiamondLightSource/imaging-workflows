@@ -1,0 +1,176 @@
+{
+  "base_dir": "/dls/i13-1/data/2026",
+  "experiment": {
+    "dask": 0,
+    "facility": "dls",
+    "instrument": "i13-1",
+    "year": "2026",
+    "experiment_ID": "cm44159-4",
+    "data": {
+      "load_flag": 1,
+      "bit_depth": <bitdepth>,
+      "meta_type": "i13_nxs",
+      "data_path": "dls",
+      "key": "dls"
+    },
+    "optics": {
+      "FZP": {
+        "use": 1,
+        "position": [
+          0,
+          0,
+          "auto"
+        ],
+        "diameter": 0.0004,
+        "outer_zone": 2.0e-7,
+        "mask": [
+          "circle",
+          0.0004
+        ]
+      },
+      "diffuser": {
+        "use": 0,
+        "position": [
+          0,
+          0,
+          0
+        ]
+      },
+      "pinhole": {
+        "use": 0,
+        "diameter": 0.0,
+        "position": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "sample": {
+      "position": [
+        0,
+        0,
+        0.005
+      ]
+    },
+    "detector": {
+      "position_x": 0,
+      "position_y": 0,
+      "position_z": ":t2_z:1e-3"
+    }
+  },
+  "process": {
+    "PIE": {
+      "iterations": <iterations>,
+      "decay": [
+        1,
+        1,
+        1
+      ],
+      "source": {
+        "sx": <modesnum>,
+        "alpha": 1,
+        "start": 1,
+        "end": -1
+      },
+      "probe": {
+        "n": 1,
+        "alpha": <alpha>,
+        "start": 0,
+        "end": -1
+      },
+      "object": {
+        "alpha": <beta>,
+        "start": 1,
+        "end": -1
+      },
+      "detector": {
+        "border": [
+          0,
+          0
+        ],
+        "upsample": [
+          <upsample>,
+          <upsample>
+        ]
+      },
+      "scan": {
+        "start": -2,
+        "end": -1,
+        "shift trials": 1,
+        "shift radius": 0.2,
+	    "tilt trials": 1,
+	    "tilt radius": 0.2,
+        "area": [
+          512,
+          512
+        ]
+      }
+    },
+    "interaction": "none",
+    "gpu_flag": 1,
+    "subset_type": "random",
+    "plot_interval": -1000,
+    "save_interval": 1,
+    "save_prefix": "<prefix>",
+    "save_dir": "<outdir>",
+    "common": {
+      "source": {
+        "energy": ":qcm_energy:1e3",
+        "flux": -1
+      },
+      "detector": {
+        "name": "pty_tomo",
+        "orientation": "00",
+        "rotation": 0,
+        "optic_axis": [
+          -1,
+          -1
+        ],
+        "bin": [
+          1,
+          1
+        ],
+        "crop": [
+          256,
+          256
+
+        ],
+        "grow": [
+          1
+        ],
+        "pix_pitch": [
+          0.000075,
+          0.000075
+        ],
+        "min_max": [
+          0,
+          65000
+        ]
+      },
+      "scan": {
+        "path": "pty_tomo",
+        "load_flag": -3,
+        "orientation": "00",
+        "theta": "pty_tomo",
+	"scale": [1.0,1.0],
+        "region": [
+          0.0,
+          1.0,
+          0.0,
+          1.0,
+          1,
+          1
+        ]
+      },
+      "probe": {
+        "path": "<probepath>",
+        "load_flag": <loadflag>
+      },
+      "object": {
+        "path": "OBJECTPATH",
+        "load_flag": 0
+      }
+    }
+  }
+}
