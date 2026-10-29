@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: ptyrex-submission
+  name: ptyrex-edit-submission
   labels:
     workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
@@ -25,7 +25,7 @@ spec:
   volumes:
   - name: session
     hostPath:
-      path: "{{`{{ workflow.parameters.visitdir}}`}}"
+      path: "{{`{{ workflow.parameters.visitdir }}`}}"
       type: Directory
   volumeClaimTemplates:
   - metadata:
@@ -50,7 +50,7 @@ spec:
     inputs:
       parameters:
       - name: visit
-        value: "{{`{{ workflow.parameters.visit }}`}}"
+        value: "{{`{{ workflow.parameters.visitdir }}`}}"
       - name: prefix
         value: "{{`{{ workflow.parameters.prefix }}`}}"
       - name:  iterations
@@ -75,12 +75,12 @@ spec:
       image: python:3.14
       volumeMounts:
       - name: session
-        mountPath: "{{`{{ workflow.parameter.visitdir }}`}}"
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
       - name: tmpdir
         mountPath: /tmp
       command: [bash]
       source: |
-        OUTPUT="{{`{{ workflow.parameter.visitdir }}`}}"/processing/workflow_jsons/
+        OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/processing/workflow_jsons/
         mkdir -p $OUTPUT
         VISIT="{{`{{ inputs.parameter.visitdir }}`}}"
         PREFIX="{{`{{ inputs.parameters.prefix }}`}}"
