@@ -1,0 +1,205 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: httomo-workshop
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
+  annotations:
+    workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
+    workflows.diamond.ac.uk/parameter-schema.input: |
+      {
+        "type": "string"
+      }
+    workflows.diamond.ac.uk/parameter-schema.output: |
+      {
+        "type": "string"
+      }
+    workflows.diamond.ac.uk/parameter-schema.httomo-outdir-name: |
+      {
+        "type": "string"
+      }
+    workflows.diamond.ac.uk/parameter-schema.nprocs: |
+      {
+        "type": "integer",
+        "default": 4
+      }
+    workflows.diamond.ac.uk/parameter-schema.memory: |
+      {
+        "type": "string",
+        "pattern": "^[0-9]+[GMK]i$",
+        "default": "20Gi"
+      }
+spec:
+  entrypoint: run
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+          name: sessionspaces
+          key: data_directory
+  templates:
+  - name: run
+    inputs:
+      parameters:
+      - name: config
+      - name: input
+      - name: output
+      - name: httomo-outdir-name
+        value: synthetic-data-recon
+      - name: nprocs
+        value: "4"
+      - name: memory
+        value: 20Gi
+    steps:
+    - - name: run-httomo
+        template: httomo
+        arguments:
+          parameters:
+          - name: config
+            value: "{{`{{ inputs.parameters.config }}`}}"
+          - name: input
+            value: "{{`{{ inputs.parameters.input }}`}}"
+          - name: output
+            value: "{{`{{ inputs.parameters.output }}`}}"
+          - name: nprocs
+            value: "{{`{{ inputs.parameters.nprocs }}`}}"
+          - name: memory
+            value: "{{`{{ inputs.parameters.memory }}`}}"
+          - name: httomo-outdir-name
+            value: "{{`{{ inputs.parameters.httomo-outdir-name }}`}}"
+    - - name: generate-recon-artifact
+        template: recon-artifact-script
+        arguments:
+          parameters:
+          - name: nprocs
+            value: "{{`{{ inputs.parameters.nprocs }}`}}"
+          - name: memory
+            value: "{{`{{ inputs.parameters.memory }}`}}"
+          - name: output-dir-path
+            value: "{{`{{ inputs.parameters.output }}`}}/{{`{{ inputs.parameters.httomo-outdir-name }}`}}"
+    tolerations:
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule
+    - key: nodetype
+      operator: Equal
+      value: gpu
+      effect: NoSchedule
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+  - name: httomo
+    inputs:
+      parameters:
+      - name: config
+      - name: input
+      - name: output
+      - name: httomo-outdir-name
+      - name: nprocs
+      - name: memory
+    container:
+      image: ghcr.io/diamondlightsource/httomo:latest
+      env:
+      - name: CUPY_CACHE_DIR
+        value: "{{`{{ inputs.parameters.output }}`}}/{{`{{ inputs.parameters.httomo-outdir-name }}`}}/.tmp/cupy/kernel_cache"
+      - name: TMPDIR
+        value: "{{`{{ inputs.parameters.output }}`}}/{{`{{ inputs.parameters.httomo-outdir-name }}`}}/.tmp"
+      - name: MKL_NUM_THREADS
+        value: "1"
+      - name: NUMEXPR_NUM_THREADS
+        value: "1"
+      - name: OMP_NUM_THREADS
+        value: "1"
+      command:
+      - /opt/conda/bin/mpirun
+      args:
+      - "-n"
+      - "{{`{{ inputs.parameters.nprocs }}`}}"
+      - "/opt/conda/bin/python"
+      - "-m"
+      - "httomo"
+      - "run"
+      - "--pipeline-format"
+      - "json"
+      - "--output-folder-name"
+      - "{{`{{ inputs.parameters.httomo-outdir-name }}`}}"
+      - "{{`{{ inputs.parameters.input }}`}}"
+      - "{{`{{ inputs.parameters.config }}`}}"
+      - "{{`{{ inputs.parameters.output }}`}}"
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+    volumes:
+    - name: session
+      hostPath:
+        path:  "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+          limits:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+  - name: recon-artifact-script
+    inputs:
+      parameters:
+      - name: output-dir-path
+      - name: nprocs
+      - name: memory
+      - name: output-filename
+        value: multi-page-tiff.tif
+    script:
+      image: ghcr.io/diamondlightsource/httomo:latest
+      command: [/opt/conda/bin/python]
+      source: |
+        from pathlib import Path
+        import numpy as np
+        import tifffile
+
+        IMAGE_DIR_PATTERN = "images*_tif"
+        OUTPUT_DIR = Path("{{`{{ inputs.parameters.output-dir-path }}`}}")
+        image_dir = list(OUTPUT_DIR.glob(IMAGE_DIR_PATTERN))[0]
+        OUT_PATH = OUTPUT_DIR / "{{`{{ inputs.parameters.output-filename }}`}}"
+        filenames = list(image_dir.glob("*.tif"))
+        filenames.sort()
+        single_image = tifffile.tifffile.imread(filenames[0])
+        dtype = single_image.dtype
+        shape = single_image.shape
+        no_of_images = len(filenames)
+        shape = (no_of_images, shape[0], shape[1])
+        image_stack = np.empty(shape, dtype=dtype)
+        for idx, filename in enumerate(filenames):
+            image_stack[idx] = tifffile.tifffile.imread(filename)
+        tifffile.tifffile.imwrite(OUT_PATH, image_stack)
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+    volumes:
+    - name: session
+      hostPath:
+        path:  "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+          limits:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+    outputs:
+      artifacts:
+      - name: recon
+        path: "{{`{{ inputs.parameters.output-dir-path }}`}}/{{`{{ inputs.parameters.output-filename }}`}}"
+        archive:
+          none: { }
