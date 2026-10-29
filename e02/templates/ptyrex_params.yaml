@@ -82,7 +82,7 @@ spec:
       source: |
         OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/processing/workflow_jsons/
         mkdir -p $OUTPUT
-        VISIT="{{`{{ inputs.parameter.visitdir }}`}}"
+        VISIT="{{`{{ inputs.parameter.visit }}`}}"
         PREFIX="{{`{{ inputs.parameters.prefix }}`}}"
         ITERTN="{{`{{ inputs.parameters.iterations }}`}}"
         OBJUPD="{{`{{ inputs.parameters.objectupdate }}`}}"
