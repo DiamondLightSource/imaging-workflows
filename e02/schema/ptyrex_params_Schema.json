@@ -64,6 +64,7 @@
         },
         "upsample": {
             "type": "interger",
+            "default": 1,
             "oneOf": [
                 {
                     "const": 1,
@@ -82,20 +83,20 @@
         },
         "bitdepth": {
             "type": "interger",
-            "default": 32,
             "title": "The degree of upsampling applied to the collected data",
+            "default": 32,
             "oneOf": [
                 {
                     "const": 8,
-                    "title": 8
+                    "title": "8"
                 },
                 {
                     "const": 16,
-                    "title": 16
+                    "title": "16"
                 },
                 {
                     "const": 32,
-                    "title": 32
+                    "title": "32"
                 }
             ]
         },
