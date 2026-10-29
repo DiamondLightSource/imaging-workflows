@@ -1,0 +1,307 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: ptyrex-edit-submission
+  labels:
+    workflows.diamond.ac.uk/science-group-imaging: "true"
+  annotations:
+    workflows.argoproj.io/title: Simple Ptyrex job submission
+    workflows.argoproj.io/description: |
+      Submit a Ptyrex job for a particular scan and projection within a given visit
+    workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/ptyrex_params_Schema.json" | nindent 6}} 
+    workflows.diamond.ac.uk/ui-schema: |
+      {{- .Files.Get "schema/ptyrex_params_ui.json" | nindent 6}} 
+spec:
+  entrypoint: ptyrex-container
+  arguments:
+    parameters:
+    - name: visitdir
+      valueFrom:
+        configMapKeyRef:
+         name: sessionspaces
+         key: data_directory
+  volumes:
+  - name: session
+    hostPath:
+      path: "{{`{{ workflow.parameters.visitdir }}`}}"
+      type: Directory
+  volumeClaimTemplates:
+  - metadata:
+      name: tmpdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources: 
+        requests:
+          storage: 1Gi
+      storageClassName: netapp
+  templates:
+  - name: ptyrex-container
+    steps:
+    - - name: gen-config
+        template: gen-config
+    - - name: perfrom-recon
+        template: perfrom-recon
+    - - name: recon-artifact
+        template: recon-artifact
+
+  - name: gen-config
+    inputs:
+      parameters:
+      - name: visit
+        value: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: prefix
+        value: "{{`{{ workflow.parameters.prefix }}`}}"
+      - name:  iterations
+        value: "{{`{{ workflow.parameters.iterations }}`}}"
+      - name:  objectupdate
+        value: "{{`{{ workflow.parameters.objectupdate }}`}}"
+      - name:  probeupdate
+        value: "{{`{{ workflow.parameters.probeupdate }}`}}"
+      - name: modes
+        value: "{{`{{ workflow.parameters.modes }}`}}"
+      - name: upsample
+        value: "{{`{{ workflow.parameters.upsample }}`}}"
+      - name: bitdepth
+        value: "{{`{{ workflow.parameters.bitdepth }}`}}"
+      - name : probepath
+        value: "{{`{{ workflow.parameters.probepath }}`}}"
+      - name: probeloadflag
+        value: "{{`{{ workflow.parameters.probeloadflag }}`}}"
+      - name: outdir
+        value: "{{`{{ workflow.parameters.outdir }}`}}"
+    script:
+      image: python:3.14
+      volumeMounts:
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+      - name: tmpdir
+        mountPath: /tmp
+      command: [bash]
+      source: |
+        OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/processing/workflow_jsons/
+        mkdir -p $OUTPUT
+        VISIT="{{`{{ inputs.parameters.visit }}`}}"
+        PREFIX="{{`{{ inputs.parameters.prefix }}`}}"
+        ITERTN="{{`{{ inputs.parameters.iterations }}`}}"
+        OBJUPD="{{`{{ inputs.parameters.objectupdate }}`}}"
+        PRBUPD="{{`{{ inputs.parameters.probeupdate }}`}}"
+        MODESN="{{`{{ inputs.parameters.modes }}`}}"
+        UPSAML="{{`{{ inputs.parameters.upsample }}`}}"
+        BIPDTH="{{`{{ inputs.parameters.bitdepth }}`}}"
+        PRBPTH="{{`{{ inputs.parameters.probepath }}`}}"
+        PRBFLG="{{`{{ inputs.parameters.probeloadflag }}`}}"
+        OUTDIR="{{`{{ inputs.parameters.outdir }}`}}"/processing/
+        echo '{{ .Files.Get "config/pty_config.json" | b64enc }}' | base64 -d > $OUTPUT/pty_config.json
+        sed -i "s;<visit>;${VISIT:21:9};" $OUTPUT/pty_config.json
+        sed -i "s;<prefix>;$PREFIX;" $OUTPUT/pty_config.json
+        sed -i "s;<iterations>;$ITERTN;" $OUTPUT/pty_config.json
+        sed -i "s;<alpha>;$OBJUPD;" $OUTPUT/pty_config.json
+        sed -i "s;<beta>;$PRBUPD;" $OUTPUT/pty_config.json
+        sed -i "s;<modesnum>;$MODESN;" $OUTPUT/pty_config.json
+        sed -i "s;<upsample>;$UPSAML;" $OUTPUT/pty_config.json
+        sed -i "s;<bitdepth>;$BIPDTH;" $OUTPUT/pty_config.json
+        sed -i "s;<probepath>;$PRBPTH;" $OUTPUT/pty_config.json
+        sed -i "s;<loadflag>;$PRBFLG;" $OUTPUT/pty_config.json
+        sed -i "s;<outdir>;$OUTDIR;" $OUTPUT/pty_config.json
+
+  
+  - name: perfrom-recon
+    inputs:
+      parameters:
+      - name: visit
+        value: "{{`{{ workflow.parameters.visit }}`}}"
+      - name: scanId
+        value: "{{`{{workflow.parameters.scanId}}`}}"
+      - name: projection_number
+        value: "{{`{{workflow.parameters.proj_number}}`}}"
+      - name: nprocs
+        value: "{{`{{workflow.parameters.nprocs}}`}}"
+      - name: memory
+        value: "{{`{{ workflow.parameters.memory }}`}}" 
+    container:
+      image: gitlab.diamond.ac.uk:5050/scisoft/ptychography/dimtools/ptyrex:latest
+      imagePullPolicy: Always
+      env:
+      - name: CUPY_CACHE_DIR
+        value: /tmp/.cupy/kernel_cache
+      - name: MKL_NUM_THREADS
+        value: "1"
+      - name: NUMEXPR_NUM_THREADS
+        value: "1"
+      - name: OMP_NUM_THREADS
+        value: "1"
+      command: 
+      - "/opt/conda/bin/mpirun"
+      args: 
+      - "-np"
+      - "{{`{{ inputs.parameters.nprocs }}`}}"
+      - "/home/ptyrex_recon"
+      - "-c"
+      - "{{`{{ inputs.parameters.visit }}`}}/processing/workflow_jsons/pty_config.json"
+      - "-s"
+      - "{{`{{ inputs.parameters.scanId }}`}}"
+      - "-p"
+      - "{{`{{ inputs.parameters.projection_number }}`}}"
+
+      volumeMounts:
+      - name: tmpdir
+        mountPath: /tmp
+      - name: session
+        mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+          limits:
+            cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            memory: "{{`{{ inputs.parameters.memory }}`}}"
+            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+    tolerations:
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule
+    - key: nodetype
+      operator: Equal
+      value: gpu
+      effect: NoSchedule
+    - key: nodegroup
+      operator: Equal
+      value: workflows
+      effect: NoSchedule
+    volumes:
+    - name: session
+      hostPath:
+        path:  "{{`{{ workflow.parameters.visitdir }}`}}"
+        type: Directory
+
+  - name: recon-artifact
+    inputs:
+      parameters:
+      - name: config_json
+        value: "{{`{{workflow.parameters.config_json}}`}}"
+      - name: memory
+        value: "{{`{{ workflow.parameters.memory }}`}}" 
+      - name: nprocs
+        value: "{{`{{workflow.parameters.nprocs}}`}}"
+    outputs: 
+      artifacts:
+      - name: ptyrex-object-modulus
+        path: /tmp/object_modulus.jpeg
+        archive:
+          none: {}
+      - name: ptyrex-object-phase
+        path: /tmp/object_phase.jpeg
+        archive:
+          none: {}
+      - name: ptyrex-probe-modulus
+        path: /tmp/probe_modulus.jpeg
+        archive:
+          none: {}
+      - name: ptyrex-probe-phase
+        path: /tmp/probe_phase.jpeg
+        archive:
+          none: {}
+    script:
+      image: gitlab.diamond.ac.uk:5050/scisoft/ptychography/dimtools/mib2x
+      imagePullPolicy: Always
+      env:
+      - name: BLOSC_NTHREADS
+        value: "{{ `{{inputs.parameters.nprocs}}` }}"
+      - name: OMP_NUM_THREADS
+        value: "{{ `{{inputs.parameters.nprocs}}` }}"
+      command: [/bin/python]
+      source: |
+        #Aim: find the ptyrex_recon file and then load corresponding hdf file and 
+        #create a jpeg of object/probe phase/modulus and display as artifacts
+        import json
+        import h5py
+        import glob
+        import numpy
+        import numpy as np
+        from PIL import Image
+        print('###start of log###')
+        print('Current json path: %s' % ("{{`{{workflow.parameters.config_json}}`}}"))
+        print('###end of log###')
+
+        #find the output path of the recon from loading the json used in the recon
+        json_path = "{{`{{workflow.parameters.config_json}}`}}"
+        with open(json_path,'r') as f:
+          json_data = json.load(f)
+          outdir = json_data['process']['save_dir']
+          prefix = json_data['process']['save_prefix']
+        if outdir == '':
+          outdir = '/'.join(json_path.split('/')[:-1]) + '/'
+
+        #search dir for the most recent reconstruction note this might be incorrect
+        #when multiple reconstructions are occuring at once
+        search_string = outdir + prefix +'**.hdf'
+        hdf_list = glob.glob(search_string)
+        hdf_list.sort()
+        chosen_recon = hdf_list[-1]
+        print(f'converting this recon: {chosen_recon}\ninto jpegs...')
+
+        #load obj and probe
+        with h5py.File(chosen_recon,'r') as f:
+          obj = np.squeeze(f['/entry_1/process_1/output_1/object'][()])
+          probe = np.squeeze(f['/entry_1/process_1/output_1/probe'][()])
+
+        #check probe shape and slice and reshape if needed
+        print(f'probe shape: {probe.shape}')
+        if len(probe.shape) == 3:
+          probe = np.reshape(probe,(probe.shape[0]*probe.shape[1],probe.shape[2])).T
+        elif len(probe.shape) == 4:
+          probe = probe[:,0,:,:]
+          probe = np.reshape(probe,(probe.shape[0]*probe.shape[1],probe.shape[2])).T
+
+        #convert unsigned 8 for jpeg format
+        obj_abs = np.abs(obj) - np.amin(np.abs(obj))
+        obj_abs = np.uint8(255*obj_abs/np.amax(obj_abs))
+        obj_ang = np.angle(obj) - np.amin(np.angle(obj))
+        obj_ang = np.uint8(255*obj_ang/np.amax(obj_ang))
+
+        probe_abs = np.abs(probe) - np.amin(np.abs(probe))
+        probe_abs = np.uint8(255*probe_abs/np.amax(probe_abs))
+        probe_ang = np.angle(probe) - np.amin(np.angle(probe))
+        probe_ang = np.uint8(255*probe_ang/np.amax(probe_ang))
+
+        #determine outpaths
+        obj_modulus_path = '/tmp/object_modulus.jpeg'
+        obj_phase_path = '/tmp/object_phase.jpeg'
+        probe_modulus_path = '/tmp/probe_modulus.jpeg'
+        probe_phase_path = '/tmp/probe_phase.jpeg'
+        
+        #save probe and object (save and modulus) as JPEG's
+        obj_mj = Image.fromarray(obj_abs)
+        obj_mj.save(obj_modulus_path)
+        obj_pj = Image.fromarray(obj_ang)
+        obj_pj.save(obj_phase_path)
+        probe_mj = Image.fromarray(probe_abs)
+        probe_mj.save(probe_modulus_path)
+        probe_pj = Image.fromarray(probe_ang)
+        probe_pj.save(probe_phase_path)
+      volumeMounts:
+        - name: tmpdir
+          mountPath: /tmp
+        - name: session
+          mountPath: "{{ `{{workflow.parameters.visitdir}}` }}"
+
+    podSpecPatch: |
+      containers:
+      - name: main
+        resources:
+          requests:
+            cpu: "{{ `{{inputs.parameters.nprocs}}` }}"
+            memory: "{{ `{{inputs.parameters.memory}}` }}"
+          limits:
+            cpu: "{{ `{{inputs.parameters.nprocs}}` }}"
+            memory: "{{ `{{inputs.parameters.memory}}` }}"
+    
+
+
+
