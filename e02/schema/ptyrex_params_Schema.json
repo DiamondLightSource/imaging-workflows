@@ -16,18 +16,6 @@
             "title": "Proj Number",
             "type": "integer"
         },
-        "nprocs": {
-            "default": 4,
-            "maximum": 4,
-            "minimum": 0,
-            "title": "Nprocs",
-            "type": "integer"
-        },
-        "memory": {
-            "type": "string",
-            "pattern": "^[0-9]+[GMK]i$",
-            "default": "32Gi"
-        },
         "prefix": {
             "type": "string",
             "maximum": 64,
@@ -63,40 +51,42 @@
             "title": "Probe modes"
         },
         "upsample": {
-            "type": "interger",
-            "default": 1,
             "oneOf": [
                 {
                     "const": 1,
-                    "title": "1"
+                    "title": "1",
+                    "type": "interger"
                 },
                 {
                     "const": 2,
-                    "title": "2"
+                    "title": "2",
+                    "type": "interger"
                 },
                 {
                     "const": 4,
-                    "title": "4"
+                    "title": "4",
+                    "type": "interger"
                 }
             ],
             "title": "The degree of upsampling applied to the collected data"
         },
         "bitdepth": {
-            "type": "interger",
             "title": "The degree of upsampling applied to the collected data",
-            "default": 32,
             "oneOf": [
                 {
                     "const": 8,
-                    "title": "8"
+                    "title": "8",
+                    "type": "interger"
                 },
                 {
                     "const": 16,
-                    "title": "16"
+                    "title": "16",
+                    "type": "interger"
                 },
                 {
                     "const": 32,
-                    "title": "32"
+                    "title": "32",
+                    "type": "interger"
                 }
             ]
         },
@@ -104,12 +94,14 @@
             "type": "string",
             "maximum": 128,
             "minimum": 0,
-            "title": "Path to a probe reconstruction (must be within the same visit)"
+            "title": "Path to a probe reconstruction (must be within the same visit)",
+            "default": ""
         },
         "probeloadflag": {
             "type": "interger",
             "maximum": 1,
             "minimum": 0,
+            "default": 0,
             "title": "Path to a probe reconstruction (must be within the same visit)"
         },
         "outdir": {
@@ -117,6 +109,18 @@
             "maximum": 128,
             "minimum": 1,
             "title": "Relative output path within the visit"
+        },
+        "nprocs": {
+            "default": 4,
+            "maximum": 4,
+            "minimum": 0,
+            "title": "Nprocs",
+            "type": "integer"
+        },
+        "memory": {
+            "type": "string",
+            "pattern": "^[0-9]+[GMK]i$",
+            "default": "32Gi"
         }
         
     },
