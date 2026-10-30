@@ -71,7 +71,6 @@
             "title": "The degree of upsampling applied to the collected data"
         },
         "bitdepth": {
-            "type": ["interger", "null"],
             "title": "The degree of upsampling applied to the collected data",
             "oneOf": [
                 {
