@@ -30,17 +30,17 @@
             "title": "The number of ptyrex iterations to perform"
         },
         "objectupdate": {
-            "type": "float",
-            "default": 1,
-            "minimum": 0,
-            "maximum": 1,
+            "type": "number",
+            "default": 1.0,
+            "minimum": 0.0,
+            "maximum": 1.0,
             "title": "Object update rate (alpha)"
         },
         "probeupdate": {
-            "type": "float",
-            "default": 1,
-            "minimum": 0,
-            "maximum": 1,
+            "type": "number",
+            "default": 1.0,
+            "minimum": 0.0,
+            "maximum": 1.0,
             "title": "Probe update rate (beta)"
         },
         "modes": {
