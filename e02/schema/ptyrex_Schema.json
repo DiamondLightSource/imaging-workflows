@@ -24,8 +24,8 @@
             "type": "integer"
         },
         "nprocs": {
-            "default": 8,
-            "maximum": 40,
+            "default": 4,
+            "maximum": 4,
             "minimum": 0,
             "title": "Nprocs",
             "type": "integer"
