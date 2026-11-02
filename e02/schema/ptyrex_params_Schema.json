@@ -30,14 +30,14 @@
             "title": "The number of ptyrex iterations to perform"
         },
         "objectupdate": {
-            "type": "number",
+            "type": "integer",
             "default": 1.0,
             "minimum": 0.0,
             "maximum": 1.0,
             "title": "Object update rate (alpha)"
         },
         "probeupdate": {
-            "type": "number",
+            "type": "integer",
             "default": 1.0,
             "minimum": 0.0,
             "maximum": 1.0,
