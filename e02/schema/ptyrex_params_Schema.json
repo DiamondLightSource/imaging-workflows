@@ -30,15 +30,15 @@
             "title": "The number of ptyrex iterations to perform"
         },
         "objectupdate": {
-            "type": "integer",
-            "default": 1.0,
+            "type": "number",
+            "default": 0.95,
             "minimum": 0.0,
             "maximum": 1.0,
             "title": "Object update rate (alpha)"
         },
         "probeupdate": {
-            "type": "integer",
-            "default": 1.0,
+            "type": "number",
+            "default": 0.95,
             "minimum": 0.0,
             "maximum": 1.0,
             "title": "Probe update rate (beta)"
@@ -50,19 +50,45 @@
             "maximum": 20,
             "title": "Probe modes"
         },
-        "upsample": {
+        "upsampling": {
             "type": "integer",
-            "maximum": 8,
-            "minimum": 1,
-            "default": 1,
-            "title": "The degree of upsampling applied to the collected data"
+            "oneOf": [
+                {
+                    "const": 1,
+                    "title": "1"
+                },
+                {
+                    "const": 2,
+                    "title": "2"
+                },
+                {
+                    "const": 4,
+                    "title": "4"
+                },
+                {
+                    "const": 8,
+                    "title": "8"
+                }
+            ],
+            "default": 1
         },
         "bitdepth": {
-            "title": "The degree of upsampling applied to the collected data",
             "type": "integer",
-            "maximum": 32,
-            "minimum": 8,
-            "default": 16
+            "oneOf": [
+                {
+                    "const": 8,
+                    "title": "8"
+                },
+                {
+                    "const": 16,
+                    "title": "16"
+                },
+                {
+                    "const": 32,
+                    "title": "32"
+                }
+            ],
+            "default": 32
         },
         "probepath": {
             "type": "string",
