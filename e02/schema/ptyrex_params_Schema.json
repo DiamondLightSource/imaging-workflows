@@ -20,7 +20,8 @@
             "type": "string",
             "maximum": 64,
             "minimum": 0,
-            "title": "Reconstruction output file prefix"
+            "title": "Reconstruction output file prefix",
+            "default": "ptycho"
         },
         "iterations": {
             "type": "integer",
