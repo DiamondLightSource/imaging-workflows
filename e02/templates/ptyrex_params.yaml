@@ -5,7 +5,7 @@ metadata:
   labels:
     workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
-    workflows.argoproj.io/title: Simple Ptyrex job submission
+    workflows.argoproj.io/title: Editable Ptyrex job Submission
     workflows.argoproj.io/description: |
       Submit a Ptyrex job for a particular scan and projection within a given visit
     workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
@@ -230,8 +230,6 @@ spec:
         print('Current json path: %s' % (json_path))
         print('###end of log###')
 
-        #find the output path of the recon from loading the json used in the recon
-        json_path = "{{`{{workflow.parameters.config_json}}`}}"
         with open(json_path,'r') as f:
           json_data = json.load(f)
           outdir = json_data['process']['save_dir']
