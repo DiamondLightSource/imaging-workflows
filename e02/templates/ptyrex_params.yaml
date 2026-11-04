@@ -183,8 +183,6 @@ spec:
   - name: recon-artifact
     inputs:
       parameters:
-      - name: config_json
-        value: "{{`{{workflow.parameters.config_json}}`}}"
       - name: memory
         value: "{{`{{ workflow.parameters.memory }}`}}" 
       - name: nprocs
@@ -225,8 +223,9 @@ spec:
         import numpy
         import numpy as np
         from PIL import Image
+        json_path = "{{`{{ inputs.parameters.visit }}`}}/processing/workflow_jsons/pty_config.json"
         print('###start of log###')
-        print('Current json path: %s' % ("{{`{{workflow.parameters.config_json}}`}}"))
+        print('Current json path: %s' % (json_path))
         print('###end of log###')
 
         #find the output path of the recon from loading the json used in the recon
