@@ -183,6 +183,8 @@ spec:
   - name: recon-artifact
     inputs:
       parameters:
+      - name: visit
+        value: "{{`{{ workflow.parameters.visit }}`}}"
       - name: memory
         value: "{{`{{ workflow.parameters.memory }}`}}" 
       - name: nprocs
