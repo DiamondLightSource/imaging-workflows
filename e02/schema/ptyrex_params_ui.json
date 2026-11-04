@@ -6,7 +6,7 @@
   "elements": [
     {
       "type": "Group",
-      "label": "Ptyrex job submission",
+      "label": "Editable ptyrex config and job submission",
       "elements": [
         {
           "type": "VerticalLayout",
