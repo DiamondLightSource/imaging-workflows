@@ -94,17 +94,17 @@ spec:
         PRBFLG="{{`{{ inputs.parameters.probeloadflag }}`}}"
         OUTDIR="{{`{{ inputs.parameters.outdir }}`}}"/processing/
         echo '{{ .Files.Get "config/pty_config.json" | b64enc }}' | base64 -d > $OUTPUT/$PREFIX-pty_config.json
-        sed -i "s;<visit>;${VISIT:21:9};" $OUTPUT/PREFIX-pty_config.json
-        sed -i "s;<prefix>;$PREFIX;" $OUTPUT/PREFIX-pty_config.json
-        sed -i "s;<iterations>;$ITERTN;" $OUTPUT/PREFIX-pty_config.json
-        sed -i "s;<alpha>;$OBJUPD;" $OUTPUT/PREFIX-pty_config.json
-        sed -i "s;<beta>;$PRBUPD;" $OUTPUT/PREFIX-pty_config.json
-        sed -i "s;<modesnum>;$MODESN;" $OUTPUT/PREFIX-pty_config.json
-        sed -i "s;<upsample>;$UPSAML;" $OUTPUT/PREFIX-pty_config.json
-        sed -i "s;<bitdepth>;$BIPDTH;" $OUTPUT/PREFIX-pty_config.json
-        sed -i "s;<probepath>;$PRBPTH;" $OUTPUT/PREFIX-pty_config.json
-        sed -i "s;<loadflag>;$PRBFLG;" $OUTPUT/PREFIX-pty_config.json
-        sed -i "s;<outdir>;$OUTDIR;" $OUTPUT/PREFIX-pty_config.json
+        sed -i "s;<visit>;${VISIT:21:9};" $OUTPUT/$PREFIX-pty_config.json
+        sed -i "s;<prefix>;$PREFIX;" $OUTPUT/$PREFIX-pty_config.json
+        sed -i "s;<iterations>;$ITERTN;" $OUTPUT/$PREFIX-pty_config.json
+        sed -i "s;<alpha>;$OBJUPD;" $OUTPUT/$PREFIX-pty_config.json
+        sed -i "s;<beta>;$PRBUPD;" $OUTPUT/$PREFIX-pty_config.json
+        sed -i "s;<modesnum>;$MODESN;" $OUTPUT/$PREFIX-pty_config.json
+        sed -i "s;<upsample>;$UPSAML;" $OUTPUT/$PREFIX-pty_config.json
+        sed -i "s;<bitdepth>;$BIPDTH;" $OUTPUT/$PREFIX-pty_config.json
+        sed -i "s;<probepath>;$PRBPTH;" $OUTPUT/$PREFIX-pty_config.json
+        sed -i "s;<loadflag>;$PRBFLG;" $OUTPUT/$PREFIX-pty_config.json
+        sed -i "s;<outdir>;$OUTDIR;" $OUTPUT/$PREFIX-pty_config.json
     outputs: 
       parameters:
         - name: config
