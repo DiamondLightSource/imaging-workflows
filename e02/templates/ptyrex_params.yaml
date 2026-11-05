@@ -65,6 +65,10 @@ spec:
         value: "{{`{{ workflow.parameters.probeupdate }}`}}"
       - name: modes
         value: "{{`{{ workflow.parameters.modes }}`}}"
+      - name: opticx
+        value: "{{`{{ workflows.parameters.opticx}}`}}"
+      - name: opticy
+        value: "{{`{{ workflows.parameters.opticy}}`}}"
       - name: upsampling
         value: "{{`{{ workflow.parameters.upsampling }}`}}"
       - name: bitdepth
@@ -92,6 +96,8 @@ spec:
         OBJUPD="{{`{{ inputs.parameters.objectupdate }}`}}"
         PRBUPD="{{`{{ inputs.parameters.probeupdate }}`}}"
         MODESN="{{`{{ inputs.parameters.modes }}`}}"
+        OPTICX="{{`{{ inputs.parameters.opticx }}`}}"
+        OPTICY="{{`{{ inputs.parameters.opticy }}`}}"
         UPSAML="{{`{{ inputs.parameters.upsampling }}`}}"
         BIPDTH="{{`{{ inputs.parameters.bitdepth }}`}}"
         PRBPTH="{{`{{ inputs.parameters.probepath }}`}}"
@@ -104,6 +110,8 @@ spec:
         sed -i "s;<alpha>;$OBJUPD;" $OUTPUT/$PREFIX-pty_config.json
         sed -i "s;<beta>;$PRBUPD;" $OUTPUT/$PREFIX-pty_config.json
         sed -i "s;<modesnum>;$MODESN;" $OUTPUT/$PREFIX-pty_config.json
+        sed -i "s;<opticX>;$OPTICX;" $OUTPUT/$PREFIX-pty_config.json
+        sed -i "s;<opticY>;$OPTICY;" $OUTPUT/$PREFIX-pty_config.json
         sed -i "s;<upsample>;$UPSAML;" $OUTPUT/$PREFIX-pty_config.json
         sed -i "s;<bitdepth>;$BIPDTH;" $OUTPUT/$PREFIX-pty_config.json
         sed -i "s;<probepath>;$PRBPTH;" $OUTPUT/$PREFIX-pty_config.json
