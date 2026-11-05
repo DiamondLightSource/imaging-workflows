@@ -115,6 +115,7 @@ spec:
     inputs:
       parameters:
       - name: config
+        value: "{{`{{ templates.ptyrex-container.steps.gen-config.outputs.parameters.config }}`}}"
       - name: scanId
         value: "{{`{{workflow.parameters.scanId}}`}}"
       - name: projection_number
