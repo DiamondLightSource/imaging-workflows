@@ -48,6 +48,16 @@
             },
             {
               "type": "Control",
+              "label": "Define x axis position of the optical axis, use -1 to calculate automatically",
+              "scope": "#/properties/opticx"
+            },
+            {
+              "type": "Control",
+              "label": "Define y axis position of the optical axis, use -1 to calculate automatically",
+              "scope": "#/properties/opticy"
+            },
+            {
+              "type": "Control",
               "label": "The degree of upsampling applied to the collected data",
               "scope": "#/properties/upsampling"
             },
