@@ -124,8 +124,8 @@
         "orientation": "00",
         "rotation": 0,
         "optic_axis": [
-          -1,
-          -1
+          <opticX>,
+          <opticY>
         ],
         "bin": [
           1,
