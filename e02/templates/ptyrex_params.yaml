@@ -43,6 +43,10 @@ spec:
         template: gen-config
     - - name: perfrom-recon
         template: perfrom-recon
+        arguments:
+          parameters:
+          - name: config
+            value: "{{`{{steps.gen-config.outputs.parameters.config}}`}}"
     - - name: recon-artifact
         template: recon-artifact
 
@@ -115,7 +119,6 @@ spec:
     inputs:
       parameters:
       - name: config
-        value: "{{`{{ templates.ptyrex-container.steps.gen-config.outputs.parameters.config }}`}}"
       - name: scanId
         value: "{{`{{workflow.parameters.scanId}}`}}"
       - name: projection_number
