@@ -61,8 +61,8 @@ spec:
         value: "{{`{{ workflow.parameters.probeupdate }}`}}"
       - name: modes
         value: "{{`{{ workflow.parameters.modes }}`}}"
-      - name: upsample
-        value: "{{`{{ workflow.parameters.upsample }}`}}"
+      - name: upsampling
+        value: "{{`{{ workflow.parameters.upsampling }}`}}"
       - name: bitdepth
         value: "{{`{{ workflow.parameters.bitdepth }}`}}"
       - name : probepath
