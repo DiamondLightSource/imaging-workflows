@@ -88,12 +88,12 @@ spec:
         OBJUPD="{{`{{ inputs.parameters.objectupdate }}`}}"
         PRBUPD="{{`{{ inputs.parameters.probeupdate }}`}}"
         MODESN="{{`{{ inputs.parameters.modes }}`}}"
-        UPSAML="{{`{{ inputs.parameters.upsample }}`}}"
+        UPSAML="{{`{{ inputs.parameters.upsampling }}`}}"
         BIPDTH="{{`{{ inputs.parameters.bitdepth }}`}}"
         PRBPTH="{{`{{ inputs.parameters.probepath }}`}}"
         PRBFLG="{{`{{ inputs.parameters.probeloadflag }}`}}"
         OUTDIR="{{`{{ inputs.parameters.outdir }}`}}"/processing/
-        echo '{{ .Files.Get "config/pty_config.json" | b64enc }}' | base64 -d > $OUTPUT/pty_config.json
+        echo '{{ .Files.Get "config/pty_config.json" | b64enc }}' | base64 -d > $OUTPUT/$PREFIX-pty_config.json
         sed -i "s;<visit>;${VISIT:21:9};" $OUTPUT/pty_config.json
         sed -i "s;<prefix>;$PREFIX;" $OUTPUT/pty_config.json
         sed -i "s;<iterations>;$ITERTN;" $OUTPUT/pty_config.json
@@ -105,13 +105,17 @@ spec:
         sed -i "s;<probepath>;$PRBPTH;" $OUTPUT/pty_config.json
         sed -i "s;<loadflag>;$PRBFLG;" $OUTPUT/pty_config.json
         sed -i "s;<outdir>;$OUTDIR;" $OUTPUT/pty_config.json
+    outputs: 
+      parameters:
+        - name: config
+          value: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflow_jsons/{{`{{ inputs.parameters.prefix }}`}}-pty_config.json"
 
   
   - name: perfrom-recon
     inputs:
       parameters:
-      - name: visit
-        value: "{{`{{ workflow.parameters.visit }}`}}"
+      - name: config
+        value: "{{`{{ templates.ptyrex-container.steps.gen-config.outputs.parameters.config }}`}}"
       - name: scanId
         value: "{{`{{workflow.parameters.scanId}}`}}"
       - name: projection_number
@@ -139,7 +143,7 @@ spec:
       - "{{`{{ inputs.parameters.nprocs }}`}}"
       - "/home/ptyrex_recon"
       - "-c"
-      - "{{`{{ inputs.parameters.visit }}`}}/processing/workflow_jsons/pty_config.json"
+      - "{{`{{ inputs.parameters.config }}`}}"
       - "-s"
       - "{{`{{ inputs.parameters.scanId }}`}}"
       - "-p"
