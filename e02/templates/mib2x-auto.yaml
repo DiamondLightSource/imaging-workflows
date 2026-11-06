@@ -189,8 +189,6 @@ spec:
           value: "{{`{{ inputs.parameters.nprocs }}`}}"
         - name: OMP_NUM_THREADS
           value: "{{`{{ inputs.parameters.nprocs }}`}}"
-        - name: M2X_DEBUG
-          value: 0
         volumeMounts:
           - name: tmpdir    #session
             mountPath: /tmp
