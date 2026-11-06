@@ -88,7 +88,7 @@ spec:
         mountPath: /tmp
       command: [bash]
       source: |
-        OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/processing/workflow_jsons/
+        OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/processing/"{{`{{ inputs.parameters.outdir }}`}}"/
         mkdir -p $OUTPUT
         VISIT="{{`{{ inputs.parameters.visit }}`}}"
         PREFIX="{{`{{ inputs.parameters.prefix }}`}}"
@@ -102,7 +102,6 @@ spec:
         BIPDTH="{{`{{ inputs.parameters.bitdepth }}`}}"
         PRBPTH="{{`{{ inputs.parameters.probepath }}`}}"
         PRBFLG="{{`{{ inputs.parameters.probeloadflag }}`}}"
-        OUTDIR="{{`{{ inputs.parameters.outdir }}`}}"/processing/
         echo '{{ .Files.Get "config/pty_config.json" | b64enc }}' | base64 -d > $OUTPUT/$PREFIX-pty_config.json
         sed -i "s;<visit>;${VISIT:21:9};" $OUTPUT/$PREFIX-pty_config.json
         sed -i "s;<prefix>;$PREFIX;" $OUTPUT/$PREFIX-pty_config.json
@@ -116,11 +115,16 @@ spec:
         sed -i "s;<bitdepth>;$BIPDTH;" $OUTPUT/$PREFIX-pty_config.json
         sed -i "s;<probepath>;$PRBPTH;" $OUTPUT/$PREFIX-pty_config.json
         sed -i "s;<loadflag>;$PRBFLG;" $OUTPUT/$PREFIX-pty_config.json
-        sed -i "s;<outdir>;$OUTDIR;" $OUTPUT/$PREFIX-pty_config.json
+        sed -i "s;<outdir>;$OUTPUT;" $OUTPUT/$PREFIX-pty_config.json
     outputs: 
       parameters:
         - name: config
-          value: "{{`{{ workflow.parameters.visitdir }}`}}/processing/workflow_jsons/{{`{{ workflow.parameters.prefix }}`}}-pty_config.json"
+          value: "{{`{{ workflow.parameters.visitdir }}`}}/processing/{{`{{ workflow.parameters.outdir }}`}}/{{`{{ workflow.parameters.prefix }}`}}-pty_config.json"
+      artifacts:
+      - name: config-json
+        path: "{{`{{ workflow.parameters.visitdir }}`}}/processing/{{`{{ workflow.parameters.outdir }}`}}/{{`{{ workflow.parameters.prefix }}`}}-pty_config.json"
+        archive:
+          none: {}
 
   
   - name: perfrom-recon
@@ -243,7 +247,6 @@ spec:
         json_path = "{{`{{ inputs.parameters.visit }}`}}/processing/workflow_jsons/pty_config.json"
         print('###start of log###')
         print('Current json path: %s' % (json_path))
-        print('###end of log###')
 
         with open(json_path,'r') as f:
           json_data = json.load(f)
@@ -299,6 +302,8 @@ spec:
         probe_mj.save(probe_modulus_path)
         probe_pj = Image.fromarray(probe_ang)
         probe_pj.save(probe_phase_path)
+        print('artifacts created..')
+        print('###end of log###')
       volumeMounts:
         - name: tmpdir
           mountPath: /tmp
