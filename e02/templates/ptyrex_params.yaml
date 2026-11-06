@@ -49,6 +49,10 @@ spec:
             value: "{{`{{steps.gen-config.outputs.parameters.config}}`}}"
     - - name: recon-artifact
         template: recon-artifact
+        arguments:
+          parameters:
+          - name: config
+            value: "{{`{{steps.gen-config.outputs.parameters.config}}`}}"
 
   - name: gen-config
     inputs:
@@ -202,6 +206,7 @@ spec:
   - name: recon-artifact
     inputs:
       parameters:
+      - name: config
       - name: visit
         value: "{{`{{ workflow.parameters.visit }}`}}"
       - name: memory
@@ -244,7 +249,7 @@ spec:
         import numpy
         import numpy as np
         from PIL import Image
-        json_path = "{{`{{ inputs.parameters.visit }}`}}/processing/workflow_jsons/pty_config.json"
+        json_path = "{{`{{ inputs.parameters.config }}`}}"
         print('###start of log###')
         print('Current json path: %s' % (json_path))
 
