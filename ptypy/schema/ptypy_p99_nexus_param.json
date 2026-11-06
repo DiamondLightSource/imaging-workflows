@@ -1,0 +1,37 @@
+{
+  "type": "object",
+  "properties": {
+    "scanId":     {
+      "title": "Scan Number",
+      "type": "integer"
+    },
+    "outpath": {
+      "title": "Path to output folder",
+      "type": "string",
+      "default": "processing/workflows/ptypy"
+    },
+    "nprocs": {
+      "title": "Nr. of processes",
+      "type": "integer",
+      "default": 1
+    },
+    "memory": {
+      "title": "Requested CPU memory",
+      "type": "string",
+      "pattern": "^[0-9]+[GMK]i$",
+      "default": "100Gi"
+    },
+    "usegpu": {
+      "title": "Use GPU",
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "scanId",
+    "outpath",
+    "nprocs",
+    "memory",
+    "usegpu"
+  ]
+}
