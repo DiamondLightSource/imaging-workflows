@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: ptypy-i08-1-from-config
+  name: ptypy-i08-1-nexus
   labels:
     workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
