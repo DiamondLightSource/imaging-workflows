@@ -1,0 +1,61 @@
+{
+  "type": "object",
+  "properties": {
+    "scanId":     {
+      "title": "Scan Number",
+      "type": "integer"
+    },
+    "outpath": {
+      "title": "Path to output folder",
+      "type": "string",
+      "default": "processing/workflows/ptypy"
+    },
+    "nprocs": {
+      "title": "Nr. of processes",
+      "type": "integer",
+      "default": 1
+    },
+    "memory": {
+      "title": "Requested CPU memory",
+      "type": "string",
+      "pattern": "^[0-9]+[GMK]i$",
+      "default": "100Gi"
+    },
+    "usegpu": {
+      "title": "Use GPU",
+      "type": "boolean",
+      "default": true
+    },
+    "numiter": {
+      "title": "Nr. of iterations",
+      "type": "integer",
+      "default": 100
+    },
+    "probemodes": {
+      "title": "Nr. of probe modes",
+      "type": "integer",
+      "default": 1
+    },
+    "defocus": {
+      "title": "Expected defocus in microns",
+      "type": "integer",
+      "default": 50
+    },
+    "binning": {
+      "title": "Detector bin factor",
+      "type": "integer",
+      "default": 2
+    }
+  },
+  "required": [
+    "scanId",
+    "outpath",
+    "nprocs",
+    "memory",
+    "usegpu",
+    "numiter",
+    "probemodes",
+    "defocus",
+    "binning"
+  ]
+}
