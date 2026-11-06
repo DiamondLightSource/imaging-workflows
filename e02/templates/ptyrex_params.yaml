@@ -66,9 +66,9 @@ spec:
       - name: modes
         value: "{{`{{ workflow.parameters.modes }}`}}"
       - name: opticx
-        value: "{{`{{ workflows.parameters.opticx}}`}}"
+        value: "{{`{{ workflow.parameters.opticx }}`}}"
       - name: opticy
-        value: "{{`{{ workflows.parameters.opticy}}`}}"
+        value: "{{`{{ workflow.parameters.opticy }}`}}"
       - name: upsampling
         value: "{{`{{ workflow.parameters.upsampling }}`}}"
       - name: bitdepth
