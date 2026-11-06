@@ -9,60 +9,8 @@ metadata:
     workflows.argoproj.io/description: |
       Runs a PtyPy reconstruction job inside a container based on data collected at I08-1.
     workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
-    workflows.diamond.ac.uk/parameter-schema.scanId: |
-      {
-        "title": "Scan Number",
-        "type": "integer"
-      }
-    workflows.diamond.ac.uk/parameter-schema.outpath: |
-      {
-        "title": "Path to output folder",
-        "type": "string",
-        "default": "processing/workflows/ptypy"
-      }
-    workflows.diamond.ac.uk/parameter-schema.nprocs: |
-      {
-        "title": "Nr. of processes",
-        "type": "integer",
-        "default": 1
-      }
-    workflows.diamond.ac.uk/parameter-schema.memory: |
-      {
-        "title": "Requested CPU memory",
-        "type": "string",
-        "pattern": "^[0-9]+[GMK]i$",
-        "default": "100Gi"
-      }
-    workflows.diamond.ac.uk/parameter-schema.usegpu: |
-      {
-        "title": "Use GPU",
-        "type": "boolean",
-        "default": true
-      }
-    workflows.diamond.ac.uk/parameter-schema.numiter: |
-      {
-        "title": "Nr. of iterations",
-        "type": "integer",
-        "default": 100
-      }
-    workflows.diamond.ac.uk/parameter-schema.probemodes: |
-      {
-        "title": "Nr. of probe modes",
-        "type": "integer",
-        "default": 1
-      }
-    workflows.diamond.ac.uk/parameter-schema.defocus: |
-      {
-        "title": "Expected defocus in microns",
-        "type": "integer",
-        "default": 50
-      }
-    workflows.diamond.ac.uk/parameter-schema.binning: |
-      {
-        "title": "Detector bin factor",
-        "type": "integer",
-        "default": 2
-      }
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/ptypy_i08-1_nexus_param.json" | nindent 6 }}
 
 spec:
   entrypoint: ptypy-pipeline
