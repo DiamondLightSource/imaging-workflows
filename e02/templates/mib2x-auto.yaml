@@ -181,8 +181,6 @@ spec:
           value: "{{`{{ workflow.parameters.nprocs }}`}}"
         - name: memory
           value: "{{`{{ workflow.parameters.memory }}`}}" 
-        - name: DEBUG
-          value: "{{`{{ workflow.parameters.DEBUG }}`}}" 
       script:
         image: ghcr.io/epsic-dls/mib2x:1.0.0
         imagePullPolicy: Always
@@ -192,7 +190,7 @@ spec:
         - name: OMP_NUM_THREADS
           value: "{{`{{ inputs.parameters.nprocs }}`}}"
         - name: M2X_DEBUG
-          value: "{{`{{ inputs.parameters.DEBUG }}`}}"
+          value: 0
         volumeMounts:
           - name: tmpdir    #session
             mountPath: /tmp
