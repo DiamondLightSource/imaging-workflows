@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: ptypy-p99-from-config
+  name: ptypy-p99-nexus
   labels:
     workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
@@ -9,36 +9,8 @@ metadata:
     workflows.argoproj.io/description: |
       Runs a PtyPy reconstruction job inside a container based on data collected at P99.
     workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
-    workflows.diamond.ac.uk/parameter-schema.scanId: |
-      {
-        "title": "Scan Number",
-        "type": "integer"
-      }
-    workflows.diamond.ac.uk/parameter-schema.outpath: |
-      {
-        "title": "Path to output folder",
-        "type": "string",
-        "default": "processing/workflows/ptypy"
-      }
-    workflows.diamond.ac.uk/parameter-schema.nprocs: |
-      {
-        "title": "Nr. of processes",
-        "type": "integer",
-        "default": 1
-      }
-    workflows.diamond.ac.uk/parameter-schema.memory: |
-      {
-        "title": "Requested CPU memory",
-        "type": "string",
-        "pattern": "^[0-9]+[GMK]i$",
-        "default": "20Gi"
-      }
-    workflows.diamond.ac.uk/parameter-schema.usegpu: |
-      {
-        "title": "Use GPU",
-        "type": "boolean",
-        "default": false
-      }
+    workflows.diamond.ac.uk/parameter-schema: |
+      {{- .Files.Get "schema/ptypy_p99_nexus_param.json" | nindent 6 }}
 spec:
   entrypoint: ptypy-pipeline
   arguments:
