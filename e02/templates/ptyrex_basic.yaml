@@ -94,11 +94,11 @@ spec:
           requests:
             cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
             memory: "{{`{{ inputs.parameters.memory }}`}}"
-            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            nvidia.com/gpu: 1
           limits:
             cpu: "{{`{{ inputs.parameters.nprocs }}`}}"
             memory: "{{`{{ inputs.parameters.memory }}`}}"
-            nvidia.com/gpu: "{{`{{ inputs.parameters.nprocs }}`}}"
+            nvidia.com/gpu: 1
     tolerations:
     - key: nvidia.com/gpu
       operator: Exists
