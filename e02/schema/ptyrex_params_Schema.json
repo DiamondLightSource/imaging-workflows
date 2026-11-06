@@ -126,9 +126,9 @@
             "title": "Relative output path within the visit"
         },
         "nprocs": {
-            "default": 4,
-            "maximum": 4,
-            "minimum": 0,
+            "default": 16,
+            "maximum": 32,
+            "minimum": 1,
             "title": "Nprocs",
             "type": "integer"
         },

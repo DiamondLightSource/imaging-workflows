@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: e02virtual-image-auto
+  name: e02-virtual-image-auto
   labels:
     workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
@@ -201,8 +201,6 @@ spec:
           value: "{{ `{{workflow.parameters.nprocs}}` }}"
         - name: memory
           value: "{{ `{{workflow.parameters.memory}}` }}" 
-        - name: DEBUG
-          value: "{{ `{{workflow.parameters.DEBUG}}` }}" 
       script:
         image: gitlab.diamond.ac.uk:5050/scisoft/ptychography/dimtools/mib2x
         imagePullPolicy: Always
@@ -211,8 +209,6 @@ spec:
           value: "{{ `{{inputs.parameters.nprocs}}` }}"
         - name: OMP_NUM_THREADS
           value: "{{ `{{inputs.parameters.nprocs}}` }}"
-        - name: M2X_DEBUG
-          value: "{{ `{{inputs.parameters.DEBUG}}` }}"
         volumeMounts:
           - name: tmpdir    #session
             mountPath: /tmp
