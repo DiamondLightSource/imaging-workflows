@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: Nbed-azimuthal-variance
+  name: nbed-azimuthal-variance
   labels:
     workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
