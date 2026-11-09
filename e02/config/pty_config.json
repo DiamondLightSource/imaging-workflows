@@ -5,7 +5,7 @@
     "facility": "dls",
     "instrument": "i13-1",
     "year": "2026",
-    "experiment_ID": "cm44159-4",
+    "experiment_ID": "<visit>",
     "data": {
       "load_flag": 1,
       "bit_depth": <bitdepth>,
