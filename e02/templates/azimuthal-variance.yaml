@@ -65,7 +65,8 @@ spec:
         command: [bash]
         source: |
           set -o pipefail
-          OUTPUT="{{`{{workflow.parameters.visitdir}}`}}"/processing/workflows
+          OUTPUT="{{`{{workflow.parameters.visitdir}}`}}"/processing/Merlin/"{{`{{workflow.parameters.sample}}`}}"/"{{`{{workflow.parameters.timestamp}}`}}"/azimuthal/
+          mkdir -p $OUTPUT
           RUN="$OUTPUT"/Azimuthal_variance_{{`{{workflow.parameters.sample}}`}}_{{`{{workflow.parameters.timestamp}}`}}
           python -m papermill "$OUTPUT"/Azimuthal_variance.ipynb "$RUN".ipynb \
             -p visit "{{`{{workflow.parameters.visitdir}}`}}" \
