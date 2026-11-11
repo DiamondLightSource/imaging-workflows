@@ -50,7 +50,7 @@ spec:
             mountPath: "{{`{{ workflow.parameters.visitdir }}`}}"
         command: [bash]
         source: |
-          OUTPUT="{{`{{workflow.parameters.visitdir}}`}}"/processing/workflows/
+          OUTPUT="{{`{{workflow.parameters.visitdir}}`}}"/processing/Merlin/"{{`{{workflow.parameters.sample}}`}}"/"{{`{{workflow.parameters.timestamp}}`}}"/azimuthal/
           mkdir -p $OUTPUT
           echo '{{ .Files.Get "notebooks/Azimuthal_variance.ipynb" | b64enc }}' | base64 -d > $OUTPUT/Azimuthal_variance.ipynb
 
