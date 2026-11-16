@@ -183,6 +183,14 @@ spec:
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}/papermill.log"
         archive:
           none: {}
+      - name: gif
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}/i14-xanes-auto.gif"
+        archive:
+          none: {}
+      - name: png
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}/i14-xanes-auto.png"
+        archive:
+          none: {}
     podSpecPatch: |
       containers:
       - name: main
