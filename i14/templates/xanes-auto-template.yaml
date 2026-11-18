@@ -159,13 +159,13 @@ spec:
           -p max_fractional_shift "{{`{{ inputs.parameters.max_fractional_shift }}`}}" \
           -p brute "{{`{{ inputs.parameters.brute }}`}}" \
           -p auto_processing False \
-          > $OUTPUT/papermill.log 2>&1
+          > $OUTPUT/notebook.log 2>&1
 
         python -m jupyter nbconvert $OUTPUT/xanes-notebook.ipynb \
           --to html --output xanes-output \
           --output-dir $OUTPUT
 
-        grep -q "$ERROR_TXT" "$OUTPUT/papermill.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
+        grep -q "$ERROR_TXT" "$OUTPUT/notebook.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
         # Raise an exit code to display failure of task if error text found in log
 
       volumeMounts:
@@ -180,7 +180,7 @@ spec:
         archive:
           none: {}
       - name: notebook-log
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}/papermill.log"
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}/notebook.log"
         archive:
           none: {}
       - name: gif
