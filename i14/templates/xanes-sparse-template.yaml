@@ -48,7 +48,7 @@ spec:
   templates:
   - name: xanes-sparse-mount-files
     script:
-      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.2
+      image: python:3.10
       command: [bash]
       source: |
         echo '{{ .Files.Get "notebooks/xanes_sparse_stack_autoprocessing0.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
@@ -115,12 +115,12 @@ spec:
           -p num_final_iteration 2000 \
           -p normalised "{{`{{ inputs.parameters.normalise }}`}}" \
           -p auto_processing False \
-          > $OUTPUT/papermill.log 2>&1
+          > $OUTPUT/notebook.log 2>&1
 
         python -m jupyter nbconvert $OUTPUT/xanes-sparse-notebook.ipynb \
           --to html --output xanes-sparse-output
 
-        grep -q "$ERROR_TXT" "$OUTPUT/papermill.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
+        grep -q "$ERROR_TXT" "$OUTPUT/notebook.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
         # Raise an exit code to display failure of task if error text found in log
 
       volumeMounts:
@@ -135,7 +135,15 @@ spec:
         archive:
           none: {}
       - name: notebook-log
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}/papermill.log"
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}/notebook.log"
+        archive:
+          none: {}
+      - name: log-residuals
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}/plots/log-residuals.png"
+        archive:
+          none: {}
+      - name: acquisition
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}/plots/acquisition.png"
         archive:
           none: {}
     podSpecPatch: |

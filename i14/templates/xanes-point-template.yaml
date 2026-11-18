@@ -47,7 +47,7 @@ spec:
   templates:
   - name: xanes-point-mount-files
     script:
-      image: gitlab.diamond.ac.uk:5050/i14/i14_utility/xanes:v0.1
+      image: python:3.10
       command: [bash]
       source: |
         echo '{{ .Files.Get "notebooks/xanes_point_autoprocessing0.ipynb" | b64enc }}' | base64 -d > /tmp/notebook.ipynb
@@ -58,7 +58,7 @@ spec:
     inputs:
       parameters:
       - name: outputFolder
-        value: "{{`{{ workflow.parameters.outputFolder }}`}}"
+        value: "{{`{{ workflow.parameters.outputFolder }}`}}/xanes-point"
       - name: scanNumber
         value: "{{`{{ workflow.parameters.scanNumber }}`}}"
       - name: edgeElement
@@ -83,13 +83,13 @@ spec:
           -p edge_element "{{`{{ inputs.parameters.edgeElement }}`}}" \
           -p normalise "{{`{{ inputs.parameters.normalise }}`}}" \
           -p auto_processing False \
-          > $OUTPUT/papermill.log 2>&1
+          > $OUTPUT/notebook-{{`{{ inputs.parameters.scanNumber }}`}}.log 2>&1
 
         python -m jupyter nbconvert $OUTPUT/xanes-point-notebook.ipynb \
           --to html --output xanes-point-output \
           --output-dir $OUTPUT
 
-        grep -q "$ERROR_TXT" "$OUTPUT/papermill.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
+        grep -q "$ERROR_TXT" "$OUTPUT/notebook-{{`{{ inputs.parameters.scanNumber }}`}}.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
         # Raise an exit code to display failure of task if error text found in log
 
       volumeMounts:
@@ -104,7 +104,11 @@ spec:
         archive:
           none: {}
       - name: notebook-log
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/papermill.log"
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/notebook-{{`{{ inputs.parameters.scanNumber }}`}}.log"
+        archive:
+          none: {}
+      - name: plot
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/plots/i14-{{`{{ inputs.parameters.scanNumber }}`}}_xanes_point.png"
         archive:
           none: {}
     podSpecPatch: |
