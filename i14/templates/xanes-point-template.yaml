@@ -58,7 +58,7 @@ spec:
     inputs:
       parameters:
       - name: outputFolder
-        value: "{{`{{ workflow.parameters.outputFolder }}`}}"
+        value: "{{`{{ workflow.parameters.outputFolder }}`}}/xanes-point"
       - name: scanNumber
         value: "{{`{{ workflow.parameters.scanNumber }}`}}"
       - name: edgeElement
