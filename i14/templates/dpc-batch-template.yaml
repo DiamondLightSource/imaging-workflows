@@ -25,7 +25,7 @@ spec:
           name: sessionspaces
           key: data_directory
     - name: outputFolder
-      value: /tmp/output
+      value: ""
     - name: multiScan
       value: '[{"multiScan":{ "start": 395328, "end": 395329, "excluded": [] }}]'
   volumeClaimTemplates:

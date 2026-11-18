@@ -30,7 +30,7 @@ spec:
     - name: multiScan
       value: '[{"multiScan":{ "start": 393420, "end": 393571, "excluded": [] }}]'
     - name: method
-      value: mutual
+      value: "mutual"
     - name: edgeElement
       value: "Pb"
     - name: edgeTransition
