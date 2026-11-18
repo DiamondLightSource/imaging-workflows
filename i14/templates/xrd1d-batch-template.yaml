@@ -24,7 +24,7 @@ spec:
           name: sessionspaces
           key: data_directory
     - name: outputFolder
-      value: /tmp/output
+      value: ""
     - name: multiScan
       value: '[{"multiScan":{ "start": 391572, "end": 391572, "excluded": [] }}]'
     - name: xrdProcessConfigUpload
@@ -38,7 +38,7 @@ spec:
     - name: backgroundType
       value: ""
     - name: polynomialOrder
-      value: 0
+      value: "0"
   volumeClaimTemplates:
   - metadata:
       name: tmp

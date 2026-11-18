@@ -34,7 +34,7 @@ spec:
     - name: edgeTransition
       value: "Ka"
     - name: normalise
-      value: true
+      value: "true"
   volumeClaimTemplates:
   - metadata:
       name: tmp
