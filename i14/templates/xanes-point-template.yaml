@@ -107,6 +107,10 @@ spec:
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/notebook-{{`{{ inputs.parameters.scanNumber }}`}}.log"
         archive:
           none: {}
+      - name: plot
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/plots/i14-{{`{{ inputs.parameters.scanNumber }}`}}_xanes_point.png"
+        archive:
+          none: {}
     podSpecPatch: |
       containers:
       - name: main

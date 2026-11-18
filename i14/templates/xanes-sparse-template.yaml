@@ -138,6 +138,14 @@ spec:
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}/notebook.log"
         archive:
           none: {}
+      - name: log-residuals
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}/plots/log-residuals.png"
+        archive:
+          none: {}
+      - name: acquisition
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes_sparse_{{`{{ inputs.parameters.first }}`}}_{{`{{ inputs.parameters.last }}`}}/plots/acquisition.png"
+        archive:
+          none: {}
     podSpecPatch: |
       containers:
       - name: main
