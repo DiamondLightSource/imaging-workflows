@@ -24,9 +24,9 @@ spec:
           name: sessionspaces
           key: data_directory
     - name: outputFolder
-      value: /tmp/output
-    - name: scanNumbers
-      value: "[391572]"
+      value: ""
+    - name: multiScan
+      value: '[{"multiScan":{ "start": 391572, "end": 391572, "excluded": [] }}]'
     - name: xrdProcessConfigUpload
       value: ""
     - name: calibrationPath
@@ -38,7 +38,7 @@ spec:
     - name: backgroundType
       value: ""
     - name: polynomialOrder
-      value: 0
+      value: "0"
   volumeClaimTemplates:
   - metadata:
       name: tmp
@@ -72,7 +72,7 @@ spec:
         arguments:
           parameters:
           - name: outputFolder
-            value: "{{`{{ workflow.parameters.outputFolder }}`}}"
+            value: "{{`{{ workflow.parameters.outputFolder }}`}}/xrd1d"
           - name: scanNumber
             value: "{{`{{ item }}`}}"
           - name: xrdProcessConfigUpload
@@ -130,7 +130,7 @@ spec:
       source: |
         ERROR_TXT="raise error"
         ERROR_STR="An error arose within the executed notebook. Please open the output file to check."
-        OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}"
+        OUTPUT="{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}"
         mkdir -p $OUTPUT
 
         python -m papermill /tmp/notebook.ipynb \
@@ -143,16 +143,16 @@ spec:
           -p flat_path "{{`{{ inputs.parameters.flatPath }}`}}" \
           -p background_type "{{`{{ inputs.parameters.backgroundType }}`}}" \
           -p polynomial_order "{{`{{ inputs.parameters.polynomialOrder }}`}}" \
-          > $OUTPUT/papermill.log 2>&1
+          > $OUTPUT/notebook-{{`{{ inputs.parameters.scanNumber }}`}}.log 2>&1
 
         python -m jupyter nbconvert "$OUTPUT/xrd1d-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" \
           --to html --output xanes-sparse-output
 
         python -m jupyter nbconvert "$OUTPUT/xrd1d-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" \
           --to html --no-input --output xrd1d-output-{{`{{ inputs.parameters.scanNumber }}`}} \
-          --output-dir "{{`{{ inputs.parameters.outputFolder }}`}}"
+          --output-dir $OUTPUT
 
-        grep -q "$ERROR_TXT" "$OUTPUT/papermill.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
+        grep -q "$ERROR_TXT" "$OUTPUT/notebook-{{`{{ inputs.parameters.scanNumber }}`}}.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
         # Raise an exit code to display failure of task if error text found in log
 
       volumeMounts:
@@ -163,11 +163,15 @@ spec:
     outputs:
       artifacts:
       - name: xrd1d-output
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xrd1d-output-{{`{{ inputs.parameters.scanNumber }}`}}.html"
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}/xrd1d-output-{{`{{ inputs.parameters.scanNumber }}`}}.html"
         archive:
           none: {}
       - name: notebook-log
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/papermill.log"
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}/notebook-{{`{{ inputs.parameters.scanNumber }}`}}.log"
+        archive:
+          none: {}
+      - name: azimuthal-plot
+        path: "{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}/azimuthal-integrated-plot.png"
         archive:
           none: {}
     podSpecPatch: |
