@@ -146,9 +146,6 @@ spec:
           > $OUTPUT/notebook-{{`{{ inputs.parameters.scanNumber }}`}}.log 2>&1
 
         python -m jupyter nbconvert "$OUTPUT/xrd1d-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" \
-          --to html --output xanes-sparse-output
-
-        python -m jupyter nbconvert "$OUTPUT/xrd1d-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb" \
           --to html --no-input --output xrd1d-output-{{`{{ inputs.parameters.scanNumber }}`}} \
           --output-dir $OUTPUT
 
