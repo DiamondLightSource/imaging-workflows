@@ -1,13 +1,13 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: e02-mib2x
+  name: mib-single
   labels:
     workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
-    workflows.argoproj.io/title: ePSIC single mib conversion
+    workflows.argoproj.io/title: ePSIC - single mib file conversion
     workflows.argoproj.io/description: |
-      Convert MIB file to hdf5/hspy files
+      Converts a single time-stamped mib file within a sample directory of a visit
     workflows.diamond.ac.uk/repository: "https://github.com/DiamondLightSource/imaging-workflows"
     workflows.diamond.ac.uk/parameter-schema.mib_path: |
       {
