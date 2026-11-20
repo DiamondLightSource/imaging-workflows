@@ -162,9 +162,8 @@ spec:
           > $OUTPUT/notebook.log 2>&1
 
         python -m jupyter nbconvert $OUTPUT/xanes-notebook.ipynb \
-          --to html --ExtractOutputPreprocessor.enabled=True --NbConvertApp.output_files_dir='plots' \
-          --ExtractOutputPreprocessor.output_filename_template='plot-{cell_index}-{index}{extension}' \
-          --output xanes-output --output-dir $OUTPUT
+          --to html --output xanes-output \
+          --output-dir $OUTPUT
 
         grep -q "$ERROR_TXT" "$OUTPUT/notebook.log" && { echo "$ERROR_STR" >&2; exit 1; } || exit 0
         # Raise an exit code to display failure of task if error text found in log
@@ -184,10 +183,6 @@ spec:
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}/notebook.log"
         archive:
           none: {}
-      - name: plots
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}/plots/"
-        archive:
-          tar: {}
       - name: gif
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/xanes-{{`{{ inputs.parameters.first }}`}}-{{`{{ inputs.parameters.last }}`}}/i14-xanes-auto.gif"
         archive:

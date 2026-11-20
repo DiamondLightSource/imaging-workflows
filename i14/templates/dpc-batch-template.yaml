@@ -114,8 +114,7 @@ spec:
           > $OUTPUT/notebook-{{`{{ inputs.parameters.scanNumber }}`}}.log 2>&1
 
         python -m jupyter nbconvert $OUTPUT/dpc-notebook-{{`{{ inputs.parameters.scanNumber }}`}}.ipynb \
-          --to html --no-input --ExtractOutputPreprocessor.enabled=True --NbConvertApp.output_files_dir='plots' \
-          --ExtractOutputPreprocessor.output_filename_template='plot-{cell_index}-{index}{extension}' \
+          --to html --no-input \
           --output dpc-output-{{`{{ inputs.parameters.scanNumber }}`}} \
           --output-dir $OUTPUT
 
@@ -135,22 +134,6 @@ spec:
           none: {}
       - name: notebook-log
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}/notebook-{{`{{ inputs.parameters.scanNumber }}`}}.log"
-        archive:
-          none: {}
-      - name: plots
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}/plots/"
-        archive:
-          tar: {}
-      - name: plot-array
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}/plots/plot-45-0.png"
-        archive:
-          none: {}
-      - name: phase-gradient
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}/plots/plot-42-5.png"
-        archive:
-          none: {}
-      - name: abs-map
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}/plots/plot-42-0.png"
         archive:
           none: {}
     podSpecPatch: |
