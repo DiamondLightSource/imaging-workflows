@@ -167,10 +167,6 @@ spec:
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}/notebook-{{`{{ inputs.parameters.scanNumber }}`}}.log"
         archive:
           none: {}
-      - name: azimuthal-plot
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}/azimuthal-integrated-plot.png"
-        archive:
-          none: {}
     podSpecPatch: |
       containers:
       - name: main
