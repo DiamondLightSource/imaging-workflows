@@ -136,22 +136,6 @@ spec:
         path: "{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}/notebook-{{`{{ inputs.parameters.scanNumber }}`}}.log"
         archive:
           none: {}
-      - name: plots
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}/plots/array.png"
-        archive:
-          none: {}
-      - name: phase-gradient-exc
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}/plots/phase_gradient_norm_exclude.png"
-        archive:
-          none: {}
-      - name: phase-gradient-inc
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}/plots/phase_gradient_norm_include.png"
-        archive:
-          none: {}
-      - name: abs-map
-        path: "{{`{{ inputs.parameters.outputFolder }}`}}/{{`{{ inputs.parameters.scanNumber }}`}}/plots/absorption_map.png"
-        archive:
-          none: {}
     podSpecPatch: |
       containers:
       - name: main
