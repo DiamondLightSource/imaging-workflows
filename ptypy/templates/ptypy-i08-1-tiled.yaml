@@ -65,12 +65,12 @@ spec:
       source: |
           echo '{{ .Files.Get "scripts/prepare_config_i08-1.py" | b64enc }}' | base64 -d > /tmp/script.py
           python /tmp/script.py \
-          --scan_id \
-          --numiter \
-          --probe_modes \
-          --binning \
-          --defocus_microns \
-          --use_gpu \
+          --scan_id="{{`{{ workflows.parameters.scanId }}`}}" \
+          --visit_dir="{{`{{ workflows.parameters.visitdir}}`}}" \
+          --numiter={{`{{ workflows.parameters.numiter }}`}} \
+          --probe_modes={{`{{ workflows.parameters.probemodes}}`}} \
+          --binning={{`{{ workflows.parameters.binning }}`}} \
+          --defocus_microns={{`{{ workflows.parameters.defocus }}`}}
     outputs:
       parameters:
         - name: config
