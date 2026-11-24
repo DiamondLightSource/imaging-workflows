@@ -63,14 +63,18 @@ spec:
         mountPath: /tmp
       command: [bash]
       source: |
+          OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/"{{`{{ workflow.parameters.outpath }}`}}"
+          mkdir -p $OUTPUT
           echo '{{ .Files.Get "scripts/prepare_config_i08-1.py" | b64enc }}' | base64 -d > /tmp/script.py
+          echo '{{ .Files.Get "config/i08-1_raar.yaml" | b64enc }}' | base64 -d > $OUTPUT/scan_$ID/ptypy_config.yaml
           python /tmp/script.py \
           --scan_id="{{`{{ workflows.parameters.scanId }}`}}" \
           --visit_dir="{{`{{ workflows.parameters.visitdir}}`}}" \
           --numiter={{`{{ workflows.parameters.numiter }}`}} \
           --probe_modes={{`{{ workflows.parameters.probemodes}}`}} \
           --binning={{`{{ workflows.parameters.binning }}`}} \
-          --defocus_microns={{`{{ workflows.parameters.defocus }}`}}
+          --defocus_microns={{`{{ workflows.parameters.defocus }}`}} \
+          --usegpu={{`{{ workflows.parameters.usegpu}}`}}
     outputs:
       parameters:
         - name: config

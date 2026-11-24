@@ -22,6 +22,7 @@ def parse(args: Sequence[str] | None = None) -> Namespace:
     parser.add_argument("--probe_modes", type=int)
     parser.add_argument("--binning", type=int)
     parser.add_argument("--defocus_microns", type=int)
+    parser.add_argument("--usegpu", type=bool)
     return parser.parse_args(args)
 
 
@@ -51,6 +52,9 @@ def main(args: Sequence[str] | None = None) -> None:
         data = yaml.load(f, Loader=yaml.FullLoader)
 
     data["parameter_tree"]["engines"]["engine0"]["numiter"] = params.numiter
+    data["parameter_tree"]["engines"]["engine0"]["name"] = (
+        "RAAR_cupy" if params.usegpu else "RAAR"
+    )
 
     data_scan = data["parameter_tree"]["scans"]["scan_00"]
 
