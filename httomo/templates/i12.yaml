@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ClusterWorkflowTemplate
 metadata:
-  name: i12-httomo
+  name: httomo-i12
   labels:
     workflows.diamond.ac.uk/science-group-imaging: "true"
   annotations:
