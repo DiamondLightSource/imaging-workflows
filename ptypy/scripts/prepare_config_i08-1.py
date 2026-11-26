@@ -18,6 +18,7 @@ def parse(args: Sequence[str] | None = None) -> Namespace:
     parser = ArgumentParser()
     parser.add_argument("--scan_id")
     parser.add_argument("--visit_dir", type=pathlib.Path)
+    parser.add_argument("--outpath", type=pathlib.Path)
     parser.add_argument("--numiter", type=int)
     parser.add_argument("--probe_modes", type=int)
     parser.add_argument("--binning", type=int)
@@ -28,14 +29,21 @@ def parse(args: Sequence[str] | None = None) -> Namespace:
 
 def main(args: Sequence[str] | None = None) -> None:
     params = parse(args)
-    print(params)
 
     instrument_session = str(params.visit_dir).split("/")[-1]
     proposal_code = instrument_session.split("-")[0]
 
-    client = from_uri(os.environ["TILED_URL"], auth=WorkflowsAuth())
+    # client = from_uri(os.environ["TILED_URL"], auth=WorkflowsAuth())
+    client = from_uri("https://tiled.diamond.ac.uk")
 
     scan = client["i08-1"][proposal_code][instrument_session][params.scan_id]["primary"]
+
+    scan_number = client["i08-1"][proposal_code][instrument_session][
+        params.scan_id
+    ].metadata["start"]["scan_id"]
+
+    with open("/tmp/scan_number.txt", "w") as w:
+        w.write(str(scan_number))
 
     AndorMarana = scan["AndorMarana"].data_sources()[0]
     intensities_key = AndorMarana.parameters["dataset"]
@@ -48,7 +56,7 @@ def main(args: Sequence[str] | None = None) -> None:
     SampleY = scan["SampleY"].data_sources()[0]
     slow_key = SampleY.parameters["dataset"]
 
-    with open("./test_config.yaml", "r") as f:
+    with open("/tmp/ptypy_config.yaml", "r") as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
 
     data["parameter_tree"]["engines"]["engine0"]["numiter"] = params.numiter
@@ -73,7 +81,14 @@ def main(args: Sequence[str] | None = None) -> None:
 
     data_scan["coherence"]["num_probe_modes"] = params.probe_modes
 
-    with open("./ptypy_config.yaml", "w") as o:
+    config_path = os.path.join(
+        params.visit_dir, params.outpath, f"scan_{scan_number}", "python_config.yaml"
+    )
+
+    with open("/tmp/config_path.txt", "w") as w:
+        w.write(config_path)
+
+    with open(config_path, "w") as o:
         yaml.dump(data, o, sort_keys=False)
 
 
