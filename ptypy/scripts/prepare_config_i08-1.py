@@ -45,7 +45,7 @@ def main(args: Sequence[str] | None = None) -> None:
     with open("/tmp/scan_number.txt", "w") as w:
         w.write(str(scan_number))
 
-    AndorMarana = scan["AndorMarana"].data_sources()[0]
+    AndorMarana = scan["andor_detector"].data_sources()[0]
     intensities_key = AndorMarana.parameters["dataset"]
     intensities_file = AndorMarana.assets[0].data_uri.removeprefix("file://localhost")
 
