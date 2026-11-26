@@ -63,13 +63,13 @@ spec:
         mountPath: /tmp
       command: [bash]
       source: |
-          OUTPUT="{{`{{ workflow.parameters.visitdir }}`}}"/"{{`{{ workflow.parameters.outpath }}`}}"
           mkdir -p $OUTPUT
           echo '{{ .Files.Get "scripts/prepare_config_i08-1.py" | b64enc }}' | base64 -d > /tmp/script.py
-          echo '{{ .Files.Get "config/i08-1_raar.yaml" | b64enc }}' | base64 -d > $OUTPUT/scan_$ID/ptypy_config.yaml
+          echo '{{ .Files.Get "config/i08-1_raar.yaml" | b64enc }}' | base64 -d > /tmp/ptypy_config.yaml
           python /tmp/script.py \
           --scan_id="{{`{{ workflows.parameters.scanId }}`}}" \
           --visit_dir="{{`{{ workflows.parameters.visitdir}}`}}" \
+          --outpath="{{`{{ workflows.parameters.outpath }}`}}"
           --numiter={{`{{ workflows.parameters.numiter }}`}} \
           --probe_modes={{`{{ workflows.parameters.probemodes}}`}} \
           --binning={{`{{ workflows.parameters.binning }}`}} \
@@ -78,7 +78,9 @@ spec:
     outputs:
       parameters:
         - name: config
-          value: "{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}/scan_{{`{{ workflow.parameters.scanId }}`}}/ptypy_config.yaml"
+          valueFrom: /tmp/config_path.txt
+        - name: scan_number
+          valueFrom: /tmp/scan_number.txt
     volumes:
     - name: session
       hostPath:
@@ -89,6 +91,7 @@ spec:
     inputs:
       parameters:
       - name: config
+      - name: scan_number
     script:
       image: python:3.14
       volumeMounts:
@@ -100,7 +103,7 @@ spec:
       source: |
         import re
         OUTPATH="{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}"
-        SCAN="{{`{{ workflow.parameters.scanId }}`}}"
+        SCAN="{{`{{ inputs.parameters.scan_number }}`}}"
         CONFIG="{{`{{ inputs.parameters.config }}`}}"
         with open("/tmp/out.txt", "w") as o:
           with open(CONFIG, 'r') as f:
@@ -135,7 +138,7 @@ spec:
           - name: config
             value: "{{`{{ tasks.prepare.outputs.parameters.config }}`}}"
           - name: id
-            value: "{{`{{ workflow.parameters.scanId }}`}}"
+            value: "{{`{{ tasks.prepare.outputs.parameters.scan_number }}`}}"
           - name: outpath
             value: "{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}"
           - name: nprocs
@@ -154,7 +157,7 @@ spec:
           - name: config
             value: "{{`{{ tasks.prepare.outputs.parameters.config }}`}}"
           - name: id
-            value: "{{`{{ workflow.parameters.scanId }}`}}"
+            value: "{{`{{ tasks.prepare.outputs.parameters.scan_number }}`}}"
           - name: outpath
             value: "{{`{{ workflow.parameters.visitdir }}`}}/{{`{{ workflow.parameters.outpath }}`}}"
           - name: nprocs
