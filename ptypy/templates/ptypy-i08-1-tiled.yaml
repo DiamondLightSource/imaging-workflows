@@ -77,10 +77,12 @@ spec:
           --usegpu={{`{{ workflows.parameters.usegpu}}`}}
     outputs:
       parameters:
-        - name: config
-          valueFrom: /tmp/config_path.txt
-        - name: scan_number
-          valueFrom: /tmp/scan_number.txt
+      - name: config
+        valueFrom:
+          path: /tmp/config_path.txt
+      - name: scan_number
+        valueFrom:
+          path: /tmp/scan_number.txt
     volumes:
     - name: session
       hostPath:
