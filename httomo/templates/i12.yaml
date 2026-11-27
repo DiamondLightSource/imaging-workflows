@@ -165,6 +165,7 @@ spec:
         from pathlib import Path
         import h5py
         import tifffile
+        import numpy as np
 
         MAX_SLICES_IN_ARTIFACT = 10
         OUTPUT_FILENAME = "multi-page-tiff.tif"
@@ -187,11 +188,13 @@ spec:
             )
 
             if extract_all_slices_into_artifact:
-                image_stack = dataset[:]
+                image_stack = np.swapaxes(dataset[:], 0, 1)
             else:
                 midpoint = total_no_of_images // 2
                 start = midpoint - MAX_SLICES_IN_ARTIFACT // 2
-                image_stack = dataset[:, start : start + MAX_SLICES_IN_ARTIFACT, :]
+                image_stack = np.swapaxes(
+                    dataset[:, start : start + MAX_SLICES_IN_ARTIFACT, :], 0, 1
+                )
 
             tifffile.tifffile.imwrite(OUT_PATH, image_stack)
       volumeMounts:
